@@ -44,7 +44,7 @@ export default function LoginPage() {
         >
           {/* Logo Center */}
           <div className="flex justify-center mb-8">
-            <Link href="/" className="flex flex-row items-end group select-none hover:opacity-80 transition-opacity">
+            <Link href="/" dir="ltr" className="flex flex-row items-end group select-none hover:opacity-80 transition-opacity">
               <svg width="36" height="20" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-transform group-hover:scale-105 overflow-visible mb-[6px]">
                 <defs>
                   <linearGradient id="infinityLogin" x1="0%" y1="0%" x2="100%" y2="100%">

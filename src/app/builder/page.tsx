@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import domtoimage from 'dom-to-image-more';
 import { jsPDF } from 'jspdf';
 import {
   candidates,
@@ -260,6 +259,7 @@ export default function BuilderPage() {
       }
 
       const scale = 2;
+      const domtoimage = (await import('dom-to-image-more')).default;
       const imgData = await domtoimage.toPng(targetElement, {
         bgcolor: '#ffffff',
         width: targetElement.clientWidth * scale,
@@ -786,7 +786,7 @@ export default function BuilderPage() {
       <div className="flex flex-col h-screen bg-bg text-txt overflow-hidden">
         {/* ── Premium Top Bar ── */}
         <header className="h-16 min-h-[64px] flex items-center justify-between px-4 sm:px-6 bg-surface/80 backdrop-blur-xl border-b border-border z-50 shadow-sm">
-          <Link href="/" className="flex flex-row items-end group select-none hover:opacity-80 transition-opacity">
+          <Link href="/" dir="ltr" className="flex flex-row items-end group select-none hover:opacity-80 transition-opacity">
             <svg width="28" height="16" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-transform group-hover:scale-105 overflow-visible mb-[4px]">
               <defs>
                 <linearGradient id="infinityGradientBuilder" x1="0%" y1="0%" x2="100%" y2="100%">

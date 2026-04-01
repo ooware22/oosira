@@ -24,6 +24,7 @@
   --font-pacifico: var(--font-pacifico), cursive;
   --font-body: var(--font-inter), sans-serif;
   --font-sans: var(--font-inter), sans-serif;
+  --font-arabic: var(--font-cairo), sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
   --font-raleway: 'Raleway', sans-serif;
   --font-baskerville: 'Libre Baskerville', serif;
@@ -62,6 +63,11 @@
     font-size: 13px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Override for Arabic */
+  html[dir="rtl"], html[dir="rtl"] body, html[dir="rtl"] input, html[dir="rtl"] textarea, html[dir="rtl"] button {
+    font-family: var(--font-arabic);
   }
 
   a { color: inherit; text-decoration: none; }

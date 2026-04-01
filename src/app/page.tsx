@@ -30,9 +30,9 @@ export default function LandingPage() {
           initial={{ opacity: 0, x: dir === 'rtl' ? 20 : -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex items-center w-1/3"
+          className="flex items-center shrink-0 sm:w-1/3"
         >
-          <Link href="/" className="flex flex-row items-end group select-none">
+          <Link href="/" dir="ltr" className="flex flex-row items-end group select-none">
             {/* Beautiful Custom SVG Infinity Logo */}
             <svg width="36" height="20" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-transform group-hover:scale-105 overflow-visible mb-[7px]">
               <defs>
@@ -72,14 +72,14 @@ export default function LandingPage() {
           initial={{ opacity: 0, x: dir === 'rtl' ? -20 : 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex gap-4 items-center justify-end w-1/3"
+          className="flex gap-1.5 sm:gap-4 items-center justify-end flex-wrap sm:flex-nowrap sm:w-1/3"
         >
           <ThemeToggle />
           <LanguageToggle />
           
-          <Link href="/login" className="group relative hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-txt text-bg font-semibold text-[13px] transition-all hover:opacity-90 active:scale-95 shadow-sm">
+          <Link href="/login" className="group relative inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-txt text-bg font-semibold text-[12px] sm:text-[13px] transition-all hover:opacity-90 active:scale-95 shadow-sm ml-1 sm:ml-0 rtl:ml-0 rtl:mr-1 sm:rtl:mr-0">
             {t('nav.login')}
-            <ArrowRightIcon className={`w-3.5 h-3.5 transition-transform group-hover:${dir === 'rtl' ? '-translate-x-1' : 'translate-x-1'} rtl:rotate-180`} />
+            <ArrowRightIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform group-hover:${dir === 'rtl' ? '-translate-x-1' : 'translate-x-1'} rtl:rotate-180`} />
           </Link>
         </motion.div>
       </nav>

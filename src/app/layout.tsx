@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter, Kalam, Pacifico } from 'next/font/google';
+import { Inter, Kalam, Pacifico, Cairo } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', display: 'swap' });
 const kalam = Kalam({ weight: ['300', '400', '700'], subsets: ['latin'], variable: '--font-kalam', display: 'swap' });
 const pacifico = Pacifico({ weight: ['400'], subsets: ['latin'], variable: '--font-pacifico', display: 'swap' });
 
@@ -23,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${kalam.variable} ${pacifico.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${cairo.variable} ${kalam.variable} ${pacifico.variable}`}>
       <body suppressHydrationWarning className="font-sans antialiased">
         <Providers>
           {children}
