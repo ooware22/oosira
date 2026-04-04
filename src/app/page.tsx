@@ -34,7 +34,7 @@ export default function LandingPage() {
         >
           <Link href="/" dir="ltr" className="flex flex-row items-end group select-none">
             {/* Beautiful Custom SVG Infinity Logo */}
-            <svg width="36" height="20" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-transform group-hover:scale-105 overflow-visible mb-[7px]">
+            <svg width="36" height="20" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.6)] overflow-visible mb-1">
               <defs>
                 <linearGradient id="infinityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="currentColor" />
@@ -62,10 +62,22 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           className="hidden md:flex items-center justify-center w-1/3 gap-6 text-[13px] font-medium text-txt-muted"
         >
-          <Link href="#" className="hover:text-txt transition-colors">Product</Link>
-          <Link href="#" className="hover:text-txt transition-colors">Use Cases</Link>
-          <Link href="#" className="hover:text-txt transition-colors">Pricing</Link>
-          <Link href="#" className="hover:text-txt transition-colors">Resources</Link>
+          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
+            Product
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
+          </Link>
+          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
+            Use Cases
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
+          </Link>
+          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
+            Pricing
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
+          </Link>
+          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
+            Resources
+            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
+          </Link>
         </motion.div>
         
         <motion.div
@@ -77,9 +89,12 @@ export default function LandingPage() {
           <ThemeToggle />
           <LanguageToggle />
           
-          <Link href="/login" className="group relative inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-txt text-bg font-semibold text-[12px] sm:text-[13px] transition-all hover:opacity-90 active:scale-95 shadow-sm ml-1 sm:ml-0 rtl:ml-0 rtl:mr-1 sm:rtl:mr-0">
-            {t('nav.login')}
-            <ArrowRightIcon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform group-hover:${dir === 'rtl' ? '-translate-x-1' : 'translate-x-1'} rtl:rotate-180`} />
+          <Link href="/login" className="group relative inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-txt text-bg font-semibold text-[12px] sm:text-[13px] transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md hover:shadow-txt/20 ml-1 sm:ml-0 rtl:ml-0 rtl:mr-1 sm:rtl:mr-0 overflow-hidden">
+            {/* Quick Light Sweep */}
+            <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-bg/20 to-transparent -skew-x-12 transition-all duration-500 ease-in-out z-0"></div>
+            
+            <span className="relative z-10">{t('nav.login')}</span>
+            <ArrowRightIcon className={`relative z-10 w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:${dir === 'rtl' ? '-translate-x-1' : 'translate-x-1'} rtl:rotate-180`} />
           </Link>
         </motion.div>
       </nav>
@@ -98,7 +113,7 @@ export default function LandingPage() {
               opacity: { duration: 0.8 },
               y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
             }}
-            className="font-display text-[45px] sm:text-[60px] lg:text-[75px] font-bold text-txt leading-[1.1] mb-6 w-full max-w-none px-4 -rotate-1"
+            className="font-display text-[45px] sm:text-[60px] lg:text-[75px] font-bold text-txt leading-[1.1] mb-12 w-full max-w-none px-4 tracking-tight"
           >
             {t('hero.title1')} <br />
             {(() => {
@@ -107,7 +122,7 @@ export default function LandingPage() {
               if (lastSpaceIndex === -1) {
                 return (
                   <span className="relative inline-block whitespace-nowrap">
-                    <span className="font-pacifico font-normal text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 pb-1 pr-2">{title2}</span>
+                    <span className="font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 pb-1 pr-2">{title2}</span>
                     <motion.svg 
                       className="absolute -bottom-1 sm:-bottom-3 left-0 w-full h-4 sm:h-6 z-[-1]" 
                       viewBox="0 0 100 20" 
@@ -144,7 +159,7 @@ export default function LandingPage() {
                 <>
                   {rest}
                   <span className="relative inline-block whitespace-nowrap pr-2 pl-2">
-                    <span className="font-pacifico font-normal text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 pb-1 pr-2">{last}</span>
+                    <span className="font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 pb-1 pr-2">{last}</span>
                     <motion.svg 
                       className="absolute -bottom-1 sm:-bottom-3 left-0 w-full h-4 sm:h-6 z-[-1]" 
                       viewBox="0 0 100 20" 
@@ -196,14 +211,24 @@ export default function LandingPage() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center"
           >
-            {/* Dark button (Light in dark mode, Black in light mode) */}
-            <Link href="/builder" className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full bg-txt text-bg font-medium text-[15px] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-txt/10">
-              {t('hero.cta_primary')}
-              <ArrowRightIcon className={`w-4 h-4 transition-transform group-hover:${dir === 'rtl' ? '-translate-x-1' : 'translate-x-1'} rtl:rotate-180`} />
+            {/* Premium Gradient Button with Creative Hover */}
+            <Link href="/builder" className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full text-white font-medium text-[15px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 shadow-lg shadow-blue-500/25 hover:shadow-cyan-500/40 hover:shadow-xl overflow-hidden">
+              {/* Shifting Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 dark:from-blue-500 dark:via-cyan-300 dark:to-blue-500 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 ease-out z-0"></div>
+              
+              {/* Light Beam Sweep Effect */}
+              <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 ease-in-out z-0"></div>
+
+              {/* Text and Icon */}
+              <span className="relative z-10 drop-shadow-sm">{t('hero.cta_primary')}</span>
+              <ArrowRightIcon className={`relative z-10 w-4 h-4 transition-transform duration-300 ease-in-out group-hover:${dir === 'rtl' ? '-translate-x-1.5' : 'translate-x-1.5'} rtl:rotate-180`} />
             </Link>
-            {/* Soft Gray background button */}
-            <Link href="#features" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-black/5 dark:bg-white/10 text-txt font-medium text-[15px] transition-all hover:bg-black/10 dark:hover:bg-white/20 active:scale-[0.98]">
-              {t('hero.cta_secondary')}
+            {/* Creative Secondary Button */}
+            <Link href="#features" className="group relative w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-black/5 dark:bg-white/5 border border-transparent hover:border-black/10 dark:hover:border-white/10 text-txt font-medium text-[15px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-white/5 overflow-hidden">
+              {/* Secondary Light Beam Sweep Effect */}
+              <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-txt/5 to-transparent -skew-x-12 transition-all duration-700 ease-in-out z-0"></div>
+              
+              <span className="relative z-10">{t('hero.cta_secondary')}</span>
             </Link>
           </motion.div>
         </section>

@@ -5,7 +5,7 @@ import { LanguageProvider } from '@/app/i18n/LanguageContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <LanguageProvider>
         {children}
       </LanguageProvider>

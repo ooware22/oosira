@@ -20,10 +20,11 @@
   --color-danger: #EF4444;
   --color-danger-dim: rgba(239,68,68,0.12);
 
-  --font-display: var(--font-kalam), cursive;
+  --font-display: var(--font-outfit), var(--font-inter), sans-serif;
   --font-pacifico: var(--font-pacifico), cursive;
+  --font-kalam: var(--font-kalam), cursive;
   --font-body: var(--font-inter), sans-serif;
-  --font-sans: var(--font-inter), sans-serif;
+  --font-sans: var(--font-outfit), var(--font-inter), sans-serif;
   --font-arabic: var(--font-cairo), sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
   --font-raleway: 'Raleway', sans-serif;

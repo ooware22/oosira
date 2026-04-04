@@ -45,7 +45,7 @@ export default function LoginPage() {
           {/* Logo Center */}
           <div className="flex justify-center mb-8">
             <Link href="/" dir="ltr" className="flex flex-row items-end group select-none hover:opacity-80 transition-opacity">
-              <svg width="36" height="20" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-transform group-hover:scale-105 overflow-visible mb-[6px]">
+              <svg width="36" height="20" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-transform group-hover:scale-105 overflow-visible mb-1">
                 <defs>
                   <linearGradient id="infinityLogin" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="currentColor" />
@@ -90,9 +90,15 @@ export default function LoginPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center px-4 py-3.5 rounded-xl bg-txt text-bg font-semibold text-[14px] transition-all hover:opacity-90 active:scale-[0.98] shadow-md shadow-txt/10"
+                  className="group relative w-full inline-flex items-center justify-center px-4 py-3.5 rounded-xl text-white font-medium text-[14px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 shadow-lg shadow-blue-500/25 hover:shadow-cyan-500/40 hover:shadow-xl overflow-hidden cursor-pointer"
                 >
-                  {t('auth.submit_login')}
+                  {/* Shifting Gradient Background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 dark:from-blue-500 dark:via-cyan-300 dark:to-blue-500 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 ease-out z-0"></div>
+                  
+                  {/* Light Beam Sweep Effect */}
+                  <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 ease-in-out z-0 pointer-events-none"></div>
+
+                  <span className="relative z-10 drop-shadow-sm pointer-events-none">{t('auth.submit_login')}</span>
                 </button>
               </div>
             </form>
