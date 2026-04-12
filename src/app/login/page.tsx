@@ -83,16 +83,16 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.password')}</label>
-                  <Link href="#" className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline">{t('auth.forgot')}</Link>
-                </div>
+                <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.password')}</label>
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
                   className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
                 />
+                <div className="flex justify-end pt-1">
+                  <Link href="#" className="text-[11px] font-medium text-txt-muted hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors">{t('auth.forgot')}</Link>
+                </div>
               </div>
 
               <div className="pt-2">

@@ -63,19 +63,19 @@ export default function LandingPage() {
           className="hidden md:flex items-center justify-center w-1/3 gap-6 text-[13px] font-medium text-txt-muted"
         >
           <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            Product
+            {t('nav.product')}
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
           </Link>
           <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            Use Cases
+            {t('nav.useCases')}
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
           </Link>
           <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            Pricing
+            {t('nav.pricing')}
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
           </Link>
           <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            Resources
+            {t('nav.resources')}
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
           </Link>
         </motion.div>
@@ -124,7 +124,7 @@ export default function LandingPage() {
                   <span className="relative inline-block whitespace-nowrap">
                     <span className="font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 pb-1 pr-2">{title2}</span>
                     <motion.svg 
-                      className="absolute -bottom-1 sm:-bottom-3 left-0 w-full h-4 sm:h-6 z-[-1]" 
+                      className="absolute -bottom-2.5 sm:-bottom-3 rtl:-bottom-4 sm:rtl:-bottom-6 left-0 w-full h-4 sm:h-6 z-[-1]" 
                       viewBox="0 0 100 20" 
                       preserveAspectRatio="none"
                       initial={{ opacity: 0 }}
@@ -161,7 +161,7 @@ export default function LandingPage() {
                   <span className="relative inline-block whitespace-nowrap pr-2 pl-2">
                     <span className="font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 pb-1 pr-2">{last}</span>
                     <motion.svg 
-                      className="absolute -bottom-1 sm:-bottom-3 left-0 w-full h-4 sm:h-6 z-[-1]" 
+                      className="absolute -bottom-2.5 sm:-bottom-3 rtl:-bottom-4 sm:rtl:-bottom-6 left-0 w-full h-4 sm:h-6 z-[-1]" 
                       viewBox="0 0 100 20" 
                       preserveAspectRatio="none"
                       initial={{ opacity: 0 }}

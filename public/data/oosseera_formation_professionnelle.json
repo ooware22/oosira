@@ -1,0 +1,5112 @@
+[
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Adrar",
+    "type": "CFPA",
+    "commune": "Adrar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Timimoun",
+    "type": "CFPA",
+    "commune": "Timimoun",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Aoulef",
+    "type": "CFPA",
+    "commune": "Aoulef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Reggane",
+    "type": "CFPA",
+    "commune": "Reggane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Zaouiet Kounta",
+    "type": "CFPA",
+    "commune": "Zaouiet Kounta",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Bordj Badji Mokhtar",
+    "type": "CFPA",
+    "commune": "Bordj Badji Mokhtar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Tsabit",
+    "type": "CFPA",
+    "commune": "Tsabit",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Charouine",
+    "type": "CFPA",
+    "commune": "Charouine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "CFPA Fenoughil",
+    "type": "CFPA",
+    "commune": "Fenoughil",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_etablissement": "INSFP Adrar",
+    "type": "INSFP",
+    "commune": "Adrar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Chlef 1",
+    "type": "CFPA",
+    "commune": "Chlef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Chlef 2",
+    "type": "CFPA",
+    "commune": "Chlef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Ténès",
+    "type": "CFPA",
+    "commune": "Ténès",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Oued Fodda",
+    "type": "CFPA",
+    "commune": "Oued Fodda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA El Karimia",
+    "type": "CFPA",
+    "commune": "El Karimia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Boukadir",
+    "type": "CFPA",
+    "commune": "Boukadir",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Ain Merane",
+    "type": "CFPA",
+    "commune": "Ain Merane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Ouled Fares",
+    "type": "CFPA",
+    "commune": "Ouled Fares",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA El Attaf",
+    "type": "CFPA",
+    "commune": "El Attaf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Chettia",
+    "type": "CFPA",
+    "commune": "Chettia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "CFPA Abou El Hassen",
+    "type": "CFPA",
+    "commune": "Abou El Hassen",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "INSFP Chlef",
+    "type": "INSFP",
+    "commune": "Chlef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_etablissement": "INSFP Oued Fodda",
+    "type": "INSFP",
+    "commune": "Oued Fodda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "CFPA Laghouat 1",
+    "type": "CFPA",
+    "commune": "Laghouat",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "CFPA Laghouat 2",
+    "type": "CFPA",
+    "commune": "Laghouat",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "CFPA Aflou",
+    "type": "CFPA",
+    "commune": "Aflou",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "CFPA Hassi R'mel",
+    "type": "CFPA",
+    "commune": "Hassi R'mel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "CFPA Ksar El Hirane",
+    "type": "CFPA",
+    "commune": "Ksar El Hirane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "CFPA Brida",
+    "type": "CFPA",
+    "commune": "Brida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_etablissement": "INSFP Laghouat",
+    "type": "INSFP",
+    "commune": "Laghouat",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Oum El Bouaghi 1",
+    "type": "CFPA",
+    "commune": "Oum El Bouaghi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Oum El Bouaghi 2",
+    "type": "CFPA",
+    "commune": "Oum El Bouaghi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Ain Beida",
+    "type": "CFPA",
+    "commune": "Ain Beida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Ain M'lila",
+    "type": "CFPA",
+    "commune": "Ain M'lila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Ain Fakroun",
+    "type": "CFPA",
+    "commune": "Ain Fakroun",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Meskiana",
+    "type": "CFPA",
+    "commune": "Meskiana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA Sigus",
+    "type": "CFPA",
+    "commune": "Sigus",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "CFPA F'kirina",
+    "type": "CFPA",
+    "commune": "F'kirina",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_etablissement": "INSFP Oum El Bouaghi",
+    "type": "INSFP",
+    "commune": "Oum El Bouaghi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Batna 1",
+    "type": "CFPA",
+    "commune": "Batna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Batna 2",
+    "type": "CFPA",
+    "commune": "Batna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Barika",
+    "type": "CFPA",
+    "commune": "Barika",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Ain Touta",
+    "type": "CFPA",
+    "commune": "Ain Touta",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA N'Gaous",
+    "type": "CFPA",
+    "commune": "N'Gaous",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Merouana",
+    "type": "CFPA",
+    "commune": "Merouana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Arris",
+    "type": "CFPA",
+    "commune": "Arris",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Tazoult",
+    "type": "CFPA",
+    "commune": "Tazoult",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Ras El Aioun",
+    "type": "CFPA",
+    "commune": "Ras El Aioun",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA El Madher",
+    "type": "CFPA",
+    "commune": "El Madher",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Chemora",
+    "type": "CFPA",
+    "commune": "Chemora",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Timgad",
+    "type": "CFPA",
+    "commune": "Timgad",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Menaa",
+    "type": "CFPA",
+    "commune": "Menaa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "CFPA Seriana",
+    "type": "CFPA",
+    "commune": "Seriana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "INSFP Batna 1",
+    "type": "INSFP",
+    "commune": "Batna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_etablissement": "INSFP Batna 2",
+    "type": "INSFP",
+    "commune": "Batna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Béjaïa 1",
+    "type": "CFPA",
+    "commune": "Béjaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Béjaïa 2",
+    "type": "CFPA",
+    "commune": "Béjaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Akbou",
+    "type": "CFPA",
+    "commune": "Akbou",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA El Kseur",
+    "type": "CFPA",
+    "commune": "El Kseur",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Amizour",
+    "type": "CFPA",
+    "commune": "Amizour",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Sidi Aïch",
+    "type": "CFPA",
+    "commune": "Sidi Aïch",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Tichy",
+    "type": "CFPA",
+    "commune": "Tichy",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Kherrata",
+    "type": "CFPA",
+    "commune": "Kherrata",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Tazmalt",
+    "type": "CFPA",
+    "commune": "Tazmalt",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Seddouk",
+    "type": "CFPA",
+    "commune": "Seddouk",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Aokas",
+    "type": "CFPA",
+    "commune": "Aokas",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "CFPA Adekar",
+    "type": "CFPA",
+    "commune": "Adekar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_etablissement": "INSFP Béjaïa",
+    "type": "INSFP",
+    "commune": "Béjaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Biskra 1",
+    "type": "CFPA",
+    "commune": "Biskra",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Biskra 2",
+    "type": "CFPA",
+    "commune": "Biskra",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Ouled Djellal",
+    "type": "CFPA",
+    "commune": "Ouled Djellal",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Tolga",
+    "type": "CFPA",
+    "commune": "Tolga",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Sidi Okba",
+    "type": "CFPA",
+    "commune": "Sidi Okba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA El Kantara",
+    "type": "CFPA",
+    "commune": "El Kantara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Djamora",
+    "type": "CFPA",
+    "commune": "Djamora",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Zeribet El Oued",
+    "type": "CFPA",
+    "commune": "Zeribet El Oued",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "CFPA Ourlal",
+    "type": "CFPA",
+    "commune": "Ourlal",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_etablissement": "INSFP Biskra",
+    "type": "INSFP",
+    "commune": "Biskra",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "CFPA Béchar 1",
+    "type": "CFPA",
+    "commune": "Béchar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "CFPA Béchar 2",
+    "type": "CFPA",
+    "commune": "Béchar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "CFPA Kenadsa",
+    "type": "CFPA",
+    "commune": "Kenadsa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "CFPA Abadla",
+    "type": "CFPA",
+    "commune": "Abadla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "CFPA Beni Ounif",
+    "type": "CFPA",
+    "commune": "Beni Ounif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "CFPA Beni Abbes",
+    "type": "CFPA",
+    "commune": "Beni Abbes",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_etablissement": "INSFP Béchar",
+    "type": "INSFP",
+    "commune": "Béchar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Blida 1",
+    "type": "CFPA",
+    "commune": "Blida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Blida 2",
+    "type": "CFPA",
+    "commune": "Blida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Boufarik",
+    "type": "CFPA",
+    "commune": "Boufarik",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA El Affroun",
+    "type": "CFPA",
+    "commune": "El Affroun",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Mouzaïa",
+    "type": "CFPA",
+    "commune": "Mouzaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Bougara",
+    "type": "CFPA",
+    "commune": "Bougara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Oued El Alleug",
+    "type": "CFPA",
+    "commune": "Oued El Alleug",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Bouinan",
+    "type": "CFPA",
+    "commune": "Bouinan",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Larbaa",
+    "type": "CFPA",
+    "commune": "Larbaa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Meftah",
+    "type": "CFPA",
+    "commune": "Meftah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Chréa",
+    "type": "CFPA",
+    "commune": "Chréa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "CFPA Chebli",
+    "type": "CFPA",
+    "commune": "Chebli",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "INSFP Blida 1",
+    "type": "INSFP",
+    "commune": "Blida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_etablissement": "INSFP Blida 2",
+    "type": "INSFP",
+    "commune": "Blida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Bouira 1",
+    "type": "CFPA",
+    "commune": "Bouira",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Bouira 2",
+    "type": "CFPA",
+    "commune": "Bouira",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Sour El Ghozlane",
+    "type": "CFPA",
+    "commune": "Sour El Ghozlane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Lakhdaria",
+    "type": "CFPA",
+    "commune": "Lakhdaria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA M'Chedallah",
+    "type": "CFPA",
+    "commune": "M'Chedallah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Ain Bessem",
+    "type": "CFPA",
+    "commune": "Ain Bessem",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Bordj Okhriss",
+    "type": "CFPA",
+    "commune": "Bordj Okhriss",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "CFPA Kadiria",
+    "type": "CFPA",
+    "commune": "Kadiria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_etablissement": "INSFP Bouira",
+    "type": "INSFP",
+    "commune": "Bouira",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom_etablissement": "CFPA Tamanrasset 1",
+    "type": "CFPA",
+    "commune": "Tamanrasset",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom_etablissement": "CFPA Tamanrasset 2",
+    "type": "CFPA",
+    "commune": "Tamanrasset",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom_etablissement": "CFPA In Guezzam",
+    "type": "CFPA",
+    "commune": "In Guezzam",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom_etablissement": "CFPA In Salah",
+    "type": "CFPA",
+    "commune": "In Salah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom_etablissement": "INSFP Tamanrasset",
+    "type": "INSFP",
+    "commune": "Tamanrasset",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Tébessa 1",
+    "type": "CFPA",
+    "commune": "Tébessa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Tébessa 2",
+    "type": "CFPA",
+    "commune": "Tébessa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Bir El Ater",
+    "type": "CFPA",
+    "commune": "Bir El Ater",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Chéria",
+    "type": "CFPA",
+    "commune": "Chéria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA El Aouinet",
+    "type": "CFPA",
+    "commune": "El Aouinet",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Ouenza",
+    "type": "CFPA",
+    "commune": "Ouenza",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA El Kouif",
+    "type": "CFPA",
+    "commune": "El Kouif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Morsott",
+    "type": "CFPA",
+    "commune": "Morsott",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "CFPA Negrine",
+    "type": "CFPA",
+    "commune": "Negrine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_etablissement": "INSFP Tébessa",
+    "type": "INSFP",
+    "commune": "Tébessa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Tlemcen 1",
+    "type": "CFPA",
+    "commune": "Tlemcen",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Tlemcen 2",
+    "type": "CFPA",
+    "commune": "Tlemcen",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Ghazaouet",
+    "type": "CFPA",
+    "commune": "Ghazaouet",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Maghnia",
+    "type": "CFPA",
+    "commune": "Maghnia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Remchi",
+    "type": "CFPA",
+    "commune": "Remchi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Nedroma",
+    "type": "CFPA",
+    "commune": "Nedroma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Sebdou",
+    "type": "CFPA",
+    "commune": "Sebdou",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Honaine",
+    "type": "CFPA",
+    "commune": "Honaine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Mansourah",
+    "type": "CFPA",
+    "commune": "Mansourah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "CFPA Beni Snous",
+    "type": "CFPA",
+    "commune": "Beni Snous",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_etablissement": "INSFP Tlemcen",
+    "type": "INSFP",
+    "commune": "Tlemcen",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Tiaret 1",
+    "type": "CFPA",
+    "commune": "Tiaret",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Tiaret 2",
+    "type": "CFPA",
+    "commune": "Tiaret",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Frenda",
+    "type": "CFPA",
+    "commune": "Frenda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Ksar Chellala",
+    "type": "CFPA",
+    "commune": "Ksar Chellala",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Sougueur",
+    "type": "CFPA",
+    "commune": "Sougueur",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Dahmouni",
+    "type": "CFPA",
+    "commune": "Dahmouni",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Mahdia",
+    "type": "CFPA",
+    "commune": "Mahdia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Ain Dheb",
+    "type": "CFPA",
+    "commune": "Ain Dheb",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Rahouia",
+    "type": "CFPA",
+    "commune": "Rahouia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "CFPA Medroussa",
+    "type": "CFPA",
+    "commune": "Medroussa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_etablissement": "INSFP Tiaret",
+    "type": "INSFP",
+    "commune": "Tiaret",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Azazga",
+    "type": "CFPA",
+    "commune": "Azazga",
+    "telephone": "026 34 14 25",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Tizi Ouzou",
+    "type": "CFPA",
+    "commune": "Tizi Ouzou",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Boukhalfa",
+    "type": "CFPA",
+    "commune": "Boukhalfa",
+    "telephone": "026 22 25 56",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Draa Ben Khadda",
+    "type": "CFPA",
+    "commune": "Draa Ben Khadda",
+    "telephone": "026 27 19 50",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Djemaa Saharidj",
+    "type": "CFPA",
+    "commune": "Djemaa Saharidj",
+    "telephone": "026 30 33 58",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Larbaa Nath Irathen",
+    "type": "CFPA",
+    "commune": "Larbaa Nath Irathen",
+    "telephone": "026 26 14 02",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Ain El Hammam",
+    "type": "CFPA",
+    "commune": "Ain El Hammam",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Ouaguenoun",
+    "type": "CFPA",
+    "commune": "Ouaguenoun",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Tigzirt",
+    "type": "CFPA",
+    "commune": "Tigzirt",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Ouadhia",
+    "type": "CFPA",
+    "commune": "Ouadhia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Maatkas",
+    "type": "CFPA",
+    "commune": "Maatkas",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Beni Douala",
+    "type": "CFPA",
+    "commune": "Beni Douala",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Bouzeguene",
+    "type": "CFPA",
+    "commune": "Bouzeguene",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Mekla",
+    "type": "CFPA",
+    "commune": "Mekla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "CFPA Arts Traditionnels Boukhalfa",
+    "type": "CFPA",
+    "commune": "Boukhalfa",
+    "telephone": "026 20 38 75",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_etablissement": "INSFP Tizi Ouzou",
+    "type": "INSFP",
+    "commune": "Tizi Ouzou",
+    "telephone": "026 22 19 85",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Staouali",
+    "type": "CFPA",
+    "commune": "Staouali",
+    "telephone": "021 39 30 57",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Sidi Moussa",
+    "type": "CFPA",
+    "commune": "Sidi Moussa",
+    "telephone": "021 76 03 80",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Zeralda",
+    "type": "CFPA",
+    "commune": "Zeralda",
+    "telephone": "021 39 62 36",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Reghaia",
+    "type": "CFPA",
+    "commune": "Reghaia",
+    "telephone": "021 85 90 89",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Cheraga",
+    "type": "CFPA",
+    "commune": "Cheraga",
+    "telephone": "021 37 58 99",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bab El Oued (F)",
+    "type": "CFPA",
+    "commune": "Bab El Oued",
+    "telephone": "021 76 02 86",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bouzaréah (F)",
+    "type": "CFPA",
+    "commune": "Bouzaréah",
+    "telephone": "021 92 12 10",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Cité La Montagne",
+    "type": "CFPA",
+    "commune": "Bourouba",
+    "telephone": "021 75 58 87",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Baraki",
+    "type": "CFPA",
+    "commune": "Baraki",
+    "telephone": "021 53 38 31",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA El Harrach 2",
+    "type": "CFPA",
+    "commune": "El Harrach",
+    "telephone": "021 52 31 42",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Côte Blanche",
+    "type": "CFPA",
+    "commune": "Kouba",
+    "telephone": "021 28 74 48",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Douéra",
+    "type": "CFPA",
+    "commune": "Douéra",
+    "telephone": "021 41 77 42",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bouzaréah 1",
+    "type": "CFPA",
+    "commune": "Bouzaréah",
+    "telephone": "021 90 33 42",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bouzaréah 2",
+    "type": "CFPA",
+    "commune": "Bouzaréah",
+    "telephone": "021 90 16 11",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bologhine",
+    "type": "CFPA",
+    "commune": "Bologhine",
+    "telephone": "021 95 45 73",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Garidi (F)",
+    "type": "CFPA",
+    "commune": "Kouba",
+    "telephone": "021 28 33 25",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Dely Ibrahim",
+    "type": "CFPA",
+    "commune": "Dely Ibrahim",
+    "telephone": "021 30 06 72",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Eucalyptus",
+    "type": "CFPA",
+    "commune": "Eucalyptus",
+    "telephone": "021 50 03 85",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA El Harrach 3",
+    "type": "CFPA",
+    "commune": "El Harrach",
+    "telephone": "021 52 54 28",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Dar El Beida",
+    "type": "CFPA",
+    "commune": "Dar El Beida",
+    "telephone": "021 50 88 66",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Hassiba Ben Bouali",
+    "type": "CFPA",
+    "commune": "Alger Centre",
+    "telephone": "021 73 29 15",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Ain Taya",
+    "type": "CFPA",
+    "commune": "Ain Taya",
+    "telephone": "021 86 73 09",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bordj El Kiffan",
+    "type": "CFPA",
+    "commune": "Bordj El Kiffan",
+    "telephone": "021 20 11 50",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Haï El Badr",
+    "type": "CFPA",
+    "commune": "Kouba",
+    "telephone": "021 28 84 23",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Beni Messous (F)",
+    "type": "CFPA",
+    "commune": "Beni Messous",
+    "telephone": "021 93 14 50",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Quatre Chemins",
+    "type": "CFPA",
+    "commune": "Hussein Dey",
+    "telephone": "021 28 78 28",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Bir Mourad Rais",
+    "type": "CFPA",
+    "commune": "Bir Mourad Rais",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Draria",
+    "type": "CFPA",
+    "commune": "Draria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Rouiba",
+    "type": "CFPA",
+    "commune": "Rouiba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Oued Smar",
+    "type": "CFPA",
+    "commune": "Oued Smar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA El Mouradia",
+    "type": "CFPA",
+    "commune": "El Mouradia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Birtouta",
+    "type": "CFPA",
+    "commune": "Birtouta",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "CFPA Birkhadem",
+    "type": "CFPA",
+    "commune": "Birkhadem",
+    "telephone": "021 54 22 00",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "INSFP Kouba",
+    "type": "INSFP",
+    "commune": "Kouba",
+    "telephone": "021 29 10 64",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "INSFP Bir Mourad Rais",
+    "type": "INSFP",
+    "commune": "Bir Mourad Rais",
+    "telephone": "021 54 18 03",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "INSFP El Harrach (IFG)",
+    "type": "INSFP",
+    "commune": "El Harrach",
+    "telephone": "021 52 57 48",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_etablissement": "ITEEM Beaulieu",
+    "type": "ITEEM",
+    "commune": "Oued Smar",
+    "telephone": "021 52 52 88",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Djelfa 1",
+    "type": "CFPA",
+    "commune": "Djelfa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Djelfa 2",
+    "type": "CFPA",
+    "commune": "Djelfa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Ain Oussera",
+    "type": "CFPA",
+    "commune": "Ain Oussera",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Messaad",
+    "type": "CFPA",
+    "commune": "Messaad",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Had Sahary",
+    "type": "CFPA",
+    "commune": "Had Sahary",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Hassi Bahbah",
+    "type": "CFPA",
+    "commune": "Hassi Bahbah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Charef",
+    "type": "CFPA",
+    "commune": "Charef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Moudjbara",
+    "type": "CFPA",
+    "commune": "Moudjbara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Birine",
+    "type": "CFPA",
+    "commune": "Birine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Dar Chioukh",
+    "type": "CFPA",
+    "commune": "Dar Chioukh",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Sidi Ladjel",
+    "type": "CFPA",
+    "commune": "Sidi Ladjel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "CFPA Faidh El Botma",
+    "type": "CFPA",
+    "commune": "Faidh El Botma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "INSFP Djelfa 1",
+    "type": "INSFP",
+    "commune": "Djelfa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_etablissement": "INSFP Djelfa 2",
+    "type": "INSFP",
+    "commune": "Djelfa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Jijel 1",
+    "type": "CFPA",
+    "commune": "Jijel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Jijel 2",
+    "type": "CFPA",
+    "commune": "Jijel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Taher",
+    "type": "CFPA",
+    "commune": "Taher",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA El Milia",
+    "type": "CFPA",
+    "commune": "El Milia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Ziama Mansouriah",
+    "type": "CFPA",
+    "commune": "Ziama Mansouriah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Texenna",
+    "type": "CFPA",
+    "commune": "Texenna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Sidi Marouf",
+    "type": "CFPA",
+    "commune": "Sidi Marouf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "CFPA Chekfa",
+    "type": "CFPA",
+    "commune": "Chekfa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_etablissement": "INSFP Jijel",
+    "type": "INSFP",
+    "commune": "Jijel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Sétif 1",
+    "type": "CFPA",
+    "commune": "Sétif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Sétif 2",
+    "type": "CFPA",
+    "commune": "Sétif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA El Eulma",
+    "type": "CFPA",
+    "commune": "El Eulma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Ain Oulmène",
+    "type": "CFPA",
+    "commune": "Ain Oulmène",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Bougaa",
+    "type": "CFPA",
+    "commune": "Bougaa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Ain Arnat",
+    "type": "CFPA",
+    "commune": "Ain Arnat",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Ain El Kebira",
+    "type": "CFPA",
+    "commune": "Ain El Kebira",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Beni Ourtilane",
+    "type": "CFPA",
+    "commune": "Beni Ourtilane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Djemila",
+    "type": "CFPA",
+    "commune": "Djemila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Salah Bey",
+    "type": "CFPA",
+    "commune": "Salah Bey",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Bouandas",
+    "type": "CFPA",
+    "commune": "Bouandas",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Babor",
+    "type": "CFPA",
+    "commune": "Babor",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Guenzet",
+    "type": "CFPA",
+    "commune": "Guenzet",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "CFPA Hammam Guergour",
+    "type": "CFPA",
+    "commune": "Hammam Guergour",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "INSFP Sétif 1",
+    "type": "INSFP",
+    "commune": "Sétif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_etablissement": "INSFP Sétif 2",
+    "type": "INSFP",
+    "commune": "Sétif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_etablissement": "CFPA Saïda 1",
+    "type": "CFPA",
+    "commune": "Saïda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_etablissement": "CFPA Saïda 2",
+    "type": "CFPA",
+    "commune": "Saïda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_etablissement": "CFPA Ain El Hadjar",
+    "type": "CFPA",
+    "commune": "Ain El Hadjar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_etablissement": "CFPA Youb",
+    "type": "CFPA",
+    "commune": "Youb",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_etablissement": "CFPA Hassasna",
+    "type": "CFPA",
+    "commune": "Hassasna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_etablissement": "INSFP Saïda",
+    "type": "INSFP",
+    "commune": "Saïda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Skikda 1",
+    "type": "CFPA",
+    "commune": "Skikda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Skikda 2",
+    "type": "CFPA",
+    "commune": "Skikda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Collo",
+    "type": "CFPA",
+    "commune": "Collo",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Azzaba",
+    "type": "CFPA",
+    "commune": "Azzaba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA El Harrouch",
+    "type": "CFPA",
+    "commune": "El Harrouch",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Tamalous",
+    "type": "CFPA",
+    "commune": "Tamalous",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Ramdane Djamel",
+    "type": "CFPA",
+    "commune": "Ramdane Djamel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA Oum Toub",
+    "type": "CFPA",
+    "commune": "Oum Toub",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "CFPA El Hadaiek",
+    "type": "CFPA",
+    "commune": "El Hadaiek",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_etablissement": "INSFP Skikda",
+    "type": "INSFP",
+    "commune": "Skikda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA SBA 1",
+    "type": "CFPA",
+    "commune": "Sidi Bel Abbès",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA SBA 2",
+    "type": "CFPA",
+    "commune": "Sidi Bel Abbès",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA Telagh",
+    "type": "CFPA",
+    "commune": "Telagh",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA Sfisef",
+    "type": "CFPA",
+    "commune": "Sfisef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA Ben Badis",
+    "type": "CFPA",
+    "commune": "Ben Badis",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA Ras El Ma",
+    "type": "CFPA",
+    "commune": "Ras El Ma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA Ain El Berd",
+    "type": "CFPA",
+    "commune": "Ain El Berd",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "CFPA Merine",
+    "type": "CFPA",
+    "commune": "Merine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_etablissement": "INSFP Sidi Bel Abbès",
+    "type": "INSFP",
+    "commune": "Sidi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA Annaba 1",
+    "type": "CFPA",
+    "commune": "Annaba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA Annaba 2",
+    "type": "CFPA",
+    "commune": "Annaba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA El Bouni",
+    "type": "CFPA",
+    "commune": "El Bouni",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA El Hadjar",
+    "type": "CFPA",
+    "commune": "El Hadjar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA Berrahal",
+    "type": "CFPA",
+    "commune": "Berrahal",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA Seraidi",
+    "type": "CFPA",
+    "commune": "Seraidi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA Ain Berda",
+    "type": "CFPA",
+    "commune": "Ain Berda",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "CFPA Chetaibi",
+    "type": "CFPA",
+    "commune": "Chetaibi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "INSFP Annaba 1",
+    "type": "INSFP",
+    "commune": "Annaba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_etablissement": "INSFP Annaba 2",
+    "type": "INSFP",
+    "commune": "Annaba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Guelma 1",
+    "type": "CFPA",
+    "commune": "Guelma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Guelma 2",
+    "type": "CFPA",
+    "commune": "Guelma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Bouchegouf",
+    "type": "CFPA",
+    "commune": "Bouchegouf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Oued Zenati",
+    "type": "CFPA",
+    "commune": "Oued Zenati",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Héliopolis",
+    "type": "CFPA",
+    "commune": "Héliopolis",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Hammam Debagh",
+    "type": "CFPA",
+    "commune": "Hammam Debagh",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "CFPA Ain Makhlouf",
+    "type": "CFPA",
+    "commune": "Ain Makhlouf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_etablissement": "INSFP Guelma",
+    "type": "INSFP",
+    "commune": "Guelma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Constantine 1",
+    "type": "CFPA",
+    "commune": "Constantine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Constantine 2",
+    "type": "CFPA",
+    "commune": "Constantine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Constantine 3",
+    "type": "CFPA",
+    "commune": "Constantine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA El Khroub",
+    "type": "CFPA",
+    "commune": "El Khroub",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Ain Smara",
+    "type": "CFPA",
+    "commune": "Ain Smara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Hamma Bouziane",
+    "type": "CFPA",
+    "commune": "Hamma Bouziane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Zighoud Youcef",
+    "type": "CFPA",
+    "commune": "Zighoud Youcef",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Didouche Mourad",
+    "type": "CFPA",
+    "commune": "Didouche Mourad",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "CFPA Ali Mendjeli",
+    "type": "CFPA",
+    "commune": "Ali Mendjeli",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "INSFP Constantine 1",
+    "type": "INSFP",
+    "commune": "Constantine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_etablissement": "INSFP Constantine 2",
+    "type": "INSFP",
+    "commune": "Constantine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Médéa 1",
+    "type": "CFPA",
+    "commune": "Médéa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Médéa 2",
+    "type": "CFPA",
+    "commune": "Médéa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Berrouaghia",
+    "type": "CFPA",
+    "commune": "Berrouaghia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Ksar El Boukhari",
+    "type": "CFPA",
+    "commune": "Ksar El Boukhari",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Tablat",
+    "type": "CFPA",
+    "commune": "Tablat",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Beni Slimane",
+    "type": "CFPA",
+    "commune": "Beni Slimane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Ain Boucif",
+    "type": "CFPA",
+    "commune": "Ain Boucif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Chahbounia",
+    "type": "CFPA",
+    "commune": "Chahbounia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA El Omaria",
+    "type": "CFPA",
+    "commune": "El Omaria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Ouamri",
+    "type": "CFPA",
+    "commune": "Ouamri",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "CFPA Si Mahdjoub",
+    "type": "CFPA",
+    "commune": "Si Mahdjoub",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "INSFP Médéa 1",
+    "type": "INSFP",
+    "commune": "Médéa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_etablissement": "INSFP Médéa 2",
+    "type": "INSFP",
+    "commune": "Médéa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Mostaganem 1",
+    "type": "CFPA",
+    "commune": "Mostaganem",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Mostaganem 2",
+    "type": "CFPA",
+    "commune": "Mostaganem",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Ain Tedeles",
+    "type": "CFPA",
+    "commune": "Ain Tedeles",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Sidi Ali",
+    "type": "CFPA",
+    "commune": "Sidi Ali",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Hassi Maameche",
+    "type": "CFPA",
+    "commune": "Hassi Maameche",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Achaacha",
+    "type": "CFPA",
+    "commune": "Achaacha",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "CFPA Ain Nouissy",
+    "type": "CFPA",
+    "commune": "Ain Nouissy",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_etablissement": "INSFP Mostaganem",
+    "type": "INSFP",
+    "commune": "Mostaganem",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA M'Sila 1",
+    "type": "CFPA",
+    "commune": "M'Sila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA M'Sila 2",
+    "type": "CFPA",
+    "commune": "M'Sila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Boussaada",
+    "type": "CFPA",
+    "commune": "Boussaada",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Sidi Aissa",
+    "type": "CFPA",
+    "commune": "Sidi Aissa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Magra",
+    "type": "CFPA",
+    "commune": "Magra",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Hammam Dalaa",
+    "type": "CFPA",
+    "commune": "Hammam Dalaa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Ain El Melh",
+    "type": "CFPA",
+    "commune": "Ain El Melh",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Ouled Derradj",
+    "type": "CFPA",
+    "commune": "Ouled Derradj",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Djebel Messaad",
+    "type": "CFPA",
+    "commune": "Djebel Messaad",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Ain El Hadjel",
+    "type": "CFPA",
+    "commune": "Ain El Hadjel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "CFPA Bou Saada 2",
+    "type": "CFPA",
+    "commune": "Bou Saada",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "INSFP M'Sila 1",
+    "type": "INSFP",
+    "commune": "M'Sila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_etablissement": "INSFP M'Sila 2",
+    "type": "INSFP",
+    "commune": "M'Sila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Mascara 1",
+    "type": "CFPA",
+    "commune": "Mascara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Mascara 2",
+    "type": "CFPA",
+    "commune": "Mascara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Sig",
+    "type": "CFPA",
+    "commune": "Sig",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Mohammadia",
+    "type": "CFPA",
+    "commune": "Mohammadia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Tighenif",
+    "type": "CFPA",
+    "commune": "Tighenif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Ain Fares",
+    "type": "CFPA",
+    "commune": "Ain Fares",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Ghriss",
+    "type": "CFPA",
+    "commune": "Ghriss",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Tighennif",
+    "type": "CFPA",
+    "commune": "Tighennif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "CFPA Oued Taria",
+    "type": "CFPA",
+    "commune": "Oued Taria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_etablissement": "INSFP Mascara",
+    "type": "INSFP",
+    "commune": "Mascara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Ouargla 1",
+    "type": "CFPA",
+    "commune": "Ouargla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Ouargla 2",
+    "type": "CFPA",
+    "commune": "Ouargla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Touggourt",
+    "type": "CFPA",
+    "commune": "Touggourt",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Hassi Messaoud",
+    "type": "CFPA",
+    "commune": "Hassi Messaoud",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA El Hadjira",
+    "type": "CFPA",
+    "commune": "El Hadjira",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Taibet",
+    "type": "CFPA",
+    "commune": "Taibet",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Témacine",
+    "type": "CFPA",
+    "commune": "Témacine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "CFPA Megarine",
+    "type": "CFPA",
+    "commune": "Megarine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "INSFP Ouargla 1",
+    "type": "INSFP",
+    "commune": "Ouargla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_etablissement": "INSFP Ouargla 2",
+    "type": "INSFP",
+    "commune": "Ouargla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Oran 1",
+    "type": "CFPA",
+    "commune": "Oran",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Oran 2",
+    "type": "CFPA",
+    "commune": "Oran",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Oran 3",
+    "type": "CFPA",
+    "commune": "Oran",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Es Senia",
+    "type": "CFPA",
+    "commune": "Es Senia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Ain Turk",
+    "type": "CFPA",
+    "commune": "Ain Turk",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Arzew",
+    "type": "CFPA",
+    "commune": "Arzew",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Bir El Djir",
+    "type": "CFPA",
+    "commune": "Bir El Djir",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Oued Tlelat",
+    "type": "CFPA",
+    "commune": "Oued Tlelat",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Gdyel",
+    "type": "CFPA",
+    "commune": "Gdyel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Bethioua",
+    "type": "CFPA",
+    "commune": "Bethioua",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Hassi Bounif",
+    "type": "CFPA",
+    "commune": "Hassi Bounif",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Boutlelis",
+    "type": "CFPA",
+    "commune": "Boutlelis",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Misserghin",
+    "type": "CFPA",
+    "commune": "Misserghin",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "CFPA Ain El Bia",
+    "type": "CFPA",
+    "commune": "Ain El Bia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "INSFP Oran 1",
+    "type": "INSFP",
+    "commune": "Oran",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "INSFP Oran 2",
+    "type": "INSFP",
+    "commune": "Oran",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_etablissement": "INSFP Oran 3",
+    "type": "INSFP",
+    "commune": "Oran",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "32",
+    "wilaya": "El Bayadh",
+    "nom_etablissement": "CFPA El Bayadh 1",
+    "type": "CFPA",
+    "commune": "El Bayadh",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "32",
+    "wilaya": "El Bayadh",
+    "nom_etablissement": "CFPA Bougtob",
+    "type": "CFPA",
+    "commune": "Bougtob",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "32",
+    "wilaya": "El Bayadh",
+    "nom_etablissement": "CFPA Brezina",
+    "type": "CFPA",
+    "commune": "Brezina",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "32",
+    "wilaya": "El Bayadh",
+    "nom_etablissement": "CFPA El Abiodh Sidi Cheikh",
+    "type": "CFPA",
+    "commune": "El Abiodh Sidi Cheikh",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "32",
+    "wilaya": "El Bayadh",
+    "nom_etablissement": "INSFP El Bayadh",
+    "type": "INSFP",
+    "commune": "El",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "33",
+    "wilaya": "Illizi",
+    "nom_etablissement": "CFPA Illizi",
+    "type": "CFPA",
+    "commune": "Illizi",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "33",
+    "wilaya": "Illizi",
+    "nom_etablissement": "CFPA Djanet",
+    "type": "CFPA",
+    "commune": "Djanet",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "33",
+    "wilaya": "Illizi",
+    "nom_etablissement": "CFPA In Amenas",
+    "type": "CFPA",
+    "commune": "In Amenas",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA BBA 1",
+    "type": "CFPA",
+    "commune": "Bordj Bou Arréridj",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA BBA 2",
+    "type": "CFPA",
+    "commune": "Bordj Bou Arréridj",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Ras El Oued",
+    "type": "CFPA",
+    "commune": "Ras El Oued",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Medjana",
+    "type": "CFPA",
+    "commune": "Medjana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA El Achir",
+    "type": "CFPA",
+    "commune": "El Achir",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Mansourah",
+    "type": "CFPA",
+    "commune": "Mansourah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Djaafra",
+    "type": "CFPA",
+    "commune": "Djaafra",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Bir Kasdali",
+    "type": "CFPA",
+    "commune": "Bir Kasdali",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA El Anseur",
+    "type": "CFPA",
+    "commune": "El Anseur",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Bellimour",
+    "type": "CFPA",
+    "commune": "Bellimour",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Ain Taghrout",
+    "type": "CFPA",
+    "commune": "Ain Taghrout",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "CFPA Bordj Ghedir",
+    "type": "CFPA",
+    "commune": "Bordj Ghedir",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_etablissement": "INSFP Bordj Bou Arréridj",
+    "type": "INSFP",
+    "commune": "Bordj",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Boumerdès 1",
+    "type": "CFPA",
+    "commune": "Boumerdès",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Boumerdès 2",
+    "type": "CFPA",
+    "commune": "Boumerdès",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Bordj Menaiel",
+    "type": "CFPA",
+    "commune": "Bordj Menaiel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Dellys",
+    "type": "CFPA",
+    "commune": "Dellys",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Naciria",
+    "type": "CFPA",
+    "commune": "Naciria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Issers",
+    "type": "CFPA",
+    "commune": "Issers",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Khemis El Khechna",
+    "type": "CFPA",
+    "commune": "Khemis El Khechna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Thenia",
+    "type": "CFPA",
+    "commune": "Thenia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Si Mustapha",
+    "type": "CFPA",
+    "commune": "Si Mustapha",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "CFPA Ouled Moussa",
+    "type": "CFPA",
+    "commune": "Ouled Moussa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_etablissement": "INSFP Boumerdès",
+    "type": "INSFP",
+    "commune": "Boumerdès",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "CFPA El Tarf 1",
+    "type": "CFPA",
+    "commune": "El Tarf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "CFPA El Kala",
+    "type": "CFPA",
+    "commune": "El Kala",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "CFPA Besbes",
+    "type": "CFPA",
+    "commune": "Besbes",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "CFPA Bouhadjar",
+    "type": "CFPA",
+    "commune": "Bouhadjar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "CFPA Bouteldja",
+    "type": "CFPA",
+    "commune": "Bouteldja",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "CFPA Drean",
+    "type": "CFPA",
+    "commune": "Drean",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_etablissement": "INSFP El Tarf",
+    "type": "INSFP",
+    "commune": "El",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "37",
+    "wilaya": "Tindouf",
+    "nom_etablissement": "CFPA Tindouf",
+    "type": "CFPA",
+    "commune": "Tindouf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "CFPA Tissemsilt 1",
+    "type": "CFPA",
+    "commune": "Tissemsilt",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "CFPA Tissemsilt 2",
+    "type": "CFPA",
+    "commune": "Tissemsilt",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "CFPA Theniet El Had",
+    "type": "CFPA",
+    "commune": "Theniet El Had",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "CFPA Bordj Bounaama",
+    "type": "CFPA",
+    "commune": "Bordj Bounaama",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "CFPA Khemisti",
+    "type": "CFPA",
+    "commune": "Khemisti",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "CFPA Lardjem",
+    "type": "CFPA",
+    "commune": "Lardjem",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_etablissement": "INSFP Tissemsilt",
+    "type": "INSFP",
+    "commune": "Tissemsilt",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA El Oued 1",
+    "type": "CFPA",
+    "commune": "El Oued",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA El Oued 2",
+    "type": "CFPA",
+    "commune": "El Oued",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Guemar",
+    "type": "CFPA",
+    "commune": "Guemar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Djamaa",
+    "type": "CFPA",
+    "commune": "Djamaa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Robbah",
+    "type": "CFPA",
+    "commune": "Robbah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Bayadha",
+    "type": "CFPA",
+    "commune": "Bayadha",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Hassi Khalifa",
+    "type": "CFPA",
+    "commune": "Hassi Khalifa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Magrane",
+    "type": "CFPA",
+    "commune": "Magrane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "CFPA Debila",
+    "type": "CFPA",
+    "commune": "Debila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "INSFP El Oued 1",
+    "type": "INSFP",
+    "commune": "El",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_etablissement": "INSFP El Oued 2",
+    "type": "INSFP",
+    "commune": "El",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA Khenchela 1",
+    "type": "CFPA",
+    "commune": "Khenchela",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA Khenchela 2",
+    "type": "CFPA",
+    "commune": "Khenchela",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA Kais",
+    "type": "CFPA",
+    "commune": "Kais",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA Chechar",
+    "type": "CFPA",
+    "commune": "Chechar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA Ain Touila",
+    "type": "CFPA",
+    "commune": "Ain Touila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA Ouled Rechache",
+    "type": "CFPA",
+    "commune": "Ouled Rechache",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "CFPA El Hamma",
+    "type": "CFPA",
+    "commune": "El Hamma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_etablissement": "INSFP Khenchela",
+    "type": "INSFP",
+    "commune": "Khenchela",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA Souk Ahras 1",
+    "type": "CFPA",
+    "commune": "Souk Ahras",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA Souk Ahras 2",
+    "type": "CFPA",
+    "commune": "Souk Ahras",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA Sedrata",
+    "type": "CFPA",
+    "commune": "Sedrata",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA Taoura",
+    "type": "CFPA",
+    "commune": "Taoura",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA M'daourouch",
+    "type": "CFPA",
+    "commune": "M'daourouch",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA Ain Zana",
+    "type": "CFPA",
+    "commune": "Ain Zana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "CFPA Mechroha",
+    "type": "CFPA",
+    "commune": "Mechroha",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_etablissement": "INSFP Souk Ahras",
+    "type": "INSFP",
+    "commune": "Souk",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Tipaza 1",
+    "type": "CFPA",
+    "commune": "Tipaza",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Tipaza 2",
+    "type": "CFPA",
+    "commune": "Tipaza",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Kolea",
+    "type": "CFPA",
+    "commune": "Kolea",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Hadjout",
+    "type": "CFPA",
+    "commune": "Hadjout",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Cherchell",
+    "type": "CFPA",
+    "commune": "Cherchell",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Fouka",
+    "type": "CFPA",
+    "commune": "Fouka",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Bou Ismail",
+    "type": "CFPA",
+    "commune": "Bou Ismail",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Gouraya",
+    "type": "CFPA",
+    "commune": "Gouraya",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Ahmeur El Ain",
+    "type": "CFPA",
+    "commune": "Ahmeur El Ain",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Sidi Amar",
+    "type": "CFPA",
+    "commune": "Sidi Amar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Nador",
+    "type": "CFPA",
+    "commune": "Nador",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Damous",
+    "type": "CFPA",
+    "commune": "Damous",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Ain Tagourait",
+    "type": "CFPA",
+    "commune": "Ain Tagourait",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Chaiba",
+    "type": "CFPA",
+    "commune": "Chaiba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Meurad",
+    "type": "CFPA",
+    "commune": "Meurad",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Bou Haroun",
+    "type": "CFPA",
+    "commune": "Bou Haroun",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Sidi Rached",
+    "type": "CFPA",
+    "commune": "Sidi Rached",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Attatba",
+    "type": "CFPA",
+    "commune": "Attatba",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "CFPA Khemisti",
+    "type": "CFPA",
+    "commune": "Khemisti",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "INSFP Tipaza 1",
+    "type": "INSFP",
+    "commune": "Tipaza",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "INSFP Tipaza 2",
+    "type": "INSFP",
+    "commune": "Tipaza",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_etablissement": "INSFP Tipaza 3",
+    "type": "INSFP",
+    "commune": "Tipaza",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Mila 1",
+    "type": "CFPA",
+    "commune": "Mila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Mila 2",
+    "type": "CFPA",
+    "commune": "Mila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Chelghoum Laid",
+    "type": "CFPA",
+    "commune": "Chelghoum Laid",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Ferdjioua",
+    "type": "CFPA",
+    "commune": "Ferdjioua",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Grarem Gouga",
+    "type": "CFPA",
+    "commune": "Grarem Gouga",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Oued Athmania",
+    "type": "CFPA",
+    "commune": "Oued Athmania",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Tadjenanet",
+    "type": "CFPA",
+    "commune": "Tadjenanet",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Ain Tine",
+    "type": "CFPA",
+    "commune": "Ain Tine",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "CFPA Sidi Merouane",
+    "type": "CFPA",
+    "commune": "Sidi Merouane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_etablissement": "INSFP Mila",
+    "type": "INSFP",
+    "commune": "Mila",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Ain Defla 1",
+    "type": "CFPA",
+    "commune": "Ain Defla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Ain Defla 2",
+    "type": "CFPA",
+    "commune": "Ain Defla",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Khemis Miliana",
+    "type": "CFPA",
+    "commune": "Khemis Miliana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Miliana",
+    "type": "CFPA",
+    "commune": "Miliana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA El Attaf",
+    "type": "CFPA",
+    "commune": "El Attaf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Djelida",
+    "type": "CFPA",
+    "commune": "Djelida",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Hammam Righa",
+    "type": "CFPA",
+    "commune": "Hammam Righa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Bourached",
+    "type": "CFPA",
+    "commune": "Bourached",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA El Abadia",
+    "type": "CFPA",
+    "commune": "El Abadia",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "CFPA Rouina",
+    "type": "CFPA",
+    "commune": "Rouina",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "INSFP Aïn Defla 1",
+    "type": "INSFP",
+    "commune": "Aïn",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_etablissement": "INSFP Aïn Defla 2",
+    "type": "INSFP",
+    "commune": "Aïn",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "45",
+    "wilaya": "Naâma",
+    "nom_etablissement": "CFPA Naama 1",
+    "type": "CFPA",
+    "commune": "Naâma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "45",
+    "wilaya": "Naâma",
+    "nom_etablissement": "CFPA Mecheria",
+    "type": "CFPA",
+    "commune": "Mecheria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "45",
+    "wilaya": "Naâma",
+    "nom_etablissement": "CFPA Ain Sefra",
+    "type": "CFPA",
+    "commune": "Ain Sefra",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "45",
+    "wilaya": "Naâma",
+    "nom_etablissement": "CFPA Moghrar",
+    "type": "CFPA",
+    "commune": "Moghrar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "45",
+    "wilaya": "Naâma",
+    "nom_etablissement": "INSFP Naâma",
+    "type": "INSFP",
+    "commune": "Naâma",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "CFPA Ain Temouchent 1",
+    "type": "CFPA",
+    "commune": "Aïn Témouchent",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "CFPA Ain Temouchent 2",
+    "type": "CFPA",
+    "commune": "Aïn Témouchent",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "CFPA El Malah",
+    "type": "CFPA",
+    "commune": "El Malah",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "CFPA Beni Saf",
+    "type": "CFPA",
+    "commune": "Beni Saf",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "CFPA Hammam Bouhadjar",
+    "type": "CFPA",
+    "commune": "Hammam Bouhadjar",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "CFPA El Amria",
+    "type": "CFPA",
+    "commune": "El Amria",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_etablissement": "INSFP Aïn Témouchent",
+    "type": "INSFP",
+    "commune": "Aïn",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA Ghardaïa 1",
+    "type": "CFPA",
+    "commune": "Ghardaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA Ghardaïa 2",
+    "type": "CFPA",
+    "commune": "Ghardaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA Metlili",
+    "type": "CFPA",
+    "commune": "Metlili",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA El Guerrara",
+    "type": "CFPA",
+    "commune": "El Guerrara",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA Berriane",
+    "type": "CFPA",
+    "commune": "Berriane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA El Ménéa",
+    "type": "CFPA",
+    "commune": "El Ménéa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "CFPA Zelfana",
+    "type": "CFPA",
+    "commune": "Zelfana",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_etablissement": "INSFP Ghardaïa",
+    "type": "INSFP",
+    "commune": "Ghardaïa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Relizane 1",
+    "type": "CFPA",
+    "commune": "Relizane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Relizane 2",
+    "type": "CFPA",
+    "commune": "Relizane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Oued Rhiou",
+    "type": "CFPA",
+    "commune": "Oued Rhiou",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Mazouna",
+    "type": "CFPA",
+    "commune": "Mazouna",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Ain Tarek",
+    "type": "CFPA",
+    "commune": "Ain Tarek",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Zemmora",
+    "type": "CFPA",
+    "commune": "Zemmora",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Mendes",
+    "type": "CFPA",
+    "commune": "Mendes",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Ammi Moussa",
+    "type": "CFPA",
+    "commune": "Ammi Moussa",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Yellel",
+    "type": "CFPA",
+    "commune": "Yellel",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "CFPA Djidioua",
+    "type": "CFPA",
+    "commune": "Djidioua",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_etablissement": "INSFP Relizane",
+    "type": "INSFP",
+    "commune": "Relizane",
+    "telephone": "",
+    "tutelle": "Min. Formation et Enseignement Professionnels",
+    "categorie": "Formation Professionnelle"
+  }
+]

@@ -12,6 +12,7 @@ import {
   TEMPLATE_NAMES,
 } from '../data';
 import { CVClassique, CVIngenieur, CVCadre, CVMedical, CVTech } from '../templates';
+import { CVStyleConfig, TEMPLATE_DEFAULTS, applyPalette, styleToCSSVars, COLOR_PALETTES, FONT_OPTIONS } from '../templates/styleConfig';
 import {
   CogIcon,
   ChartBarIcon,
@@ -57,6 +58,7 @@ const STEPS = [
   { id: 'experience', icon: BriefcaseIcon },
   { id: 'education', icon: AcademicCapIcon },
   { id: 'skills', icon: SparklesIcon },
+  { id: 'design', icon: SwatchIcon },
   { id: 'preview', icon: EyeIcon },
 ];
 
@@ -67,6 +69,7 @@ const STEP_LABELS: Record<string, Record<string, string>> = {
   experience: { en: 'Experience', fr: 'Expériences', ar: 'الخبرات' },
   education: { en: 'Education', fr: 'Formations', ar: 'التعليم' },
   skills: { en: 'Skills & More', fr: 'Compétences', ar: 'المهارات' },
+  design: { en: 'Design', fr: 'Design', ar: 'تصميم' },
   preview: { en: 'Preview', fr: 'Aperçu', ar: 'معاينة' },
 };
 
@@ -92,8 +95,8 @@ const fadeUp = {
 };
 
 /* ── Input component ── */
-function Input({ label, value, onChange, placeholder, type = 'text' }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+function Input({ label, value, onChange, placeholder, type = 'text', list }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; list?: string;
 }) {
   return (
     <div className="space-y-1.5">
@@ -103,8 +106,27 @@ function Input({ label, value, onChange, placeholder, type = 'text' }: {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
+        list={list}
         className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
       />
+    </div>
+  );
+}
+
+function Select({ label, value, onChange, options }: {
+  label: string; value: string; onChange: (v: string) => void; options: {id: string, label: string}[]
+}) {
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{label}</label>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+      >
+        <option value="">Sélectionnez le type...</option>
+        {options.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+      </select>
     </div>
   );
 }
@@ -132,6 +154,7 @@ export default function BuilderPage() {
   const [[currentStep, direction], setStep] = useState([0, 0]);
   const [activeCandidate, setActiveCandidate] = useState(-1);
   const [activeTemplate, setActiveTemplate] = useState(1);
+  const [styleConfig, setStyleConfig] = useState<CVStyleConfig>(TEMPLATE_DEFAULTS[1]);
   const [formData, setFormData] = useState<Candidate>({
     id: -1,
     prenom: '', nom: '', titre: '', email: '', telephone: '', ville: '', linkedin: '', accroche: '',
@@ -142,7 +165,43 @@ export default function BuilderPage() {
   const [newLogiciel, setNewLogiciel] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [ecolesList, setEcolesList] = useState<string[]>([]);
+  const [ecolesData, setEcolesData] = useState<{ [key: string]: string[] }>({ lycee: [], univ: [], institut: [], formation: [], prive: [] });
   const previewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/data/lycees_algerie_complet.json').then(r => r.json()).catch(() => []),
+      fetch('/data/oosseera_enseignement_superieur.json').then(r => r.json()).catch(() => []),
+      fetch('/data/oosseera_instituts_specialises.json').then(r => r.json()).catch(() => []),
+      fetch('/data/oosseera_formation_professionnelle.json').then(r => r.json()).catch(() => []),
+      fetch('/data/oosseera_ecoles_privees.json').then(r => r.json()).catch(() => [])
+    ]).then(([lycees, univs, instituts, formations, privees]) => {
+      const getNames = (arr: any[], key: string) => arr.map(e => e[key]).filter(Boolean);
+      const lyceeNames = Array.from(new Set(getNames(lycees, 'nom_etablissement_ar')));
+      const univNames = Array.from(new Set(getNames(univs, 'nom_officiel')));
+      const institutNames = Array.from(new Set(getNames(instituts, 'nom')));
+      const formationNames = Array.from(new Set(getNames(formations, 'nom_etablissement')));
+      const priveNames = Array.from(new Set(getNames(privees, 'nom')));
+
+      setEcolesData({
+        lycee: lyceeNames,
+        univ: univNames,
+        institut: institutNames,
+        formation: formationNames,
+        prive: priveNames
+      });
+
+      const names = new Set([
+        ...lyceeNames,
+        ...univNames,
+        ...institutNames,
+        ...formationNames,
+        ...priveNames
+      ]);
+      setEcolesList(Array.from(names));
+    });
+  }, []);
 
   const goTo = (step: number) => {
     setStep([step, step > currentStep ? 1 : -1]);
@@ -159,6 +218,7 @@ export default function BuilderPage() {
         formations: [], experiences: [], competences: [], langues: [], logiciels: [],
         iconName: 'document', cardColor: '#64748b', recommendedTemplate: 1,
       });
+      setStyleConfig(TEMPLATE_DEFAULTS[1]);
       return;
     }
     const c = candidates[idx];
@@ -171,6 +231,7 @@ export default function BuilderPage() {
       logiciels: [...c.logiciels],
     });
     setActiveTemplate(c.recommendedTemplate);
+    setStyleConfig(TEMPLATE_DEFAULTS[c.recommendedTemplate as keyof typeof TEMPLATE_DEFAULTS] || TEMPLATE_DEFAULTS[1]);
   }, []);
 
   const updateField = (key: keyof Candidate, value: string) => {
@@ -284,14 +345,18 @@ export default function BuilderPage() {
   };
 
   const renderCV = () => {
-    switch (activeTemplate) {
-      case 1: return <CVClassique data={formData} />;
-      case 2: return <CVIngenieur data={formData} />;
-      case 3: return <CVCadre data={formData} />;
-      case 4: return <CVMedical data={formData} />;
-      case 5: return <CVTech data={formData} />;
-      default: return <CVClassique data={formData} />;
-    }
+    const cssVars = styleToCSSVars(styleConfig) as React.CSSProperties;
+    const content = (() => {
+      switch (activeTemplate) {
+        case 1: return <CVClassique data={formData} config={styleConfig} />;
+        case 2: return <CVIngenieur data={formData} config={styleConfig} />;
+        case 3: return <CVCadre data={formData} config={styleConfig} />;
+        case 4: return <CVMedical data={formData} config={styleConfig} />;
+        case 5: return <CVTech data={formData} config={styleConfig} />;
+        default: return <CVClassique data={formData} config={styleConfig} />;
+      }
+    })();
+    return <div style={cssVars} className="w-full h-full">{content}</div>;
   };
 
   const stepLabel = (id: string) => STEP_LABELS[id]?.[language] || STEP_LABELS[id]?.en || id;
@@ -303,6 +368,11 @@ export default function BuilderPage() {
     { id: 3, name: 'Cadre Moderne', color: '#1A1A2E', style: 'executive' },
     { id: 4, name: 'Medical', color: '#2563EB', style: 'medical' },
     { id: 5, name: 'Tech & IT', color: '#0D1117', style: 'tech' },
+    { id: 6, name: 'Minimaliste', color: '#f3f4f6', style: 'minimalist' },
+    { id: 7, name: 'Créatif', color: '#ec4899', style: 'creative' },
+    { id: 8, name: 'Exécutif Dark', color: '#0f172a', style: 'executive-dark' },
+    { id: 9, name: 'Universitaire', color: '#7e22ce', style: 'academic' },
+    { id: 10, name: 'Startup', color: '#14b8a6', style: 'startup' },
   ];
 
   /* ── Step content renderer ── */
@@ -315,7 +385,7 @@ export default function BuilderPage() {
             {/* Templates */}
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.template')}</h2>
-              <p className="text-txt-muted text-sm mb-6">Choose a professional design optimized for your industry.</p>
+              <p className="text-txt-muted text-sm mb-6">{t('builder.templateDesc') || 'Choose a professional design optimized for your industry.'}</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 {templateThumbs.map((tmpl) => (
                   <motion.div
@@ -323,7 +393,10 @@ export default function BuilderPage() {
                     variants={fadeUp}
                     whileHover={{ y: -4, transition: { duration: 0.2 } }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => setActiveTemplate(tmpl.id)}
+                    onClick={() => {
+                      setActiveTemplate(tmpl.id);
+                      setStyleConfig(TEMPLATE_DEFAULTS[tmpl.id as keyof typeof TEMPLATE_DEFAULTS] || TEMPLATE_DEFAULTS[1]);
+                    }}
                     className={`relative cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-300 group ${
                       activeTemplate === tmpl.id
                         ? 'border-blue-500 shadow-lg shadow-blue-500/20 ring-4 ring-blue-500/10'
@@ -395,6 +468,77 @@ export default function BuilderPage() {
                           </div>
                         </div>
                       )}
+                      {tmpl.id === 6 && (
+                        <div className="p-3 space-y-2 h-full flex flex-col justify-center">
+                          <div className="flex justify-between items-end border-b pb-1">
+                            <div className="h-1 bg-gray-600 w-[60%] rounded-full" />
+                            <div className="h-1 bg-gray-300 w-[20%] rounded-full" />
+                          </div>
+                          <div className="space-y-1">
+                            <div className="h-0.5 bg-gray-200 w-full" />
+                            <div className="h-0.5 bg-gray-200 w-[85%]" />
+                            <div className="h-0.5 bg-gray-200 w-[95%]" />
+                          </div>
+                        </div>
+                      )}
+                      {tmpl.id === 7 && (
+                        <div className="h-full w-full bg-pink-50/10">
+                          <div className="h-[25%] bg-gradient-to-r from-pink-500 to-rose-400 p-2 flex items-center justify-center">
+                            <div className="h-1 bg-white/80 w-[50%] rounded-full" />
+                          </div>
+                          <div className="p-2 flex gap-1 justify-center mt-1">
+                            <div className="w-8 h-2 bg-pink-500/20 rounded-full" />
+                            <div className="w-6 h-2 bg-pink-500/20 rounded-full" />
+                          </div>
+                          <div className="p-2 space-y-1 mt-1 text-center">
+                            <div className="h-0.5 bg-gray-200 w-[80%] mx-auto rounded-full" />
+                            <div className="h-0.5 bg-gray-200 w-[60%] mx-auto rounded-full" />
+                          </div>
+                        </div>
+                      )}
+                      {tmpl.id === 8 && (
+                        <div className="h-full w-full bg-slate-800">
+                          <div className="h-[25%] bg-slate-900 p-2 border-b border-slate-700">
+                            <div className="h-1 bg-amber-400 w-[40%] rounded-full mt-1" />
+                          </div>
+                          <div className="flex p-2 gap-2">
+                            <div className="flex-[0.4] bg-slate-900 border-r border-slate-700 p-1 space-y-1 h-12">
+                                <div className="h-0.5 bg-slate-600 w-full rounded" />
+                                <div className="h-0.5 bg-slate-600 w-[70%] rounded" />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                                <div className="h-1 bg-amber-400/80 w-[40%] rounded" />
+                                <div className="h-1 bg-slate-600 w-[90%] rounded" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {tmpl.id === 9 && (
+                        <div className="h-full w-full bg-white relative">
+                          <div className="absolute top-2 w-full flex justify-center">
+                            <div className="h-8 w-1/2 bg-purple-900 rounded-b p-1 flex justify-center items-end">
+                                <div className="h-1 bg-white/80 w-[60%] rounded-full mb-1" />
+                            </div>
+                          </div>
+                          <div className="p-2 mt-10 space-y-1.5 text-center">
+                            <div className="h-1 bg-purple-900 w-[30%] mx-auto rounded" />
+                            <div className="h-0.5 bg-gray-200 w-full rounded" />
+                            <div className="h-0.5 bg-gray-200 w-[80%] mx-auto rounded" />
+                          </div>
+                        </div>
+                      )}
+                      {tmpl.id === 10 && (
+                        <div className="h-full w-full border-t-[6px] border-teal-500 bg-white">
+                          <div className="p-2 flex gap-1 mt-1">
+                             <div className="w-1.5 h-1.5 rounded-full bg-teal-500/40" />
+                             <div className="h-1.5 bg-gray-200 w-[50%] rounded" />
+                          </div>
+                          <div className="p-2 space-y-1.5">
+                             <div className="h-1 bg-gray-200 border-l border-teal-500 pl-1 w-full" />
+                             <div className="h-1 bg-gray-200 border-l border-teal-500 pl-1 w-[70%]" />
+                          </div>
+                        </div>
+                      )}
                       {/* Selected checkmark */}
                       {activeTemplate === tmpl.id && (
                         <motion.div
@@ -417,7 +561,7 @@ export default function BuilderPage() {
             {/* Pre-filled candidates */}
             <div>
               <h3 className="text-lg font-bold text-txt mb-1">{t('builder.theme') || 'Quick Start'}</h3>
-              <p className="text-txt-muted text-sm mb-4">Start with a pre-filled profile or begin from scratch.</p>
+              <p className="text-txt-muted text-sm mb-4">{t('builder.quickStartDesc') || 'Start with a pre-filled profile or begin from scratch.'}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {/* Blank start */}
                 <motion.div
@@ -490,7 +634,7 @@ export default function BuilderPage() {
           <motion.div key="personal" variants={fadeUp} initial="hidden" animate="visible" className="space-y-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.personal_info')}</h2>
-              <p className="text-txt-muted text-sm">Let employers know how to reach you.</p>
+              <p className="text-txt-muted text-sm">{t('builder.personalInfoDesc') || 'Let employers know how to reach you.'}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label={t('builder.fullName').split(' ')[0] || 'First Name'} value={formData.prenom} onChange={v => updateField('prenom', v)} />
@@ -514,17 +658,17 @@ export default function BuilderPage() {
           <motion.div key="summary" variants={fadeUp} initial="hidden" animate="visible" className="space-y-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.summary')}</h2>
-              <p className="text-txt-muted text-sm">Write a compelling overview of your career highlights and goals.</p>
+              <p className="text-txt-muted text-sm">{t('builder.summaryDesc') || 'Write a compelling overview of your career highlights and goals.'}</p>
             </div>
             <TextArea
               label={t('builder.summary')}
               value={formData.accroche}
               onChange={v => updateField('accroche', v)}
-              placeholder="Experienced professional with deep expertise in..."
+              placeholder={t('builder.summaryPlaceholder') || "Experienced professional with deep expertise in..."}
               rows={6}
             />
             <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
-              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">💡 Tip: Keep it between 2-4 sentences. Highlight your biggest achievements and career direction.</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{t('builder.summaryTip') || '💡 Tip: Keep it between 2-4 sentences. Highlight your biggest achievements and career direction.'}</p>
             </div>
           </motion.div>
         );
@@ -536,7 +680,7 @@ export default function BuilderPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.experiences')}</h2>
-                <p className="text-txt-muted text-sm">Add your professional experience, starting with the most recent.</p>
+                <p className="text-txt-muted text-sm">{t('builder.experienceDesc') || 'Add your professional experience, starting with the most recent.'}</p>
               </div>
               <button onClick={addExperience} className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold transition-all hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20">
                 <PlusIcon className="w-4 h-4" />{t('builder.add')}
@@ -557,8 +701,8 @@ export default function BuilderPage() {
                   <div className="space-y-4">
                     <Input label={t('builder.position')} value={exp.poste} onChange={v => updateExperience(idx, 'poste', v)} />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input label={t('builder.company')} value={exp.entreprise} onChange={v => updateExperience(idx, 'entreprise', v)} />
-                      <Input label="Secteur" value={exp.secteur} onChange={v => updateExperience(idx, 'secteur', v)} />
+                      <Input label={t('builder.company') || 'Company'} value={exp.entreprise} onChange={v => updateExperience(idx, 'entreprise', v)} />
+                      <Input label={t('builder.secteur') || 'Secteur'} value={exp.secteur} onChange={v => updateExperience(idx, 'secteur', v)} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <Input label={t('builder.startDate')} value={exp.dateDebut} onChange={v => updateExperience(idx, 'dateDebut', v)} />
@@ -579,7 +723,7 @@ export default function BuilderPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.education')}</h2>
-                <p className="text-txt-muted text-sm">Add your educational background.</p>
+                <p className="text-txt-muted text-sm">{t('builder.educationDesc') || 'Add your educational background.'}</p>
               </div>
               <button onClick={addFormation} className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold transition-all hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20">
                 <PlusIcon className="w-4 h-4" />{t('builder.add')}
@@ -599,15 +743,27 @@ export default function BuilderPage() {
                   </button>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input label={t('builder.degree')} value={f.diplome} onChange={v => updateFormation(idx, 'diplome', v)} />
-                      <Input label="Annee" value={f.annee} onChange={v => updateFormation(idx, 'annee', v)} />
+                      <Input label={t('builder.degree') || 'Degree'} value={f.diplome} onChange={v => updateFormation(idx, 'diplome', v)} />
+                      <Input label={t('builder.annee') || 'Annee'} value={f.annee} onChange={v => updateFormation(idx, 'annee', v)} />
                     </div>
-                    <Input label="Specialite" value={f.specialite} onChange={v => updateFormation(idx, 'specialite', v)} />
+                    <Input label={t('builder.specialite') || 'Specialite'} value={f.specialite} onChange={v => updateFormation(idx, 'specialite', v)} />
+                    <Select 
+                      label={t('builder.typeEtablissement') || "Type d'établissement"} 
+                      value={f.type_etablissement || ''} 
+                      onChange={v => updateFormation(idx, 'type_etablissement', v)}
+                      options={[
+                        { id: 'lycee', label: t('builder.typeLycee') || 'Lycée' },
+                        { id: 'univ', label: t('builder.typeUniv') || 'Université' },
+                        { id: 'institut', label: t('builder.typeInstitut') || 'Institut Spécialisé' },
+                        { id: 'formation', label: t('builder.typeFormation') || 'Formation Professionnelle' },
+                        { id: 'prive', label: t('builder.typePrive') || 'École Privée' },
+                      ]}
+                    />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input label={t('builder.school')} value={f.etablissement} onChange={v => updateFormation(idx, 'etablissement', v)} />
+                      <Input label={t('builder.school')} value={f.etablissement} onChange={v => updateFormation(idx, 'etablissement', v)} list={`ecoles-list-${f.type_etablissement || 'all'}`} />
                       <Input label={t('builder.location')} value={f.ville} onChange={v => updateFormation(idx, 'ville', v)} />
                     </div>
-                    <Input label="Mention" value={f.mention} onChange={v => updateFormation(idx, 'mention', v)} />
+                    <Input label={t('builder.mention') || 'Mention'} value={f.mention} onChange={v => updateFormation(idx, 'mention', v)} />
                   </div>
                 </motion.div>
               ))}
@@ -621,7 +777,7 @@ export default function BuilderPage() {
           <motion.div key="skills" variants={fadeUp} initial="hidden" animate="visible" className="space-y-8">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.skills')} &amp; {t('builder.languages')}</h2>
-              <p className="text-txt-muted text-sm">Highlight what makes you stand out.</p>
+              <p className="text-txt-muted text-sm">{t('builder.skillsDesc') || 'Highlight what makes you stand out.'}</p>
             </div>
 
             {/* Skills */}
@@ -630,7 +786,7 @@ export default function BuilderPage() {
               <div className="flex gap-2">
                 <input
                   className="flex-1 bg-surface2 border border-border rounded-xl px-4 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
-                  placeholder={t('builder.skillName')}
+                  placeholder={t('builder.skillName') || 'Skill'}
                   value={newSkill}
                   onChange={e => setNewSkill(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
@@ -721,14 +877,275 @@ export default function BuilderPage() {
           </motion.div>
         );
 
-      /* ══ STEP 6: Preview ══ */
+      /* ══ STEP 6: Design & Customization ══ */
       case 6:
+        return (
+          <motion.div key="design" variants={fadeUp} initial="hidden" animate="visible" className="space-y-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.design') || 'Design & Aesthetics'}</h2>
+              <p className="text-txt-muted text-sm">{t('builder.designDesc') || 'Fine-tune the typography, colors, and layout of your CV.'}</p>
+            </div>
+
+            {/* Colors: Presets + Custom Pickers */}
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-txt">{t('builder.colorSystem') || 'Color System'}</h3>
+              </div>
+              <div className="grid grid-cols-5 sm:grid-cols-10 gap-3 mb-4">
+                {COLOR_PALETTES.map((palette) => (
+                  <button
+                    key={palette.id}
+                    onClick={() => setStyleConfig(prev => applyPalette(prev, palette))}
+                    className={`w-full aspect-square rounded-full transition-all ${styleConfig.primaryColor === palette.primary ? 'ring-2 ring-offset-2 ring-offset-surface ring-blue-500 scale-110' : 'hover:scale-105'}`}
+                    style={{ background: `linear-gradient(135deg, ${palette.primary} 50%, ${palette.accent} 50%)` }}
+                    title={palette.name}
+                  />
+                ))}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border">
+                <div className="space-y-1.5 flex flex-col">
+                  <label className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.primaryColor') || 'Primary Color'}</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" className="w-8 h-8 rounded cursor-pointer border-0 p-0" value={styleConfig.primaryColor} onChange={e => setStyleConfig(p => ({...p, primaryColor: e.target.value}))} />
+                    <span className="text-xs font-mono">{styleConfig.primaryColor}</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 flex flex-col">
+                  <label className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.accentColor') || 'Accent Color'}</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" className="w-8 h-8 rounded cursor-pointer border-0 p-0" value={styleConfig.accentColor} onChange={e => setStyleConfig(p => ({...p, accentColor: e.target.value}))} />
+                    <span className="text-xs font-mono">{styleConfig.accentColor}</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 flex flex-col">
+                  <label className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.textColor') || 'Text Color'}</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" className="w-8 h-8 rounded cursor-pointer border-0 p-0" value={styleConfig.bodyText} onChange={e => setStyleConfig(p => ({...p, bodyText: e.target.value}))} />
+                    <span className="text-xs font-mono">{styleConfig.bodyText}</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 flex flex-col">
+                  <label className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.bgColor') || 'Background'}</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" className="w-8 h-8 rounded cursor-pointer border-0 p-0" value={styleConfig.bodyBg} onChange={e => setStyleConfig(p => ({...p, bodyBg: e.target.value}))} />
+                    <span className="text-xs font-mono">{styleConfig.bodyBg}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Typography */}
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <h3 className="text-base font-bold text-txt">{t('builder.typography') || 'Typography'}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.headingFont') || 'Heading Font'}</label>
+                  <select
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    value={styleConfig.headingFont}
+                    onChange={(e) => setStyleConfig(p => ({ ...p, headingFont: e.target.value }))}
+                  >
+                    {FONT_OPTIONS.map(f => (
+                      <option key={f.id} value={f.value}>{f.name} ({f.category})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.bodyFont') || 'Body Font'}</label>
+                  <select
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    value={styleConfig.bodyFont}
+                    onChange={(e) => setStyleConfig(p => ({ ...p, bodyFont: e.target.value }))}
+                  >
+                    {FONT_OPTIONS.map(f => (
+                      <option key={f.id} value={f.value}>{f.name} ({f.category})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Layout Options */}
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <h3 className="text-base font-bold text-txt">{t('builder.structure') || 'Structure & Layout'}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.columns') || 'Columns'}</label>
+                  <select
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    value={styleConfig.layoutCols}
+                    onChange={(e) => setStyleConfig(p => ({ ...p, layoutCols: e.target.value as any }))}
+                  >
+                    <option value="1">{t('builder.col1') || '1 Column'}</option>
+                    <option value="1fr 1fr">{t('builder.col2_50') || '2 Columns (50/50)'}</option>
+                    <option value="1.4fr 1fr">{t('builder.col2_side') || '2 Columns (Sidebar)'}</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.fontSize') || 'Font Size'}</label>
+                  <select
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    value={styleConfig.fontSize}
+                    onChange={(e) => setStyleConfig(p => ({ ...p, fontSize: e.target.value as any }))}
+                  >
+                    <option value="compact">{t('builder.fsCompact') || 'Compact'} (11px)</option>
+                    <option value="default">{t('builder.fsDefault') || 'Default'} (12px)</option>
+                    <option value="large">{t('builder.fsLarge') || 'Large'} (13px)</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('builder.spacing') || 'Spacing'}</label>
+                  <select
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    value={styleConfig.spacing}
+                    onChange={(e) => setStyleConfig(p => ({ ...p, spacing: e.target.value as any }))}
+                  >
+                    <option value="tight">{t('builder.tight') || 'Tight'}</option>
+                    <option value="default">{t('builder.defaultSpacing') || 'Default'}</option>
+                    <option value="relaxed">{t('builder.relaxed') || 'Relaxed'}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Section Ordering (Drag & Drop) */}
+            <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-txt">{t('builder.sectionOrdering') || 'Section Ordering'}</h3>
+                <span className="text-[10px] bg-blue-500/10 text-blue-600 px-2 py-1 rounded-full font-bold">{t('builder.dragReorder') || 'Drag to reorder'}</span>
+              </div>
+              <div className={`grid gap-4 ${styleConfig.layoutCols === '1' ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                {/* Main Column */}
+                <div 
+                  className="flex flex-col gap-2 p-3 bg-surface2/50 border border-dashed border-border rounded-xl min-h-[100px]"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    try {
+                      const data = e.dataTransfer.getData('application/json');
+                      if (!data) return;
+                      const { listType, index } = JSON.parse(data);
+                      if (listType === 'main') return; // Handled by item drop if dropping on an item
+                      // Dropping from side to main (at the end)
+                      setStyleConfig(p => {
+                        const newMain = [...(p.mainOrder || [])];
+                        const newSide = [...(p.sideOrder || [])];
+                        const [item] = newSide.splice(index, 1);
+                        newMain.push(item);
+                        return { ...p, mainOrder: newMain, sideOrder: newSide };
+                      });
+                    } catch(err) {}
+                  }}
+                >
+                  <div className="text-xs font-bold text-txt-muted uppercase tracking-wider mb-1">
+                    {styleConfig.layoutCols === '1' ? (t('builder.topContent') || 'Top Content') : (t('builder.mainColumn') || 'Main Column')}
+                  </div>
+                  {(styleConfig.mainOrder || []).map((section, index) => (
+                    <div 
+                      key={`main-${section}`}
+                      draggable
+                      onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ listType: 'main', index }))}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        try {
+                          const { listType, index: fromIndex } = JSON.parse(e.dataTransfer.getData('application/json'));
+                          setStyleConfig(p => {
+                            const newMain = [...(p.mainOrder || [])];
+                            const newSide = [...(p.sideOrder || [])];
+                            if (listType === 'main') {
+                              const [moved] = newMain.splice(fromIndex, 1);
+                              newMain.splice(index, 0, moved);
+                            } else {
+                              const [moved] = newSide.splice(fromIndex, 1);
+                              newMain.splice(index, 0, moved);
+                            }
+                            return { ...p, mainOrder: newMain, sideOrder: newSide };
+                          });
+                        } catch(err) {}
+                      }}
+                      className="flex items-center gap-3 p-3 bg-surface border border-border rounded-xl cursor-grab active:cursor-grabbing hover:border-blue-500/30 transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-txt-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                      </svg>
+                      <span className="font-medium text-sm text-txt capitalize">{t(`builder.${section}`) || section}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Side Column */}
+                <div 
+                  className="flex flex-col gap-2 p-3 bg-surface2/50 border border-dashed border-border rounded-xl min-h-[100px]"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    try {
+                      const data = e.dataTransfer.getData('application/json');
+                      if (!data) return;
+                      const { listType, index } = JSON.parse(data);
+                      if (listType === 'side') return;
+                      setStyleConfig(p => {
+                        const newMain = [...(p.mainOrder || [])];
+                        const newSide = [...(p.sideOrder || [])];
+                        const [item] = newMain.splice(index, 1);
+                        newSide.push(item);
+                        return { ...p, mainOrder: newMain, sideOrder: newSide };
+                      });
+                    } catch(err) {}
+                  }}
+                >
+                  <div className="text-xs font-bold text-txt-muted uppercase tracking-wider mb-1">
+                    {styleConfig.layoutCols === '1' ? (t('builder.bottomContent') || 'Bottom Content') : (t('builder.sidebarColumn') || 'Sidebar Column')}
+                  </div>
+                  {(styleConfig.sideOrder || []).map((section, index) => (
+                    <div 
+                      key={`side-${section}`}
+                      draggable
+                      onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ listType: 'side', index }))}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        try {
+                          const { listType, index: fromIndex } = JSON.parse(e.dataTransfer.getData('application/json'));
+                          setStyleConfig(p => {
+                            const newMain = [...(p.mainOrder || [])];
+                            const newSide = [...(p.sideOrder || [])];
+                            if (listType === 'side') {
+                              const [moved] = newSide.splice(fromIndex, 1);
+                              newSide.splice(index, 0, moved);
+                            } else {
+                              const [moved] = newMain.splice(fromIndex, 1);
+                              newSide.splice(index, 0, moved);
+                            }
+                            return { ...p, mainOrder: newMain, sideOrder: newSide };
+                          });
+                        } catch(err) {}
+                      }}
+                      className="flex items-center gap-3 p-3 bg-surface border border-border rounded-xl cursor-grab active:cursor-grabbing hover:border-blue-500/30 transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-txt-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                      </svg>
+                      <span className="font-medium text-sm text-txt capitalize">{t(`builder.${section}`) || section}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      /* ══ STEP 7: Preview ══ */
+      case 7:
         return (
           <motion.div key="preview" variants={fadeUp} initial="hidden" animate="visible" className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">{t('builder.preview')}</h2>
-                <p className="text-txt-muted text-sm">Review your CV and export when ready.</p>
+                <p className="text-txt-muted text-sm">{t('builder.previewDesc') || 'Review your CV and export when ready.'}</p>
               </div>
               <button
                 onClick={handlePrint}
@@ -758,7 +1175,7 @@ export default function BuilderPage() {
                   {renderCV()}
                 </div>
               </div>
-              <p className="text-center text-xs text-txt-dim mt-2 lg:hidden">← Scroll horizontally to view full CV →</p>
+              <p className="text-center text-xs text-txt-dim mt-2 lg:hidden">{t('builder.scrollText') || '← Scroll horizontally to view full CV →'}</p>
             </div>
 
             {/* Save CV Promo */}
@@ -942,15 +1359,15 @@ export default function BuilderPage() {
           </div>
 
           {/* ── Desktop Live Preview Sidebar ── */}
-          {currentStep < 6 && (
+          {currentStep < 7 && (
             <div className="hidden xl:flex flex-col w-[440px] 2xl:w-[500px] border-s border-border bg-surface2 overflow-hidden shrink-0">
               <div className="py-3 px-4 border-b border-border bg-surface flex items-center justify-between">
                 <span className="text-[10px] font-bold text-txt-muted uppercase tracking-widest">{t('builder.preview')} — {TEMPLATE_NAMES[activeTemplate - 1]}</span>
                 <button
-                  onClick={() => goTo(6)}
+                  onClick={() => goTo(7)}
                   className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  Full Screen →
+                  {t('builder.fullScreen') || 'Full Screen →'}
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto preview-scrollbar p-4 flex justify-center items-start">
@@ -965,7 +1382,7 @@ export default function BuilderPage() {
         </div>
 
         {/* ── Mobile floating preview button ── */}
-        {currentStep < 6 && (
+        {currentStep < 7 && (
           <button
             onClick={() => setMobilePreviewOpen(true)}
             className="xl:hidden fixed bottom-24 end-4 z-40 w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
@@ -1014,6 +1431,25 @@ export default function BuilderPage() {
       <div id="print-area" style={{ display: 'none' }} dir={dir}>
         {renderCV()}
       </div>
+
+      <datalist id="ecoles-list-all">
+        {ecolesList.map(ecole => <option key={ecole} value={ecole} />)}
+      </datalist>
+      <datalist id="ecoles-list-lycee">
+        {ecolesData.lycee.map(ecole => <option key={ecole} value={ecole} />)}
+      </datalist>
+      <datalist id="ecoles-list-univ">
+        {ecolesData.univ.map(ecole => <option key={ecole} value={ecole} />)}
+      </datalist>
+      <datalist id="ecoles-list-institut">
+        {ecolesData.institut.map(ecole => <option key={ecole} value={ecole} />)}
+      </datalist>
+      <datalist id="ecoles-list-formation">
+        {ecolesData.formation.map(ecole => <option key={ecole} value={ecole} />)}
+      </datalist>
+      <datalist id="ecoles-list-prive">
+        {ecolesData.prive.map(ecole => <option key={ecole} value={ecole} />)}
+      </datalist>
     </>
   );
 }

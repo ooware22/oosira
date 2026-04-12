@@ -1,0 +1,747 @@
+[
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom": "INFSPM d'Adrar",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Aide-soignant",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom": "Annexe INFSSF d'Adrar (Sages-femmes)",
+    "type": "Annexe",
+    "tutelle": "Min. Santé",
+    "specialites": "Sage-femme",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom": "INFSPM de Batna",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Anesthésie, Labo, Kinésithérapie",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom": "INFSPM de Béjaïa",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo, Radiologie",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom": "INFSPM de Biskra",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom": "INFSPM de Béchar",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom": "INFSPM de Blida",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Anesthésie, Kinésithérapie, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom": "INFSPM de Bouira",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom": "INFSPM de Tébessa",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom": "INFSPM de Tiaret",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "INFSPM d'Alger",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Toutes spécialités paramédicales",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom": "INFSPM de Jijel",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom": "INFSPM de Sétif",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Anesthésie, Kinésithérapie, Prothèse, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom": "INFSPM de Saïda",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom": "INFSPM de Skikda",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom": "INFSPM de Sidi Bel Abbès",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Anesthésie, Kinésithérapie",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom": "INFSPM de Constantine",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Toutes spécialités paramédicales",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom": "INFSPM de Médéa",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom": "INFSPM de Mostaganem",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom": "INFSPM de M'Sila",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom": "INFSPM de Mascara",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom": "INFSPM de Ouargla",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom": "INFSPM d'Oran 1 (Haï Es Salem)",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Toutes spécialités paramédicales, Sage-femme",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom": "INFSPM d'Oran 2 (Haï El Amir)",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo, Radiologie",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom": "INFSPM de Khemis Miliana",
+    "type": "INFSPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Labo",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom": "IFPM de Chlef",
+    "type": "IFPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers, Aide-soignant",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom": "IFPM de Tamanrasset",
+    "type": "IFPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom": "IFPM de Aïn El Hammam",
+    "type": "IFPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom": "IFPM de Djelfa",
+    "type": "IFPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom": "IFPM de Guelma",
+    "type": "IFPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom": "IFPM d'El Attaf",
+    "type": "IFPM",
+    "tutelle": "Min. Santé",
+    "specialites": "Soins infirmiers",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom": "INFSSF de Tlemcen",
+    "type": "INFSSF",
+    "tutelle": "Min. Santé",
+    "specialites": "Sage-femme (5 ans)",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom": "INFSSF de Tizi Ouzou",
+    "type": "INFSSF",
+    "tutelle": "Min. Santé",
+    "specialites": "Sage-femme (5 ans)",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom": "INFSSF d'Annaba",
+    "type": "INFSSF",
+    "tutelle": "Min. Santé",
+    "specialites": "Sage-femme (5 ans)",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "INPFP - Institut National Pédagogique de la Formation Paramédicale",
+    "type": "INPFP",
+    "tutelle": "Min. Santé",
+    "specialites": "Tutelle pédagogique de tous les INFSPM/IFPM",
+    "categorie": "Paramédical"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "École Nationale Supérieure du Tourisme (ENST) - El Aurassi",
+    "type": "ENST",
+    "tutelle": "Min. Tourisme + Min. Ens. Sup.",
+    "statut": "Public",
+    "diplomes": "Licence en Gestion Hôtelière et Touristique",
+    "categorie": "Hôtellerie & Tourisme"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "École Supérieure d'Hôtellerie et de Restauration d'Alger (ESHRA) - Ain Benian",
+    "type": "ESHRA",
+    "tutelle": "Min. Ens. Sup. (agréée 2024)",
+    "statut": "Privé agréé",
+    "diplomes": "Licence, Master (partenariat EHL Lausanne)",
+    "categorie": "Hôtellerie & Tourisme"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom": "Institut National d'Hôtellerie et de Tourisme de Tizi Ouzou (INHT)",
+    "type": "INHT",
+    "tutelle": "Min. Tourisme",
+    "statut": "Public",
+    "diplomes": "Technicien, Technicien Supérieur",
+    "categorie": "Hôtellerie & Tourisme"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom": "Institut National d'Hôtellerie et de Tourisme de Boussaâda (INHT)",
+    "type": "INHT",
+    "tutelle": "Min. Tourisme",
+    "statut": "Public",
+    "diplomes": "Technicien, Technicien Supérieur",
+    "categorie": "Hôtellerie & Tourisme"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Inter Hotel School (IHS)",
+    "type": "École privée",
+    "tutelle": "Agréé par l'État",
+    "statut": "Privé",
+    "diplomes": "CQP, Formations courtes",
+    "categorie": "Hôtellerie & Tourisme"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom": "ESIHT Algérie - Tizi Ouzou",
+    "type": "École privée",
+    "tutelle": "Privé",
+    "statut": "Privé",
+    "diplomes": "Formations hôtellerie/tourisme",
+    "categorie": "Hôtellerie & Tourisme"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "École Supérieure des Beaux-Arts d'Alger",
+    "sigle": "ESBA",
+    "domaine": "Beaux-Arts",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master, Doctorat en Arts",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom": "École Supérieure des Beaux-Arts d'Oran",
+    "sigle": "ESBA Oran",
+    "domaine": "Beaux-Arts",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master en Arts",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom": "École Supérieure des Beaux-Arts de Constantine",
+    "sigle": "ESBA Constantine",
+    "domaine": "Beaux-Arts",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master en Arts",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom": "École Supérieure des Beaux-Arts de Mostaganem",
+    "sigle": "ESBA Mostaganem",
+    "domaine": "Beaux-Arts",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master en Arts",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom": "École Supérieure des Beaux-Arts de Tlemcen",
+    "sigle": "ESBA Tlemcen",
+    "domaine": "Beaux-Arts",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master en Arts",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut Supérieur de Musique d'Alger",
+    "sigle": "ISMA",
+    "domaine": "Musique",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master en Musique",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom": "Institut Supérieur de Musique de Constantine",
+    "sigle": "ISMC",
+    "domaine": "Musique",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master en Musique",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National Supérieur des Arts du Spectacle et de l'Audiovisuel",
+    "sigle": "INSAS",
+    "domaine": "Cinéma & Audiovisuel",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence, Master",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de Formation Supérieure en Musique",
+    "sigle": "INFSM",
+    "domaine": "Musique",
+    "tutelle": "Min. Culture",
+    "diplomes": "Formation supérieure",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "École Nationale de Conservation et Restauration des Biens Culturels",
+    "sigle": "ENCRBC",
+    "domaine": "Patrimoine",
+    "tutelle": "Min. Culture",
+    "diplomes": "Licence en Conservation",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom": "Centre National de Recherche en Archéologie",
+    "sigle": "CNRA",
+    "domaine": "Archéologie",
+    "tutelle": "Min. Culture",
+    "diplomes": "Recherche",
+    "categorie": "Beaux-Arts & Culture"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de la Formation Supérieure en Sciences du Sport - Dely Ibrahim",
+    "sigle": "INFSS Alger",
+    "type": "Institut supérieur",
+    "tutelle": "Min. Jeunesse & Sports",
+    "diplomes": "Licence, Master, Doctorat STAPS",
+    "categorie": "Sport"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Centre National de Médecine du Sport",
+    "sigle": "CNMS",
+    "type": "Centre spécialisé",
+    "tutelle": "Min. Jeunesse & Sports",
+    "diplomes": "Formation continue",
+    "categorie": "Sport"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom": "Institut National de la Formation Supérieure en Sciences du Sport d'Oran",
+    "sigle": "INFSS Oran",
+    "type": "Institut supérieur",
+    "tutelle": "Min. Jeunesse & Sports",
+    "diplomes": "Licence STAPS",
+    "categorie": "Sport"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom": "Institut de la Formation en Sciences du Sport de Constantine",
+    "sigle": "IFSS Constantine",
+    "type": "Institut",
+    "tutelle": "Min. Jeunesse & Sports",
+    "diplomes": "Licence STAPS",
+    "categorie": "Sport"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "École Supérieure en Sciences et Technologie du Sport",
+    "sigle": "ESSTS",
+    "type": "École supérieure",
+    "tutelle": "Min. Jeunesse & Sports + Min. Ens. Sup.",
+    "diplomes": "Master, Ingénieur",
+    "categorie": "Sport"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom": "Centre National de Regroupement et de Préparation des Équipes Nationales - Souidania",
+    "sigle": "CNRPEN",
+    "type": "Centre national",
+    "tutelle": "Min. Jeunesse & Sports",
+    "diplomes": "Entraînement élite",
+    "categorie": "Sport"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "École Nationale d'Administration (ENA)",
+    "sigle": "ENA",
+    "domaine": "Administration publique",
+    "tutelle": "Présidence / Min. Intérieur",
+    "diplomes": "Magistère, Master",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National du Travail",
+    "sigle": "INT",
+    "domaine": "Droit du travail",
+    "tutelle": "Min. Travail",
+    "diplomes": "Formation spécialisée",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut Supérieur de Gestion et de Planification",
+    "sigle": "ISGP",
+    "domaine": "Gestion & RH",
+    "tutelle": "Min. Travail",
+    "diplomes": "Licence, Master, MBA",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de la Productivité et du Développement Industriel",
+    "sigle": "INPED",
+    "domaine": "Management industriel",
+    "tutelle": "Min. Industrie",
+    "diplomes": "MBA, Formation continue",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Centre de Recherche en Économie Appliquée pour le Développement",
+    "sigle": "CREAD",
+    "domaine": "Économie",
+    "tutelle": "Min. Ens. Sup.",
+    "diplomes": "Recherche & Doctorat",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de la Planification et de la Statistique",
+    "sigle": "INPS",
+    "domaine": "Statistique",
+    "tutelle": "Min. Finances",
+    "diplomes": "Ingénieur statisticien",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de la Poste, des TIC et du Numérique",
+    "sigle": "INPTIC",
+    "domaine": "TIC & Poste",
+    "tutelle": "Min. Poste et Télécoms",
+    "diplomes": "Ingénieur, Licence",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut Algérien du Pétrole",
+    "sigle": "IAP",
+    "domaine": "Hydrocarbures",
+    "tutelle": "Sonatrach",
+    "diplomes": "Ingénieur, Master, Formation continue",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom": "Institut Algérien du Pétrole - Boumerdès",
+    "sigle": "IAP Boumerdès",
+    "domaine": "Hydrocarbures",
+    "tutelle": "Sonatrach",
+    "diplomes": "Ingénieur, Master",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom": "Institut Algérien du Pétrole - Arzew",
+    "sigle": "IAP Arzew",
+    "domaine": "Hydrocarbures",
+    "tutelle": "Sonatrach",
+    "diplomes": "Ingénieur, Technicien Supérieur",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom": "Institut Algérien du Pétrole - Hassi Messaoud",
+    "sigle": "IAP HMD",
+    "domaine": "Hydrocarbures",
+    "tutelle": "Sonatrach",
+    "diplomes": "Formation continue, TS",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de la Formation Judiciaire",
+    "sigle": "INFJ",
+    "domaine": "Justice",
+    "tutelle": "Min. Justice",
+    "diplomes": "Formation magistrats",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut Diplomatique et des Relations Internationales",
+    "sigle": "IDRI",
+    "domaine": "Diplomatie",
+    "tutelle": "Min. Affaires Étrangères",
+    "diplomes": "Formation diplomatique",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National des Télécommunications et des TIC",
+    "sigle": "INTTIC",
+    "domaine": "Télécommunications",
+    "tutelle": "Min. Poste et Télécoms",
+    "diplomes": "Ingénieur",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Centre de Développement des Technologies Avancées",
+    "sigle": "CDTA",
+    "domaine": "Technologies avancées",
+    "tutelle": "Min. Ens. Sup.",
+    "diplomes": "Recherche",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Centre de Recherche Scientifique et Technique en Soudage et Contrôle",
+    "sigle": "CSC",
+    "domaine": "Soudage industriel",
+    "tutelle": "Min. Industrie",
+    "diplomes": "Certification soudeurs",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National Algérien de la Propriété Industrielle",
+    "sigle": "INAPI",
+    "domaine": "Propriété industrielle",
+    "tutelle": "Min. Industrie",
+    "diplomes": "Formation brevets",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Institut National de la Formation et de l'Enseignement Professionnels",
+    "sigle": "INFP",
+    "domaine": "Pédagogie FP",
+    "tutelle": "Min. Formation Prof.",
+    "diplomes": "Formation des formateurs",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom": "École Supérieure de la Magistrature",
+    "sigle": "ESM",
+    "domaine": "Justice & Droit",
+    "tutelle": "Min. Justice",
+    "diplomes": "Formation magistrats",
+    "categorie": "Administration & Instituts Spécialisés"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom": "Centre National de la Recherche en Anthropologie Sociale et Culturelle",
+    "sigle": "CRASC",
+    "domaine": "Sciences sociales",
+    "tutelle": "Min. Ens. Sup.",
+    "diplomes": "Recherche",
+    "categorie": "Administration & Instituts Spécialisés"
+  }
+]

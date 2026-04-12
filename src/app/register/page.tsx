@@ -101,6 +101,9 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                   className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
                 />
+                <div className="flex justify-end pt-1">
+                  <Link href="/login" className="text-[11px] font-medium text-txt-muted hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors">{t('auth.forgot')}</Link>
+                </div>
               </div>
 
               <div className="pt-2">

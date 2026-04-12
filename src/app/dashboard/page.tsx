@@ -73,11 +73,12 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
   draft: DraftCV; onEdit: () => void; onDuplicate: () => void; onDelete: () => void; delay: number;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   const statusConfig = {
-    draft: { icon: ClockIcon, label: 'Draft', cls: 'text-amber-500 bg-amber-500/10' },
-    completed: { icon: CheckCircleIcon, label: 'Completed', cls: 'text-emerald-500 bg-emerald-500/10' },
-    shared: { icon: ShareIcon, label: 'Shared', cls: 'text-blue-500 bg-blue-500/10' },
+    draft: { icon: ClockIcon, label: t('dashboard.draft') || 'Draft', cls: 'text-amber-500 bg-amber-500/10' },
+    completed: { icon: CheckCircleIcon, label: t('dashboard.completed') || 'Completed', cls: 'text-emerald-500 bg-emerald-500/10' },
+    shared: { icon: ShareIcon, label: t('dashboard.shared') || 'Shared', cls: 'text-blue-500 bg-blue-500/10' },
   };
 
   const status = statusConfig[draft.status];
@@ -88,10 +89,10 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
     const d = new Date(dateStr);
     const diffMs = now.getTime() - d.getTime();
     const diffH = Math.floor(diffMs / 3600000);
-    if (diffH < 1) return 'Just now';
-    if (diffH < 24) return `${diffH}h ago`;
+    if (diffH < 1) return t('dashboard.justNow') || 'Just now';
+    if (diffH < 24) return `${diffH} ${t('dashboard.hAgo') || 'h ago'}`;
     const diffD = Math.floor(diffH / 24);
-    if (diffD < 7) return `${diffD}d ago`;
+    if (diffD < 7) return `${diffD} ${t('dashboard.dAgo') || 'd ago'}`;
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
@@ -130,7 +131,7 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
           <span className="text-white text-[12px] font-medium flex items-center gap-1.5">
-            <PencilSquareIcon className="w-3.5 h-3.5" /> Edit CV
+            <PencilSquareIcon className="w-3.5 h-3.5" /> {t('dashboard.editCV') || 'Edit CV'}
           </span>
         </div>
 
@@ -164,17 +165,17 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
                   className="absolute right-0 rtl:right-auto rtl:left-0 top-8 w-40 bg-surface border border-border rounded-xl shadow-2xl z-50 py-1 overflow-hidden"
                 >
                   <button onClick={() => { onEdit(); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-txt hover:bg-surface2 transition">
-                    <PencilSquareIcon className="w-3.5 h-3.5" /> Edit
+                    <PencilSquareIcon className="w-3.5 h-3.5" /> {t('dashboard.edit') || 'Edit'}
                   </button>
                   <button onClick={() => { onDuplicate(); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-txt hover:bg-surface2 transition">
-                    <DocumentDuplicateIcon className="w-3.5 h-3.5" /> Duplicate
+                    <DocumentDuplicateIcon className="w-3.5 h-3.5" /> {t('dashboard.duplicate') || 'Duplicate'}
                   </button>
                   <button onClick={() => { window.open('/builder', '_blank'); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-txt hover:bg-surface2 transition">
-                    <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" /> Open in new tab
+                    <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" /> {t('dashboard.openNewTab') || 'Open in new tab'}
                   </button>
                   <div className="border-t border-border my-1" />
                   <button onClick={() => { onDelete(); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-red-500 hover:bg-red-500/5 transition">
-                    <TrashIcon className="w-3.5 h-3.5" /> Delete
+                    <TrashIcon className="w-3.5 h-3.5" /> {t('dashboard.delete') || 'Delete'}
                   </button>
                 </motion.div>
               )}
@@ -185,7 +186,7 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
         {/* Progress bar */}
         <div className="mb-2.5">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-txt-dim font-medium uppercase tracking-wider">Completion</span>
+            <span className="text-[10px] text-txt-dim font-medium uppercase tracking-wider">{t('dashboard.completion') || 'Completion'}</span>
             <span className="text-[10px] font-bold text-txt-muted">{draft.completionPercent}%</span>
           </div>
           <div className="h-1.5 bg-surface2 rounded-full overflow-hidden">
@@ -245,10 +246,10 @@ export default function DashboardPage() {
 
   // ── Sidebar Nav Items ──
   const navItems: { id: DashboardView; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: 'cvs', label: 'My CVs', icon: DocumentTextIcon },
-    { id: 'analytics', label: 'Analytics', icon: ChartBarIcon },
-    { id: 'settings', label: 'Settings', icon: Cog6ToothIcon },
-    { id: 'profile', label: 'Profile', icon: UserCircleIcon },
+    { id: 'cvs', label: t('dashboard.tabCVs') || 'My CVs', icon: DocumentTextIcon },
+    { id: 'analytics', label: t('dashboard.tabAnalytics') || 'Analytics', icon: ChartBarIcon },
+    { id: 'settings', label: t('dashboard.tabSettings') || 'Settings', icon: Cog6ToothIcon },
+    { id: 'profile', label: t('dashboard.tabProfile') || 'Profile', icon: UserCircleIcon },
   ];
 
   return (
@@ -303,7 +304,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 dark:from-blue-500 dark:via-cyan-300 dark:to-blue-500 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 z-0" />
             <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 z-0" />
             <PlusIcon className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">New CV</span>
+            <span className="relative z-10">{t('dashboard.newCV') || 'New CV'}</span>
           </Link>
         </div>
 
@@ -323,9 +324,9 @@ export default function DashboardPage() {
                 }`}
               >
                 <Icon className={`w-[18px] h-[18px] ${isActive ? 'text-blue-500' : ''}`} />
-                {item.label}
+                <span>{item.label}</span>
                 {item.id === 'cvs' && (
-                  <span className="ml-auto text-[10px] font-bold bg-surface2 text-txt-muted px-2 py-0.5 rounded-full">
+                  <span className={`${dir === 'rtl' ? 'mr-auto' : 'ml-auto'} text-[10px] font-bold bg-surface2 text-txt-muted px-2 py-0.5 rounded-full`}>
                     {drafts.length}
                   </span>
                 )}
@@ -379,16 +380,16 @@ export default function DashboardPage() {
             </button>
             <div>
               <h1 className="text-[18px] sm:text-[20px] font-bold text-txt">
-                {activeView === 'cvs' && 'My CVs'}
-                {activeView === 'analytics' && 'Analytics'}
-                {activeView === 'settings' && 'Settings'}
-                {activeView === 'profile' && 'Profile'}
+                {activeView === 'cvs' && (t('dashboard.tabCVs') || 'My CVs')}
+                {activeView === 'analytics' && (t('dashboard.tabAnalytics') || 'Analytics')}
+                {activeView === 'settings' && (t('dashboard.tabSettings') || 'Settings')}
+                {activeView === 'profile' && (t('dashboard.tabProfile') || 'Profile')}
               </h1>
               <p className="text-[12px] text-txt-muted hidden sm:block">
-                {activeView === 'cvs' && `${drafts.length} CVs · ${completedCount} completed`}
-                {activeView === 'analytics' && 'Track your CV performance'}
-                {activeView === 'settings' && 'Manage your preferences'}
-                {activeView === 'profile' && 'Your personal information'}
+                {activeView === 'cvs' && `${drafts.length} CVs · ${completedCount} ${t('dashboard.completed') || 'completed'}`}
+                {activeView === 'analytics' && (t('dashboard.analyticsDesc') || 'Track your CV performance')}
+                {activeView === 'settings' && (t('dashboard.settingsDesc') || 'Manage your preferences')}
+                {activeView === 'profile' && (t('dashboard.profileDesc') || 'Your personal information')}
               </p>
             </div>
           </div>
@@ -400,10 +401,10 @@ export default function DashboardPage() {
                 <MagnifyingGlassIcon className="w-4 h-4 absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-txt-dim" />
                 <input
                   type="text"
-                  placeholder="Search CVs..."
+                  placeholder={t('dashboard.searchPlaceholder') || "Search CVs..."}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-52 bg-surface2 border border-transparent focus:border-blue-500/40 rounded-xl pl-9 rtl:pl-4 rtl:pr-9 pr-4 py-2 text-[12px] text-txt outline-none transition-all focus:w-64 focus:ring-2 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  className="w-80 lg:w-[400px] bg-surface2 border border-transparent focus:border-blue-500/40 rounded-xl pl-9 rtl:pl-4 rtl:pr-9 pr-4 py-2 text-[12px] text-txt outline-none transition-all focus:w-96 lg:focus:w-[480px] focus:ring-2 focus:ring-blue-500/10 placeholder:text-txt-dim"
                 />
               </div>
             )}
@@ -432,10 +433,10 @@ export default function DashboardPage() {
               >
                 {/* Quick Stats Row */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                  <StatCard icon={DocumentTextIcon} label="Total CVs" value={String(drafts.length)} trend="+2" color="bg-gradient-to-br from-blue-600 to-blue-500" />
-                  <StatCard icon={CheckCircleIcon} label="Completed" value={String(completedCount)} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
-                  <StatCard icon={ClockIcon} label="In Progress" value={String(draftCount)} color="bg-gradient-to-br from-amber-600 to-amber-500" />
-                  <StatCard icon={ArrowDownTrayIcon} label="Downloads" value="24" trend="+8" color="bg-gradient-to-br from-purple-600 to-purple-500" />
+                  <StatCard icon={DocumentTextIcon} label={t('dashboard.statTotal') || "Total CVs"} value={String(drafts.length)} trend="+2" color="bg-gradient-to-br from-blue-600 to-blue-500" />
+                  <StatCard icon={CheckCircleIcon} label={t('dashboard.completed') || "Completed"} value={String(completedCount)} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
+                  <StatCard icon={ClockIcon} label={t('dashboard.draft') || "In Progress"} value={String(draftCount)} color="bg-gradient-to-br from-amber-600 to-amber-500" />
+                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Downloads"} value="24" trend="+8" color="bg-gradient-to-br from-purple-600 to-purple-500" />
                 </div>
 
                 {/* CV Grid */}
@@ -453,8 +454,8 @@ export default function DashboardPage() {
                       <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
                         <PlusIcon className="w-7 h-7 text-blue-500" />
                       </div>
-                      <span className="text-[14px] font-semibold text-txt-muted group-hover:text-blue-500 transition-colors">Create New CV</span>
-                      <span className="text-[11px] text-txt-dim mt-1">Start from scratch or use a template</span>
+                      <span className="text-[14px] font-semibold text-txt-muted group-hover:text-blue-500 transition-colors">{t('dashboard.newCV') || 'Create New CV'}</span>
+                      <span className="text-[11px] text-txt-dim mt-1">{t('dashboard.newCVDesc') || 'Start from scratch or use a template'}</span>
                     </Link>
                   </motion.div>
 
@@ -473,7 +474,7 @@ export default function DashboardPage() {
                 {filteredDrafts.length === 0 && searchQuery && (
                   <div className="text-center py-20">
                     <MagnifyingGlassIcon className="w-12 h-12 mx-auto text-txt-dim mb-3" />
-                    <p className="text-txt-muted font-medium">No CVs found matching &ldquo;{searchQuery}&rdquo;</p>
+                    <p className="text-txt-muted font-medium">{t('dashboard.noCVsFound') || 'No CVs found matching'} &ldquo;{searchQuery}&rdquo;</p>
                   </div>
                 )}
               </motion.div>
@@ -491,17 +492,17 @@ export default function DashboardPage() {
               >
                 {/* Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard icon={EyeIcon} label="Total Views" value="1,247" trend="+18%" color="bg-gradient-to-br from-blue-600 to-blue-500" />
-                  <StatCard icon={ArrowDownTrayIcon} label="Total Downloads" value="24" trend="+33%" color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
-                  <StatCard icon={ShareIcon} label="Shared Links" value="8" trend="+5" color="bg-gradient-to-br from-purple-600 to-purple-500" />
-                  <StatCard icon={ArrowTrendingUpIcon} label="Profile Score" value="92/100" color="bg-gradient-to-br from-amber-600 to-amber-500" />
+                  <StatCard icon={EyeIcon} label={t('dashboard.statViews') || "Total Views"} value="1,247" trend="+18%" color="bg-gradient-to-br from-blue-600 to-blue-500" />
+                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Total Downloads"} value="24" trend="+33%" color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
+                  <StatCard icon={ShareIcon} label={t('dashboard.shared') || "Shared Links"} value="8" trend="+5" color="bg-gradient-to-br from-purple-600 to-purple-500" />
+                  <StatCard icon={ArrowTrendingUpIcon} label={t('dashboard.statSuccess') || "Profile Score"} value="92/100" color="bg-gradient-to-br from-amber-600 to-amber-500" />
                 </div>
 
                 {/* Charts mockup */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Activity Card */}
                   <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                    <h3 className="text-[15px] font-bold text-txt mb-4">Weekly Activity</h3>
+                    <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.viewsOverTime') || 'Weekly Activity'}</h3>
                     <div className="flex items-end gap-2 h-40">
                       {[40, 65, 30, 80, 55, 90, 70].map((h, i) => (
                         <motion.div
@@ -526,7 +527,7 @@ export default function DashboardPage() {
 
                   {/* Template Popularity */}
                   <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                    <h3 className="text-[15px] font-bold text-txt mb-4">Template Usage</h3>
+                    <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.overview') || 'Template Usage'}</h3>
                     <div className="space-y-4">
                       {[
                         { name: 'Tech & IT', pct: 38, color: 'from-blue-600 to-blue-400' },
@@ -556,7 +557,7 @@ export default function DashboardPage() {
 
                 {/* Recent Activity */}
                 <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-txt mb-4">Recent Activity</h3>
+                  <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.comingSoon') || 'Recent Activity'}</h3>
                   <div className="space-y-3">
                     {[
                       { action: 'Downloaded', cv: 'Software Engineer CV', time: '2 hours ago', icon: ArrowDownTrayIcon, color: 'text-blue-500 bg-blue-500/10' },
@@ -604,16 +605,16 @@ export default function DashboardPage() {
                 {/* Appearance */}
                 <SettingsSection
                   icon={SwatchIcon}
-                  title="Appearance"
-                  description="Customize how Sira looks on your device"
+                  title={t('dashboard.appearance') || "Appearance"}
+                  description={t('dashboard.themeLanguage') || "Customize how Sira looks"}
                 >
-                  <SettingsRow label="Theme" description="Choose between light and dark mode">
+                  <SettingsRow label="Theme" description="">
                     <ThemeToggle />
                   </SettingsRow>
-                  <SettingsRow label="Language" description="Set your preferred language">
+                  <SettingsRow label={t('dashboard.language') || "Language"} description="">
                     <LanguageToggle />
                   </SettingsRow>
-                  <SettingsRow label="CV Preview Scale" description="Default zoom level for CV previews">
+                  <SettingsRow label={t('dashboard.cvPreviewScale') || "CV Preview Scale"} description={t('dashboard.cvPreviewScaleDesc') || "Default zoom level for CV previews"}>
                     <select className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
                       <option>75%</option>
                       <option selected>100%</option>
@@ -626,16 +627,16 @@ export default function DashboardPage() {
                 {/* Privacy */}
                 <SettingsSection
                   icon={ShieldCheckIcon}
-                  title="Privacy & Security"
-                  description="Control your data and account security"
+                  title={t('dashboard.securitySettings') || "Privacy & Security"}
+                  description=""
                 >
-                  <SettingsRow label="Two-Factor Authentication" description="Add an extra layer of security">
+                  <SettingsRow label={t('dashboard.twoFactor') || "Two-Factor Authentication"} description={t('dashboard.enableTwoFactor') || "Add an extra layer of security"}>
                     <ToggleSwitch defaultChecked={false} />
                   </SettingsRow>
-                  <SettingsRow label="Share Analytics" description="Help us improve by sharing anonymous usage data">
+                  <SettingsRow label={t('dashboard.shareAnalytics') || "Share Analytics"} description="">
                     <ToggleSwitch defaultChecked={true} />
                   </SettingsRow>
-                  <SettingsRow label="Auto-save Drafts" description="Automatically save changes as you type">
+                  <SettingsRow label={t('dashboard.autoSaveDrafts') || "Auto-save Drafts"} description="">
                     <ToggleSwitch defaultChecked={true} />
                   </SettingsRow>
                 </SettingsSection>
@@ -643,16 +644,16 @@ export default function DashboardPage() {
                 {/* Notifications */}
                 <SettingsSection
                   icon={BellIcon}
-                  title="Notifications"
-                  description="Manage your notification preferences"
+                  title={t('dashboard.notificationsLabel') || "Notifications"}
+                  description={t('dashboard.notificationsDesc') || "Manage your notification preferences"}
                 >
-                  <SettingsRow label="Email Notifications" description="Receive updates about your account">
+                  <SettingsRow label={t('dashboard.emailNotifications') || "Email Notifications"} description={t('dashboard.emailNotificationsDesc') || "Receive updates about your account"}>
                     <ToggleSwitch defaultChecked={true} />
                   </SettingsRow>
-                  <SettingsRow label="New Template Alerts" description="Be notified when new templates are available">
+                  <SettingsRow label={t('dashboard.newTemplateAlerts') || "New Template Alerts"} description={t('dashboard.newTemplateAlertsDesc') || "Be notified when new templates are available"}>
                     <ToggleSwitch defaultChecked={true} />
                   </SettingsRow>
-                  <SettingsRow label="Tips & Tutorials" description="Receive helpful CVs tips and guides">
+                  <SettingsRow label={t('dashboard.tipsTutorials') || "Tips & Tutorials"} description={t('dashboard.tipsTutorialsDesc') || "Receive helpful CVs tips and guides"}>
                     <ToggleSwitch defaultChecked={false} />
                   </SettingsRow>
                 </SettingsSection>
@@ -660,33 +661,33 @@ export default function DashboardPage() {
                 {/* Export & Data */}
                 <SettingsSection
                   icon={ArrowDownTrayIcon}
-                  title="Data & Export"
-                  description="Manage your data and export options"
+                  title={t('dashboard.dataExport') || "Data & Export"}
+                  description={t('dashboard.dataExportDesc') || "Manage your data and export options"}
                 >
-                  <SettingsRow label="Default PDF Size" description="Choose default paper size for exports">
+                  <SettingsRow label={t('dashboard.defaultPdfSize') || "Default PDF Size"} description={t('dashboard.defaultPdfSizeDesc') || "Choose default paper size for exports"}>
                     <select className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
                       <option selected>A4</option>
                       <option>Letter</option>
                       <option>Legal</option>
                     </select>
                   </SettingsRow>
-                  <SettingsRow label="Export all CVs" description="Download all your CVs as a ZIP archive">
+                  <SettingsRow label={t('dashboard.exportAllCvs') || "Export all CVs"} description={t('dashboard.exportAllCvsDesc') || "Download all your CVs as a ZIP archive"}>
                     <button className="px-4 py-2 bg-surface2 border border-border rounded-xl text-[12px] font-medium text-txt hover:border-blue-500/40 transition-colors">
-                      Export
+                      {t('dashboard.export') || "Export"}
                     </button>
                   </SettingsRow>
                 </SettingsSection>
 
                 {/* Danger Zone */}
                 <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-red-500 mb-1">Danger Zone</h3>
-                  <p className="text-[12px] text-txt-muted mb-4">Irreversible actions for your account</p>
+                  <h3 className="text-[15px] font-bold text-red-500 mb-1">{t('dashboard.dangerZone') || 'Danger Zone'}</h3>
+                  <p className="text-[12px] text-txt-muted mb-4">{t('dashboard.deleteAccountDesc') || 'Irreversible actions for your account'}</p>
                   <div className="flex flex-wrap gap-3">
                     <button className="px-4 py-2.5 bg-surface border border-red-500/20 rounded-xl text-[12px] font-medium text-red-500 hover:bg-red-500/10 transition-colors">
-                      Delete All CVs
+                      {t('dashboard.delete') || 'Delete All CVs'}
                     </button>
                     <button className="px-4 py-2.5 bg-red-500 text-white rounded-xl text-[12px] font-medium hover:bg-red-600 transition-colors">
-                      Delete Account
+                      {t('dashboard.deleteAccount') || 'Delete Account'}
                     </button>
                   </div>
                 </div>
@@ -720,9 +721,9 @@ export default function DashboardPage() {
                       <p className="text-[13px] text-txt-muted">{user.email}</p>
                       <div className="flex items-center gap-3 mt-2">
                         <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
-                          <SparklesIcon className="w-3 h-3" /> Pro Plan
+                          <SparklesIcon className="w-3 h-3" /> {t('dashboard.proPlan') || "Pro Plan"}
                         </span>
-                        <span className="text-[11px] text-txt-dim">Member since Nov 2025</span>
+                        <span className="text-[11px] text-txt-dim">{t('dashboard.memberSince') || "Member since Nov 2025"}</span>
                       </div>
                     </div>
                   </div>
@@ -731,21 +732,22 @@ export default function DashboardPage() {
                 {/* Personal Info Form */}
                 <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
                   <h3 className="text-[15px] font-bold text-txt mb-5 flex items-center gap-2">
-                    <UserCircleIcon className="w-5 h-5 text-blue-500" /> Personal Information
+                    <UserCircleIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.personalInformation') || "Personal Information"}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField label="First Name" value="Islem" />
-                    <FormField label="Last Name" value="Charaf Eddine" />
-                    <FormField label="Email Address" value="islem@oosira.com" type="email" />
-                    <FormField label="Phone" value="+213 555 00 00 00" />
-                    <FormField label="Location" value="Algeria" />
-                    <FormField label="LinkedIn" value="linkedin.com/in/islem" />
+                    <FormField label={t('dashboard.firstName') || "First Name"} value="Islem" />
+                    <FormField label={t('dashboard.lastName') || "Last Name"} value="Charaf Eddine" />
+                    <FormField label={t('dashboard.emailAddress') || "Email Address"} value="islem@oosira.com" type="email" />
+                    <FormField label={t('dashboard.phoneLabel') || "Phone"} value="+213 555 00 00 00" />
+                    <FormField label={t('dashboard.locationLabel') || "Location"} value="Algeria" />
+                    <FormField label={t('dashboard.linkedinLabel') || "LinkedIn"} value="linkedin.com/in/islem" />
                   </div>
                   <div className="mt-5 flex justify-end">
                     <button className="group relative inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-white font-medium text-[13px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 z-0" />
                       <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 z-0" />
-                      <span className="relative z-10">Save Changes</span>
+                      <span className="relative z-10">{t('dashboard.saveChanges') || "Save Changes"}</span>
+
                     </button>
                   </div>
                 </div>
@@ -753,16 +755,16 @@ export default function DashboardPage() {
                 {/* Password Change */}
                 <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
                   <h3 className="text-[15px] font-bold text-txt mb-5 flex items-center gap-2">
-                    <KeyIcon className="w-5 h-5 text-blue-500" /> Change Password
+                    <KeyIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.changePassword') || "Change Password"}
                   </h3>
                   <div className="space-y-4 max-w-sm">
-                    <FormField label="Current Password" value="" type="password" placeholder="••••••••" />
-                    <FormField label="New Password" value="" type="password" placeholder="••••••••" />
-                    <FormField label="Confirm New Password" value="" type="password" placeholder="••••••••" />
+                    <FormField label={t('dashboard.currentPassword') || "Current Password"} value="" type="password" placeholder="••••••••" />
+                    <FormField label={t('dashboard.newPassword') || "New Password"} value="" type="password" placeholder="••••••••" />
+                    <FormField label={t('dashboard.confirmNewPassword') || "Confirm New Password"} value="" type="password" placeholder="••••••••" />
                   </div>
                   <div className="mt-5">
                     <button className="px-5 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors">
-                      Update Password
+                      {t('dashboard.updatePassword') || "Update Password"}
                     </button>
                   </div>
                 </div>
@@ -792,22 +794,22 @@ export default function DashboardPage() {
               <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
                 <TrashIcon className="w-6 h-6 text-red-500" />
               </div>
-              <h3 className="text-[16px] font-bold text-txt mb-1">Delete CV?</h3>
+              <h3 className="text-[16px] font-bold text-txt mb-1">{t('dashboard.confirmDelete') || 'Delete CV?'}</h3>
               <p className="text-[13px] text-txt-muted mb-5">
-                This action cannot be undone. The CV will be permanently removed.
+                {t('dashboard.confirmDeleteSub') || 'This action cannot be undone. The CV will be permanently removed.'}
               </p>
               <div className="flex gap-3 justify-end">
                 <button
                   onClick={() => setDeleteConfirm(null)}
                   className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:bg-surface transition"
                 >
-                  Cancel
+                  {t('dashboard.cancel') || 'Cancel'}
                 </button>
                 <button
                   onClick={() => { deleteDraft(deleteConfirm); setDeleteConfirm(null); }}
                   className="px-4 py-2.5 bg-red-500 text-white rounded-xl text-[13px] font-medium hover:bg-red-600 transition"
                 >
-                  Delete
+                  {t('dashboard.delete') || 'Delete'}
                 </button>
               </div>
             </motion.div>

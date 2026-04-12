@@ -5,6 +5,7 @@ export interface Formation {
   ville: string;
   annee: string;
   mention: string;
+  type_etablissement?: string;
 }
 
 export interface Experience {

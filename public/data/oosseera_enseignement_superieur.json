@@ -1,0 +1,1190 @@
+[
+  {
+    "code_wilaya": "01",
+    "wilaya": "Adrar",
+    "nom_officiel": "Université Ahmed Draya d'Adrar",
+    "nom_court": "Univ. Adrar",
+    "annee": 1986,
+    "type": "Université",
+    "site": "univ-adrar.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "02",
+    "wilaya": "Chlef",
+    "nom_officiel": "Université Hassiba Benbouali de Chlef",
+    "nom_court": "Univ. Chlef",
+    "annee": 1983,
+    "type": "Université",
+    "site": "univ-chlef.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_officiel": "Université Amar Telidji de Laghouat",
+    "nom_court": "Univ. Laghouat",
+    "annee": 1986,
+    "type": "Université",
+    "site": "lagh-univ.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "04",
+    "wilaya": "Oum El Bouaghi",
+    "nom_officiel": "Université Larbi Ben M'hidi d'Oum El Bouaghi",
+    "nom_court": "Univ. OEB",
+    "annee": 1983,
+    "type": "Université",
+    "site": "univ-oeb.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_officiel": "Université Batna 1 - Hadj Lakhdar",
+    "nom_court": "Batna 1",
+    "annee": 1977,
+    "type": "Université",
+    "site": "univ-batna.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_officiel": "Université Batna 2 - Mostefa Ben Boulaïd",
+    "nom_court": "Batna 2",
+    "annee": 2015,
+    "type": "Université",
+    "site": "univ-batna2.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_officiel": "Université Abderrahmane Mira de Béjaïa",
+    "nom_court": "Univ. Béjaïa",
+    "annee": 1983,
+    "type": "Université",
+    "site": "univ-bejaia.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "07",
+    "wilaya": "Biskra",
+    "nom_officiel": "Université Mohamed Khider de Biskra",
+    "nom_court": "Univ. Biskra",
+    "annee": 1984,
+    "type": "Université",
+    "site": "univ-biskra.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_officiel": "Université Tahri Mohamed de Béchar",
+    "nom_court": "Univ. Béchar",
+    "annee": 1986,
+    "type": "Université",
+    "site": "univ-bechar.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_officiel": "Université Saad Dahlab de Blida 1",
+    "nom_court": "Blida 1",
+    "annee": 1977,
+    "type": "Université",
+    "site": "univ-blida.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_officiel": "Université Ali Lounici de Blida 2",
+    "nom_court": "Blida 2",
+    "annee": 2011,
+    "type": "Université",
+    "site": "univ-blida2.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "10",
+    "wilaya": "Bouira",
+    "nom_officiel": "Université Akli Mohand Oulhadj de Bouira",
+    "nom_court": "Univ. Bouira",
+    "annee": 2001,
+    "type": "Université",
+    "site": "univ-bouira.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "11",
+    "wilaya": "Tamanrasset",
+    "nom_officiel": "Université de Tamanrasset",
+    "nom_court": "Univ. Tamanrasset",
+    "annee": 2005,
+    "type": "Université",
+    "site": "univ-tam.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "12",
+    "wilaya": "Tébessa",
+    "nom_officiel": "Université Echahid Cheikh Larbi Tebessi de Tébessa",
+    "nom_court": "Univ. Tébessa",
+    "annee": 1985,
+    "type": "Université",
+    "site": "univ-tebessa.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_officiel": "Université Abou Bekr Belkaïd de Tlemcen",
+    "nom_court": "Univ. Tlemcen",
+    "annee": 1974,
+    "type": "Université",
+    "site": "univ-tlemcen.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "14",
+    "wilaya": "Tiaret",
+    "nom_officiel": "Université Ibn Khaldoun de Tiaret",
+    "nom_court": "Univ. Tiaret",
+    "annee": 1980,
+    "type": "Université",
+    "site": "univ-tiaret.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "15",
+    "wilaya": "Tizi Ouzou",
+    "nom_officiel": "Université Mouloud Mammeri de Tizi Ouzou",
+    "nom_court": "UMMTO",
+    "annee": 1977,
+    "type": "Université",
+    "site": "ummto.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "Université d'Alger 1 - Benyoucef Benkhedda",
+    "nom_court": "Alger 1",
+    "annee": 1832,
+    "type": "Université",
+    "site": "univ-alger.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "Université d'Alger 2 - Abou El Kacem Saadallah",
+    "nom_court": "Alger 2",
+    "annee": 2009,
+    "type": "Université",
+    "site": "univ-alger2.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "Université d'Alger 3 - Brahim Soltane Chaibout",
+    "nom_court": "Alger 3",
+    "annee": 2009,
+    "type": "Université",
+    "site": "univ-alger3.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "Université des Sciences et de la Technologie Houari Boumediene",
+    "nom_court": "USTHB",
+    "annee": 1974,
+    "type": "Université",
+    "site": "usthb.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "Université de Formation Continue",
+    "nom_court": "UFC",
+    "annee": 1990,
+    "type": "Université",
+    "site": "ufc.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "17",
+    "wilaya": "Djelfa",
+    "nom_officiel": "Université Ziane Achour de Djelfa",
+    "nom_court": "Univ. Djelfa",
+    "annee": 1990,
+    "type": "Université",
+    "site": "univ-djelfa.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "18",
+    "wilaya": "Jijel",
+    "nom_officiel": "Université Mohamed Seddik Benyahia de Jijel",
+    "nom_court": "Univ. Jijel",
+    "annee": 1986,
+    "type": "Université",
+    "site": "univ-jijel.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_officiel": "Université Ferhat Abbas de Sétif 1",
+    "nom_court": "Sétif 1",
+    "annee": 1978,
+    "type": "Université",
+    "site": "univ-setif.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "19",
+    "wilaya": "Sétif",
+    "nom_officiel": "Université Mohamed Lamine Debaghine de Sétif 2",
+    "nom_court": "Sétif 2",
+    "annee": 2011,
+    "type": "Université",
+    "site": "univ-setif2.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "20",
+    "wilaya": "Saïda",
+    "nom_officiel": "Université Moulay Tahar de Saïda",
+    "nom_court": "Univ. Saïda",
+    "annee": 1986,
+    "type": "Université",
+    "site": "univ-saida.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "21",
+    "wilaya": "Skikda",
+    "nom_officiel": "Université 20 Août 1955 de Skikda",
+    "nom_court": "Univ. Skikda",
+    "annee": 1988,
+    "type": "Université",
+    "site": "univ-skikda.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_officiel": "Université Djillali Liabès de Sidi Bel Abbès",
+    "nom_court": "Univ. SBA",
+    "annee": 1978,
+    "type": "Université",
+    "site": "univ-sba.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_officiel": "Université Badji Mokhtar d'Annaba",
+    "nom_court": "Univ. Annaba",
+    "annee": 1975,
+    "type": "Université",
+    "site": "univ-annaba.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "24",
+    "wilaya": "Guelma",
+    "nom_officiel": "Université 8 Mai 1945 de Guelma",
+    "nom_court": "Univ. Guelma",
+    "annee": 1986,
+    "type": "Université",
+    "site": "univ-guelma.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "Université des Frères Mentouri Constantine 1",
+    "nom_court": "Constantine 1",
+    "annee": 1958,
+    "type": "Université",
+    "site": "umc.edu.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "Université Abdelhamid Mehri Constantine 2",
+    "nom_court": "Constantine 2",
+    "annee": 2011,
+    "type": "Université",
+    "site": "univ-constantine2.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "Université Salah Boubnider Constantine 3",
+    "nom_court": "Constantine 3",
+    "annee": 2011,
+    "type": "Université",
+    "site": "univ-constantine3.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "Université Émir Abdelkader des Sciences Islamiques",
+    "nom_court": "Univ. Émir AEK",
+    "annee": 1984,
+    "type": "Université",
+    "site": "univ-emir.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "26",
+    "wilaya": "Médéa",
+    "nom_officiel": "Université Yahia Farès de Médéa",
+    "nom_court": "Univ. Médéa",
+    "annee": 1989,
+    "type": "Université",
+    "site": "univ-medea.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_officiel": "Université Abdelhamid Ibn Badis de Mostaganem",
+    "nom_court": "Univ. Mostaganem",
+    "annee": 1969,
+    "type": "Université",
+    "site": "univ-mosta.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "28",
+    "wilaya": "M'Sila",
+    "nom_officiel": "Université Mohamed Boudiaf de M'Sila",
+    "nom_court": "Univ. M'Sila",
+    "annee": 1985,
+    "type": "Université",
+    "site": "univ-msila.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "29",
+    "wilaya": "Mascara",
+    "nom_officiel": "Université Mustapha Stambouli de Mascara",
+    "nom_court": "Univ. Mascara",
+    "annee": 1986,
+    "type": "Université",
+    "site": "univ-mascara.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_officiel": "Université Kasdi Merbah de Ouargla",
+    "nom_court": "Univ. Ouargla",
+    "annee": 1987,
+    "type": "Université",
+    "site": "univ-ouargla.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "Université d'Oran 1 - Ahmed Ben Bella",
+    "nom_court": "Oran 1",
+    "annee": 1961,
+    "type": "Université",
+    "site": "univ-oran1.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "Université d'Oran 2 - Mohamed Ben Ahmed",
+    "nom_court": "Oran 2",
+    "annee": 2014,
+    "type": "Université",
+    "site": "univ-oran2.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "Université des Sciences et de la Technologie Mohamed Boudiaf d'Oran",
+    "nom_court": "USTO",
+    "annee": 1971,
+    "type": "Université",
+    "site": "univ-usto.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "34",
+    "wilaya": "Bordj Bou Arréridj",
+    "nom_officiel": "Université Mohamed El Bachir El Ibrahimi de BBA",
+    "nom_court": "Univ. BBA",
+    "annee": 2000,
+    "type": "Université",
+    "site": "univ-bba.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "35",
+    "wilaya": "Boumerdès",
+    "nom_officiel": "Université M'hamed Bougara de Boumerdès",
+    "nom_court": "UMBB",
+    "annee": 1964,
+    "type": "Université",
+    "site": "univ-boumerdes.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "36",
+    "wilaya": "El Tarf",
+    "nom_officiel": "Université Chadli Bendjedid d'El Tarf",
+    "nom_court": "Univ. El Tarf",
+    "annee": 1992,
+    "type": "Université",
+    "site": "univ-eltarf.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "39",
+    "wilaya": "El Oued",
+    "nom_officiel": "Université Echahid Hamma Lakhdar d'El Oued",
+    "nom_court": "Univ. El Oued",
+    "annee": 1995,
+    "type": "Université",
+    "site": "univ-eloued.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "40",
+    "wilaya": "Khenchela",
+    "nom_officiel": "Université Abbas Laghrour de Khenchela",
+    "nom_court": "Univ. Khenchela",
+    "annee": 2001,
+    "type": "Université",
+    "site": "univ-khenchela.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "41",
+    "wilaya": "Souk Ahras",
+    "nom_officiel": "Université Mohamed Cherif Messaadia de Souk Ahras",
+    "nom_court": "Univ. Souk Ahras",
+    "annee": 1998,
+    "type": "Université",
+    "site": "univ-soukahras.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "43",
+    "wilaya": "Mila",
+    "nom_officiel": "Université Abdelhafid Boussouf de Mila",
+    "nom_court": "Univ. Mila",
+    "annee": 2008,
+    "type": "Université",
+    "site": "univ-mila.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "44",
+    "wilaya": "Aïn Defla",
+    "nom_officiel": "Université Djilali Bounaama de Khemis Miliana",
+    "nom_court": "Univ. Khemis Miliana",
+    "annee": 1991,
+    "type": "Université",
+    "site": "univ-km.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "47",
+    "wilaya": "Ghardaïa",
+    "nom_officiel": "Université de Ghardaïa",
+    "nom_court": "Univ. Ghardaïa",
+    "annee": 2004,
+    "type": "Université",
+    "site": "univ-ghardaia.dz",
+    "categorie": "Université"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_officiel": "Centre Universitaire d'Aflou",
+    "annee": 2012,
+    "type": "Centre Universitaire",
+    "site": "cu-aflou.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_officiel": "Centre Universitaire de Barika",
+    "annee": 2011,
+    "type": "Centre Universitaire",
+    "site": "cu-barika.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_officiel": "Centre Universitaire de Maghnia",
+    "annee": 2006,
+    "type": "Centre Universitaire",
+    "site": "cu-maghnia.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "32",
+    "wilaya": "El Bayadh",
+    "nom_officiel": "Centre Universitaire Nour Bachir d'El Bayadh",
+    "annee": 2010,
+    "type": "Centre Universitaire",
+    "site": "cu-elbayadh.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "33",
+    "wilaya": "Illizi",
+    "nom_officiel": "Centre Universitaire d'Illizi",
+    "annee": 2012,
+    "type": "Centre Universitaire",
+    "site": "cu-illizi.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "37",
+    "wilaya": "Tindouf",
+    "nom_officiel": "Centre Universitaire de Tindouf",
+    "annee": 2012,
+    "type": "Centre Universitaire",
+    "site": "cu-tindouf.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "38",
+    "wilaya": "Tissemsilt",
+    "nom_officiel": "Centre Universitaire Ahmed Ben Yahia El Wancharissi de Tissemsilt",
+    "annee": 2005,
+    "type": "Centre Universitaire",
+    "site": "cu-tissemsilt.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_officiel": "Centre Universitaire Abdallah Morsli de Tipaza",
+    "annee": 2011,
+    "type": "Centre Universitaire",
+    "site": "cu-tipaza.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "45",
+    "wilaya": "Naâma",
+    "nom_officiel": "Centre Universitaire de Naâma",
+    "annee": 2010,
+    "type": "Centre Universitaire",
+    "site": "cu-naama.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "46",
+    "wilaya": "Aïn Témouchent",
+    "nom_officiel": "Centre Universitaire Belhadj Bouchaib d'Aïn Témouchent",
+    "annee": 2005,
+    "type": "Centre Universitaire",
+    "site": "cu-aintmouchent.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "48",
+    "wilaya": "Relizane",
+    "nom_officiel": "Centre Universitaire Ahmed Zabana de Relizane",
+    "annee": 2008,
+    "type": "Centre Universitaire",
+    "site": "cu-relizane.dz",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "49",
+    "wilaya": "Timimoun",
+    "nom_officiel": "Centre Universitaire de Timimoun",
+    "annee": 2015,
+    "type": "Centre Universitaire",
+    "site": "—",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "55",
+    "wilaya": "Touggourt",
+    "nom_officiel": "Centre Universitaire de Touggourt",
+    "annee": 2016,
+    "type": "Centre Universitaire",
+    "site": "—",
+    "categorie": "Centre Universitaire"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Polytechnique d'Alger",
+    "sigle": "ENP",
+    "domaine": "Sciences & Technologies",
+    "type": "ENS",
+    "site": "enp.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure d'Informatique",
+    "sigle": "ESI",
+    "domaine": "Informatique",
+    "type": "ENS",
+    "site": "esi.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure Agronomique",
+    "sigle": "ENSA",
+    "domaine": "Agronomie",
+    "type": "ENS",
+    "site": "ensa.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Polytechnique d'Architecture et d'Urbanisme",
+    "sigle": "EPAU",
+    "domaine": "Architecture",
+    "type": "ENS",
+    "site": "epau-alger.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Supérieure de Commerce d'Alger",
+    "sigle": "ESC",
+    "domaine": "Commerce & Gestion",
+    "type": "ENS",
+    "site": "esc-alger.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École des Hautes Études Commerciales",
+    "sigle": "EHEC / HEC",
+    "domaine": "Commerce & Gestion",
+    "type": "ENS",
+    "site": "hec.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure de Technologie",
+    "sigle": "ENST",
+    "domaine": "Technologies",
+    "type": "ENS",
+    "site": "enst.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure Vétérinaire",
+    "sigle": "ENSV",
+    "domaine": "Vétérinaire",
+    "type": "ENS",
+    "site": "ensv.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure de Management",
+    "sigle": "ENSM",
+    "domaine": "Management",
+    "type": "ENS",
+    "site": "ensm.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure de Journalisme et des Sciences de l'Information",
+    "sigle": "ENSJSI",
+    "domaine": "Journalisme",
+    "type": "ENS",
+    "site": "ensjsi.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure des Sciences Politiques",
+    "sigle": "ENSSP",
+    "domaine": "Sciences Politiques",
+    "type": "ENS",
+    "site": "enssp.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure des Travaux Publics",
+    "sigle": "ENSTP",
+    "domaine": "Génie Civil",
+    "type": "ENS",
+    "site": "entp.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure en Statistique et Économie Appliquée",
+    "sigle": "ENSSEA",
+    "domaine": "Statistique & Économie",
+    "type": "ENS",
+    "site": "enssea.net",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure d'Intelligence Artificielle",
+    "sigle": "ENSIA",
+    "domaine": "IA",
+    "type": "ENS",
+    "site": "ensia.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure de Mathématiques",
+    "sigle": "ENSM/NHSM",
+    "domaine": "Mathématiques",
+    "type": "ENS",
+    "site": "nhsm.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure de Cybersécurité",
+    "sigle": "ENSC",
+    "domaine": "Cybersécurité",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure des Nanosciences et Nanotechnologies",
+    "sigle": "ENSNN",
+    "domaine": "Nanotechnologies",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure des Sciences de la Mer et de l'Aménagement du Littoral",
+    "sigle": "ENSSMAL",
+    "domaine": "Sciences de la Mer",
+    "type": "ENS",
+    "site": "enssmal.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure des Sciences de l'Aliment et des Industries Agroalimentaires",
+    "sigle": "ENSSAIA",
+    "domaine": "Agroalimentaire",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale Supérieure des Systèmes Autonomes",
+    "sigle": "ENSSA",
+    "domaine": "Systèmes Autonomes",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Nationale d'Administration",
+    "sigle": "ENA",
+    "domaine": "Administration",
+    "type": "ENS",
+    "site": "ena.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Supérieure de Sécurité Sociale",
+    "sigle": "ESSS",
+    "domaine": "Sécurité Sociale",
+    "type": "ENS",
+    "site": "esss.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Normale Supérieure de Kouba",
+    "sigle": "ENS Kouba",
+    "domaine": "Formation Enseignants",
+    "type": "ENS",
+    "site": "ens-kouba.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Normale Supérieure de Bouzaréah",
+    "sigle": "ENSB",
+    "domaine": "Formation Enseignants",
+    "type": "ENS",
+    "site": "ensb.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Nationale Polytechnique d'Oran",
+    "sigle": "ENPO",
+    "domaine": "Sciences & Technologies",
+    "type": "ENS",
+    "site": "enp-oran.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Supérieure en Génie Électrique et Énergétique d'Oran",
+    "sigle": "ESGEE",
+    "domaine": "Génie Électrique",
+    "type": "ENS",
+    "site": "esgee-oran.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Nationale Supérieure d'Économie d'Oran",
+    "sigle": "ENSO",
+    "domaine": "Économie",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Nationale Supérieure des Sciences Biologiques d'Oran",
+    "sigle": "ENSSB",
+    "domaine": "Biologie",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Nationale Supérieure des Télécommunications et TIC d'Oran",
+    "sigle": "ENSTTIC",
+    "domaine": "Télécoms & TIC",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "École Nationale Polytechnique de Constantine",
+    "sigle": "ENPC",
+    "domaine": "Sciences & Technologies",
+    "type": "ENS",
+    "site": "enp-constantine.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "École Nationale Supérieure de Comptabilité et Finance de Constantine",
+    "sigle": "ENSCF",
+    "domaine": "Comptabilité & Finance",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "École Nationale Supérieure de Biotechnologie de Constantine",
+    "sigle": "ENSBiotech",
+    "domaine": "Biotechnologie",
+    "type": "ENS",
+    "site": "ensbiotech.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_officiel": "École Nationale Supérieure des Mines et de la Métallurgie d'Annaba",
+    "sigle": "ENSMM",
+    "domaine": "Mines & Métallurgie",
+    "type": "ENS",
+    "site": "ensmm-annaba.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_officiel": "École Nationale Supérieure de Technologies Industrielles d'Annaba",
+    "sigle": "ENSTI",
+    "domaine": "Technologies Industrielles",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_officiel": "École Nationale Supérieure des Sciences de Gestion d'Annaba",
+    "sigle": "ENSSG",
+    "domaine": "Gestion",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "06",
+    "wilaya": "Béjaïa",
+    "nom_officiel": "École Supérieure en Sciences et Technologies de l'Informatique et du Numérique",
+    "sigle": "ESTIN",
+    "domaine": "Informatique & Numérique",
+    "type": "ENS",
+    "site": "estin.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "09",
+    "wilaya": "Blida",
+    "nom_officiel": "École Nationale Supérieure d'Hydraulique de Blida",
+    "sigle": "ENSH",
+    "domaine": "Hydraulique",
+    "type": "ENS",
+    "site": "ensh.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "22",
+    "wilaya": "Sidi Bel Abbès",
+    "nom_officiel": "École Nationale Supérieure d'Informatique de SBA",
+    "sigle": "ESI-SBA",
+    "domaine": "Informatique",
+    "type": "ENS",
+    "site": "esi-sba.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_officiel": "École Supérieure de Gestion et d'Économie Numérique",
+    "sigle": "ESGEN",
+    "domaine": "Gestion & Numérique",
+    "type": "ENS",
+    "site": "esgen.edu.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "42",
+    "wilaya": "Tipaza",
+    "nom_officiel": "École Supérieure de Magistrature",
+    "sigle": "ESM",
+    "domaine": "Droit & Magistrature",
+    "type": "ENS",
+    "site": "esm.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_officiel": "École Nationale Supérieure de Management de Tlemcen",
+    "sigle": "ENSM-Tlemcen",
+    "domaine": "Management",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_officiel": "École Nationale Supérieure des Sciences Appliquées de Tlemcen",
+    "sigle": "ENSAT",
+    "domaine": "Sciences Appliquées",
+    "type": "ENS",
+    "site": "essa-tlemcen.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "27",
+    "wilaya": "Mostaganem",
+    "nom_officiel": "École Nationale Supérieure Agronomique de Mostaganem",
+    "sigle": "ENSA-Mosta",
+    "domaine": "Agronomie",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "05",
+    "wilaya": "Batna",
+    "nom_officiel": "École Nationale Supérieure des Énergies Renouvelables de Batna",
+    "sigle": "ENSERE",
+    "domaine": "Énergies Renouvelables",
+    "type": "ENS",
+    "site": "hns-re2sd.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "08",
+    "wilaya": "Béchar",
+    "nom_officiel": "École Normale Supérieure de Béchar",
+    "sigle": "ENS Béchar",
+    "domaine": "Formation Enseignants",
+    "type": "ENS",
+    "site": "ens-bechar.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "03",
+    "wilaya": "Laghouat",
+    "nom_officiel": "École Normale Supérieure de Laghouat",
+    "sigle": "ENS Laghouat",
+    "domaine": "Formation Enseignants",
+    "type": "ENS",
+    "site": "—",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "30",
+    "wilaya": "Ouargla",
+    "nom_officiel": "École Normale Supérieure de Ouargla",
+    "sigle": "ENS Ouargla",
+    "domaine": "Formation Enseignants",
+    "type": "ENS",
+    "site": "ens-ouargla.dz",
+    "categorie": "École Nationale Supérieure"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Préparatoire en Sciences de la Nature et de la Vie d'Alger",
+    "sigle": "EPSNV",
+    "domaine": "SNV",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Préparatoire en Sciences et Techniques d'Alger",
+    "sigle": "EPST Alger",
+    "domaine": "Sciences & Tech",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "16",
+    "wilaya": "Alger",
+    "nom_officiel": "École Préparatoire en Sciences Économiques, Commerciales et Sciences de Gestion d'Alger",
+    "sigle": "EPSECG Alger",
+    "domaine": "Économie & Gestion",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Préparatoire en Sciences et Techniques d'Oran",
+    "sigle": "EPST Oran",
+    "domaine": "Sciences & Tech",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "31",
+    "wilaya": "Oran",
+    "nom_officiel": "École Préparatoire en Sciences Économiques, Commerciales et Sciences de Gestion d'Oran",
+    "sigle": "EPSECG Oran",
+    "domaine": "Économie & Gestion",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "École Préparatoire en Sciences et Techniques de Constantine",
+    "sigle": "EPST Constantine",
+    "domaine": "Sciences & Tech",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "25",
+    "wilaya": "Constantine",
+    "nom_officiel": "École Préparatoire en Sciences Économiques de Constantine",
+    "sigle": "EPSECG Constantine",
+    "domaine": "Économie & Gestion",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "23",
+    "wilaya": "Annaba",
+    "nom_officiel": "École Préparatoire en Sciences et Techniques d'Annaba",
+    "sigle": "EPST Annaba",
+    "domaine": "Sciences & Tech",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  },
+  {
+    "code_wilaya": "13",
+    "wilaya": "Tlemcen",
+    "nom_officiel": "École Préparatoire en Sciences et Techniques de Tlemcen",
+    "sigle": "EPST Tlemcen",
+    "domaine": "Sciences & Tech",
+    "type": "Préparatoire",
+    "categorie": "École Préparatoire"
+  }
+]
