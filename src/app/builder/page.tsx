@@ -169,6 +169,110 @@ export default function BuilderPage() {
   const [ecolesData, setEcolesData] = useState<{ [key: string]: string[] }>({ lycee: [], univ: [], institut: [], formation: [], prive: [] });
   const previewRef = useRef<HTMLDivElement>(null);
 
+  /* OCR State Integration */
+  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsOcrProcessing(true);
+    try {
+      // 1. Upload to OCR backend
+      const dataForm = new FormData();
+      dataForm.append('file', file);
+      
+      const uploadRes = await fetch('http://localhost:8500/api/upload', {
+        method: 'POST',
+        body: dataForm
+      });
+      const uploadData = await uploadRes.json();
+      if (!uploadData.file_id) throw new Error(uploadData.detail?.message || 'Upload failed');
+      
+      // 2. Analyze
+      const analyzeRes = await fetch(`http://localhost:8500/api/analyze/${uploadData.file_id}`, {
+        method: 'POST'
+      });
+      const analyzeData = await analyzeRes.json();
+      if (!analyzeData.cv_data) throw new Error(analyzeData.detail?.message || 'Analysis failed');
+      
+      const cvData = analyzeData.cv_data;
+
+      // 3. Map to Oosira state
+      const rawTechnical = cvData.skills.technical || [];
+      const rawSoft = cvData.skills.soft || [];
+      const allRawSkills = [...rawTechnical, ...rawSoft];
+
+      // A skill is usually a short word or phrase. If it's too long (>45 chars) or has bullet points, the OCR misclassified an experience block!
+      const cleanCompetences = allRawSkills.filter((s: string) => s.length < 45 && !s.startsWith('•') && !s.startsWith('-'));
+      const misclassifiedLongText = allRawSkills.filter((s: string) => s.length >= 45 || s.startsWith('•') || s.startsWith('-'));
+
+      let mappedExperiences = cvData.experience.map((e: any) => ({
+        poste: e.job_title || '',
+        entreprise: e.company || '',
+        secteur: e.company_description || '',
+        dateDebut: e.start_date || '',
+        dateFin: e.is_current ? 'En cours' : e.end_date || '',
+        description: e.description || '',
+      }));
+
+      // Rescue misclassified text into a generic experience block so the user doesn't lose their data and the UI doesn't break
+      if (misclassifiedLongText.length > 0) {
+        mappedExperiences.push({
+          poste: 'Expériences (à trier)',
+          entreprise: 'Import OCR',
+          secteur: '',
+          dateDebut: '',
+          dateFin: '',
+          description: misclassifiedLongText.join('\n'),
+        });
+      }
+
+      const mapped: Candidate = {
+        id: -2,
+        prenom: cvData.personal_info.first_name || '',
+        nom: cvData.personal_info.last_name || '',
+        titre: cvData.professional_title || '',
+        email: cvData.personal_info.email || '',
+        telephone: cvData.personal_info.phone || '',
+        ville: cvData.personal_info.city || '',
+        linkedin: cvData.personal_info.linkedin || '',
+        accroche: cvData.summary || '',
+        formations: cvData.education.map((e: any) => ({
+          diplome: e.degree || '',
+          specialite: e.field_of_study || '',
+          etablissement: e.institution || '',
+          ville: e.location || '',
+          annee: e.start_date || e.end_date ? `${e.start_date} ${e.end_date}`.trim() : '',
+          mention: e.grade || '',
+        })),
+        experiences: mappedExperiences,
+        competences: cleanCompetences,
+        langues: cvData.skills.languages.map((l: any) => ({
+          langue: l.language || '',
+          niveau: l.level || 'Intermédiaire',
+        })),
+        logiciels: (cvData.skills.software || []).map((s: string) => s.split('(')[0].trim()),
+        iconName: 'document',
+        cardColor: '#3B82F6',
+        recommendedTemplate: activeTemplate,
+      };
+
+      setFormData(mapped);
+      setActiveCandidate(-2); // Custom flag for imported OCR CV
+      
+      // Automatically proceed to next step to show mapped info
+      if (currentStep === 0) setStep([1, 1]);
+
+    } catch (err: any) {
+      alert(`OCR Error: ${err.message}`);
+    } finally {
+      setIsOcrProcessing(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   useEffect(() => {
     Promise.all([
       fetch('/data/lycees_algerie_complet.json').then(r => r.json()).catch(() => []),
@@ -587,6 +691,55 @@ export default function BuilderPage() {
                     <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
                       <CheckIcon className="w-3 h-3 text-white" />
                     </div>
+                  )}
+                </motion.div>
+
+                {/* Import OCR Resume */}
+                <motion.div
+                  key="import"
+                  variants={fadeUp}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative overflow-hidden flex items-center gap-3 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+                    isOcrProcessing 
+                      ? 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-900/20' 
+                      : 'border-blue-500 hover:border-blue-600 bg-blue-50/30 hover:bg-blue-50/80 dark:bg-blue-900/10 dark:hover:bg-blue-900/30'
+                  }`}
+                >
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept=".pdf,.png,.jpg,.jpeg" 
+                    onChange={handleFileUpload} 
+                    disabled={isOcrProcessing}
+                  />
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-blue-600 text-white shadow-lg shadow-blue-500/30 relative">
+                    {isOcrProcessing ? (
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <ArrowDownTrayIcon className="w-5 h-5 rotate-180" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 z-10">
+                    <div className="text-sm font-bold text-blue-700 dark:text-blue-400 truncate">
+                      {isOcrProcessing ? (language==='fr' ? 'Analyse par IA...' : language==='ar' ? 'جاري التحليل بالذكاء الاصطناعي...' : 'AI Analyzing...') : (language==='fr' ? 'Importer un CV' : language==='ar' ? 'استيراد سيرة ذاتية' : 'Import AI Resume')}
+                    </div>
+                    <div className="text-xs text-blue-600/70 dark:text-blue-400/70 truncate">
+                      {isOcrProcessing ? (language==='fr' ? 'Extraction des donnees...' : language==='ar' ? 'استخراج البيانات...' : 'Extracting data...') : (language==='fr' ? 'PDF ou Image (Auto-remplissage)' : language==='ar' ? 'PDF أو صورة (تعبئة تلقائية)' : 'PDF or Image (Auto-fill)')}
+                    </div>
+                  </div>
+                  {/* Background scanning animation if processing */}
+                  {isOcrProcessing && (
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/20 to-transparent w-[200%]"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                    />
                   )}
                 </motion.div>
 
