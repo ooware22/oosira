@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV Analyzer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class'}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<style>
+  .drop-zone{border:3px dashed #cbd5e1;transition:all .3s}.drop-zone.dragover{border-color:#3b82f6;background:#eff6ff}
+  .drop-zone.success{border-color:#22c55e;background:#f0fdf4}
+  .dark .drop-zone{border-color:#4b5563}.dark .drop-zone.dragover{border-color:#60a5fa;background:#1e3a5f}
+  .acc-content{max-height:0;overflow:hidden;transition:max-height .3s}.acc-content.open{max-height:3000px}
+  .fi{border:1px solid #e5e7eb;border-radius:6px;padding:6px 10px;width:100%;font-size:14px;background:white;color:#333}
+  .fi:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.15)}
+  .dark .fi{background:#374151;color:#e5e7eb;border-color:#4b5563}
+  .dark .fi:focus{border-color:#60a5fa}
+  .tab-b{padding:8px 16px;border-radius:6px 6px 0 0;font-size:14px;cursor:pointer}
+  .tab-b.active{background:white;border:1px solid #e5e7eb;border-bottom:none;font-weight:600}
+  .tab-b:not(.active){background:#f3f4f6;color:#6b7280}
+  .dark .tab-b.active{background:#1f2937;border-color:#374151;color:#e5e7eb}
+  .dark .tab-b:not(.active){background:#111827;color:#9ca3af}
+  .toast{animation:slideIn .3s ease}@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+  .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200%;animation:shimmer 1.5s infinite}
+  .dark .skeleton{background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%);background-size:200%}
+  @keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
+</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors" :class="darkMode ? 'dark' : ''"
+      x-data="cvApp()" x-init="init()">
+
+<!-- Toast -->
+<div class="fixed top-4 right-4 z-50 space-y-2">
+  <template x-for="(t,i) in toasts" :key="i">
+    <div class="toast px-4 py-3 rounded-lg shadow-lg text-sm max-w-xs"
+         :class="t.type==='success'?'bg-green-500 text-white':t.type==='error'?'bg-red-500 text-white':'bg-blue-500 text-white'"
+         x-text="t.msg" x-show="t.visible"
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+  </template>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">CV Analyzer</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Analysez et reformatez vos CVs en DOCX, HTML et PDF</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button @click="resetAll()" x-show="cvData" class="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+        Nouvelle analyse
+      </button>
+      <button @click="toggleDark()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+        <span x-show="!darkMode">Sombre</span><span x-show="darkMode">Clair</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Drop Zone -->
+  <div class="drop-zone rounded-xl p-10 text-center cursor-pointer mb-6 dark:bg-gray-800"
+       :class="{'dragover':isDragOver,'success':uploadSuccess}"
+       @dragover.prevent="isDragOver=true" @dragleave.prevent="isDragOver=false"
+       @drop.prevent="isDragOver=false;handleDrop($event)" @click="$refs.fi.click()">
+    <input type="file" x-ref="fi" class="hidden" accept=".pdf,.docx,.doc,.odt,.rtf,.txt,.png,.jpg,.jpeg,.webp,.bmp,.tiff,.tif" @change="handleFileSelect($event)">
+    <template x-if="!currentFile">
+      <div>
+        <svg class="w-12 h-12 mx-auto text-gray-400 dark:text-gray-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        <p class="text-lg text-gray-600 dark:text-gray-300 font-medium">Glissez votre CV ici</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">PDF, DOCX, DOC, ODT, RTF, TXT, PNG, JPG, TIFF, BMP, WEBP</p>
+      </div>
+    </template>
+    <template x-if="currentFile">
+      <div>
+        <p class="text-lg font-medium text-gray-700 dark:text-gray-200" x-text="currentFile.name"></p>
+        <p class="text-sm text-gray-400" x-text="formatSize(currentFile.size)"></p>
+      </div>
+    </template>
+  </div>
+
+  <!-- Progress -->
+  <div x-show="isUploading||isAnalyzing" class="mb-6">
+    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+      <div class="bg-blue-500 h-2 rounded-full transition-all" :style="`width:${progress}%`"></div>
+    </div>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 text-center" x-text="statusMsg"></p>
+  </div>
+
+  <!-- Skeleton loading -->
+  <div x-show="isAnalyzing" class="space-y-3 mb-6">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border dark:border-gray-700"><div class="skeleton h-4 rounded w-3/4 mb-2"></div><div class="skeleton h-4 rounded w-1/2"></div></div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 border dark:border-gray-700"><div class="skeleton h-4 rounded w-full mb-2"></div><div class="skeleton h-4 rounded w-5/6 mb-2"></div><div class="skeleton h-4 rounded w-2/3"></div></div>
+  </div>
+
+  <!-- Analyze button -->
+  <div x-show="result&&!isAnalyzing&&!cvData" class="mb-6 text-center">
+    <button @click="analyzeCV()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition">Analyser le CV</button>
+  </div>
+
+  <!-- Error -->
+  <div x-show="errorMsg" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-xl p-4 mb-6">
+    <p class="font-medium">Erreur</p><p class="text-sm mt-1" x-text="errorMsg"></p>
+  </div>
+
+  <!-- === RESULTS === -->
+  <div x-show="cvData" class="space-y-4">
+
+    <!-- Completude + metadata -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Completude</span>
+        <span class="text-sm font-bold" :class="completenessColor()" x-text="(cvData?.extraction_metadata?.completeness_score||0)+'%'"></span>
+      </div>
+      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+        <div class="h-2.5 rounded-full transition-all" :class="completenessBarColor()" :style="`width:${cvData?.extraction_metadata?.completeness_score||0}%`"></div>
+      </div>
+      <div class="flex gap-4 mt-3 text-xs text-gray-400 dark:text-gray-500">
+        <span x-text="'Format : '+(cvData?.extraction_metadata?.source_format||'-')"></span>
+        <span x-show="cvData?.extraction_metadata?.ocr_engine_used" x-text="'OCR : '+cvData?.extraction_metadata?.ocr_engine_used"></span>
+        <span x-show="cvData?.extraction_metadata?.ocr_confidence" x-text="'Confiance : '+Math.round(cvData?.extraction_metadata?.ocr_confidence)+'%'"></span>
+        <span x-text="'Langue : '+(cvData?.extraction_metadata?.detected_language||'-')"></span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-1 border-b dark:border-gray-700">
+      <button class="tab-b" :class="activeTab==='form'?'active':''" @click="activeTab='form'">Formulaire</button>
+      <button class="tab-b" :class="activeTab==='raw'?'active':''" @click="activeTab='raw'">Texte brut</button>
+      <button class="tab-b" :class="activeTab==='json'?'active':''" @click="activeTab='json'">JSON</button>
+    </div>
+
+    <!-- FORM TAB -->
+    <div x-show="activeTab==='form'" class="space-y-3">
+
+      <!-- Personal Info -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <button @click="openSections.personal=!openSections.personal" class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+          <span class="font-semibold text-gray-700 dark:text-gray-200">Informations personnelles</span>
+          <svg class="w-5 h-5 text-gray-400 transition-transform" :class="openSections.personal?'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="acc-content px-4 pb-4" :class="openSections.personal?'open':''">
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Nom complet</label><input class="fi" x-model="cvData.personal_info.full_name"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Titre professionnel</label><input class="fi" x-model="cvData.professional_title"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Email</label><input class="fi" x-model="cvData.personal_info.email"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Telephone</label><input class="fi" x-model="cvData.personal_info.phone"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">LinkedIn</label><input class="fi" x-model="cvData.personal_info.linkedin"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Portfolio</label><input class="fi" x-model="cvData.personal_info.portfolio_url"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Ville</label><input class="fi" x-model="cvData.personal_info.city"></div>
+            <div><label class="text-xs text-gray-500 dark:text-gray-400">Pays</label><input class="fi" x-model="cvData.personal_info.country"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <button @click="openSections.summary=!openSections.summary" class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50"><span class="font-semibold text-gray-700 dark:text-gray-200">Resume / Profil</span><svg class="w-5 h-5 text-gray-400 transition-transform" :class="openSections.summary?'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="acc-content px-4 pb-4" :class="openSections.summary?'open':''"><textarea class="fi" rows="4" x-model="cvData.summary"></textarea></div>
+      </div>
+
+      <!-- Experience -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <button @click="openSections.experience=!openSections.experience" class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50"><span class="font-semibold text-gray-700 dark:text-gray-200">Experience <span class="text-xs text-gray-400 ml-1" x-text="'('+cvData.experience.length+')'"></span></span><svg class="w-5 h-5 text-gray-400 transition-transform" :class="openSections.experience?'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="acc-content px-4 pb-4" :class="openSections.experience?'open':''">
+          <template x-for="(exp,idx) in cvData.experience" :key="idx">
+            <div class="border dark:border-gray-600 rounded-lg p-3 mb-3 bg-gray-50 dark:bg-gray-700/50">
+              <div class="flex justify-between mb-2"><span class="text-xs text-gray-400" x-text="'#'+(idx+1)"></span><button @click="cvData.experience.splice(idx,1)" class="text-xs text-red-400 hover:text-red-600">Supprimer</button></div>
+              <div class="grid grid-cols-2 gap-2">
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Poste</label><input class="fi text-sm" x-model="exp.job_title"></div>
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Entreprise</label><input class="fi text-sm" x-model="exp.company"></div>
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Debut</label><input class="fi text-sm" x-model="exp.start_date"></div>
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Fin</label><input class="fi text-sm" x-model="exp.end_date"></div>
+              </div>
+              <div class="mt-2"><label class="text-xs text-gray-500 dark:text-gray-400">Description</label><textarea class="fi text-sm" rows="2" x-model="exp.description"></textarea></div>
+            </div>
+          </template>
+          <button @click="cvData.experience.push({job_title:'',company:'',location:'',start_date:'',end_date:'',is_current:false,description:'',achievements:[]})" class="text-sm text-blue-500 hover:text-blue-700">+ Ajouter</button>
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <button @click="openSections.education=!openSections.education" class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50"><span class="font-semibold text-gray-700 dark:text-gray-200">Formation <span class="text-xs text-gray-400 ml-1" x-text="'('+cvData.education.length+')'"></span></span><svg class="w-5 h-5 text-gray-400 transition-transform" :class="openSections.education?'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="acc-content px-4 pb-4" :class="openSections.education?'open':''">
+          <template x-for="(edu,idx) in cvData.education" :key="idx">
+            <div class="border dark:border-gray-600 rounded-lg p-3 mb-3 bg-gray-50 dark:bg-gray-700/50">
+              <div class="flex justify-between mb-2"><span class="text-xs text-gray-400" x-text="'#'+(idx+1)"></span><button @click="cvData.education.splice(idx,1)" class="text-xs text-red-400 hover:text-red-600">Supprimer</button></div>
+              <div class="grid grid-cols-2 gap-2">
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Diplome</label><input class="fi text-sm" x-model="edu.degree"></div>
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Etablissement</label><input class="fi text-sm" x-model="edu.institution"></div>
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Debut</label><input class="fi text-sm" x-model="edu.start_date"></div>
+                <div><label class="text-xs text-gray-500 dark:text-gray-400">Fin</label><input class="fi text-sm" x-model="edu.end_date"></div>
+              </div>
+            </div>
+          </template>
+          <button @click="cvData.education.push({degree:'',field_of_study:'',institution:'',location:'',start_date:'',end_date:'',grade:'',description:''})" class="text-sm text-blue-500 hover:text-blue-700">+ Ajouter</button>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <button @click="openSections.skills=!openSections.skills" class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50"><span class="font-semibold text-gray-700 dark:text-gray-200">Competences</span><svg class="w-5 h-5 text-gray-400 transition-transform" :class="openSections.skills?'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="acc-content px-4 pb-4" :class="openSections.skills?'open':''">
+          <div class="mb-3"><label class="text-xs text-gray-500 dark:text-gray-400">Techniques (virgules)</label><input class="fi" :value="(cvData.skills?.technical||[]).join(', ')" @change="cvData.skills.technical=$event.target.value.split(',').map(s=>s.trim()).filter(s=>s)"></div>
+          <div><label class="text-xs text-gray-500 dark:text-gray-400">Transversales</label><input class="fi" :value="(cvData.skills?.soft||[]).join(', ')" @change="cvData.skills.soft=$event.target.value.split(',').map(s=>s.trim()).filter(s=>s)"></div>
+        </div>
+      </div>
+
+      <!-- Languages -->
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 overflow-hidden">
+        <button @click="openSections.languages=!openSections.languages" class="w-full flex justify-between items-center p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50"><span class="font-semibold text-gray-700 dark:text-gray-200">Langues</span><svg class="w-5 h-5 text-gray-400 transition-transform" :class="openSections.languages?'rotate-180':''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>
+        <div class="acc-content px-4 pb-4" :class="openSections.languages?'open':''">
+          <template x-for="(l,idx) in cvData.skills?.languages||[]" :key="idx">
+            <div class="flex gap-2 mb-2 items-end">
+              <div class="flex-1"><label class="text-xs text-gray-500 dark:text-gray-400" x-show="idx===0">Langue</label><input class="fi text-sm" x-model="l.language"></div>
+              <div class="flex-1"><label class="text-xs text-gray-500 dark:text-gray-400" x-show="idx===0">Niveau</label><input class="fi text-sm" x-model="l.level"></div>
+              <button @click="cvData.skills.languages.splice(idx,1)" class="text-red-400 hover:text-red-600 text-xs pb-2">X</button>
+            </div>
+          </template>
+          <button @click="cvData.skills.languages.push({language:'',level:''})" class="text-sm text-blue-500 hover:text-blue-700">+ Ajouter</button>
+        </div>
+      </div>
+
+      <!-- Save + Export -->
+      <div class="flex gap-3 pt-2">
+        <button @click="saveCV()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-medium transition">Sauvegarder</button>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mt-3 border dark:border-gray-700">
+        <div class="flex items-center gap-4 mb-3 flex-wrap">
+          <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Template :</span>
+          <template x-for="t in ['classic','modern','minimal']" :key="t">
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="tpl" :value="t" x-model="exportTemplate" class="accent-blue-500">
+              <span class="text-sm text-gray-600 dark:text-gray-300" x-text="t==='classic'?'Classique':t==='modern'?'Moderne':'Minimaliste'"></span>
+            </label>
+          </template>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <button @click="exportCV('docx')" :disabled="isExporting" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50 min-w-[70px]">DOCX</button>
+          <button @click="exportCV('html')" :disabled="isExporting" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50 min-w-[70px]">HTML</button>
+          <button @click="exportCV('pdf')" :disabled="isExporting" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50 min-w-[70px]">PDF</button>
+          <button @click="exportAll()" :disabled="isExporting" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50 min-w-[70px]">ZIP</button>
+          <button @click="previewCV()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2.5 rounded-lg text-sm font-medium transition min-w-[70px]">Apercu</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAW TAB -->
+    <div x-show="activeTab==='raw'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4">
+      <pre class="text-sm whitespace-pre-wrap font-sans max-h-96 overflow-y-auto bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-gray-700 dark:text-gray-300" x-text="cvData?.raw_text||'Aucun texte.'"></pre>
+    </div>
+
+    <!-- JSON TAB -->
+    <div x-show="activeTab==='json'" class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4">
+      <pre class="text-xs whitespace-pre-wrap font-mono max-h-96 overflow-y-auto bg-gray-900 text-green-400 rounded-lg p-4" x-text="JSON.stringify(cvData,null,2)"></pre>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-5 mt-6" x-show="!cvData">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Historique</h2>
+      <button @click="loadHistory()" class="text-sm text-blue-500 hover:text-blue-700">Rafraichir</button>
+    </div>
+    <template x-if="history.length===0"><p class="text-gray-400 text-sm text-center py-4">Aucun CV analyse.</p></template>
+    <template x-for="item in history" :key="item.file_id">
+      <div class="flex items-center justify-between py-3 border-b dark:border-gray-700 last:border-0">
+        <div>
+          <p class="font-medium text-gray-700 dark:text-gray-200 text-sm" x-text="item.filename"></p>
+          <p class="text-xs text-gray-400" x-text="item.uploaded_at+' | '+item.category"></p>
+        </div>
+        <div class="flex gap-2 items-center">
+          <span class="text-xs px-2 py-0.5 rounded-full"
+                :class="item.status==='structured'||item.status==='edited'?'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400':item.status==='error'?'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400':'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'"
+                x-text="item.status"></span>
+          <button @click="if(confirm('Supprimer ce CV ?'))deleteCV(item.file_id)" class="text-red-400 hover:text-red-600 text-xs">Supprimer</button>
+        </div>
+      </div>
+    </template>
+  </div>
+
+</div>
+
+<script>
+function cvApp(){
+  return {
+    darkMode: localStorage.getItem('darkMode')==='true',
+    isDragOver:false,isUploading:false,isAnalyzing:false,isExporting:false,
+    uploadSuccess:false,progress:0,statusMsg:'',
+    currentFile:null,result:null,cvData:null,errorMsg:null,
+    exportTemplate:'classic',activeTab:'form',
+    toasts:[],history:[],
+    openSections:{personal:true,summary:false,experience:true,education:true,skills:false,languages:false},
+
+    init(){this.loadHistory();if(this.darkMode)document.documentElement.classList.add('dark')},
+    toggleDark(){this.darkMode=!this.darkMode;localStorage.setItem('darkMode',this.darkMode);document.documentElement.classList.toggle('dark')},
+
+    toast(msg,type='success'){const t={msg,type,visible:true};this.toasts.push(t);setTimeout(()=>{t.visible=false;setTimeout(()=>{this.toasts=this.toasts.filter(x=>x!==t)},300)},3500)},
+
+    handleDrop(e){if(e.dataTransfer.files.length)this.uploadFile(e.dataTransfer.files[0])},
+    handleFileSelect(e){if(e.target.files.length)this.uploadFile(e.target.files[0])},
+
+    async uploadFile(file){
+      this.currentFile=file;this.isUploading=true;this.uploadSuccess=false;
+      this.result=null;this.cvData=null;this.errorMsg=null;this.progress=20;this.statusMsg='Envoi...';
+      const fd=new FormData();fd.append('file',file);
+      try{
+        const r=await fetch('/api/upload',{method:'POST',body:fd});
+        if(!r.ok){const e=await r.json();this.errorMsg=e.detail?.message||e.detail||'Erreur';return}
+        this.result=await r.json();this.uploadSuccess=true;this.progress=100;this.toast('Fichier uploade');this.loadHistory();
+      }catch(e){this.errorMsg='Connexion echouee: '+e.message}
+      finally{this.isUploading=false;this.statusMsg=''}
+    },
+
+    async analyzeCV(){
+      if(!this.result?.file_id)return;
+      this.isAnalyzing=true;this.errorMsg=null;this.progress=30;this.statusMsg='Extraction du texte...';
+      try{
+        const r=await fetch(`/api/analyze/${this.result.file_id}`,{method:'POST'});
+        this.progress=80;this.statusMsg='Structuration...';
+        if(!r.ok){const e=await r.json();this.errorMsg=e.detail?.message||JSON.stringify(e.detail);return}
+        const data=await r.json();this.cvData=data.cv_data;this.progress=100;
+        this.toast('Analyse terminee');this.loadHistory();
+        setTimeout(()=>{document.querySelector('[x-show="cvData"]')?.scrollIntoView({behavior:'smooth',block:'start'})},200);
+      }catch(e){this.errorMsg='Erreur: '+e.message}
+      finally{this.isAnalyzing=false;this.statusMsg=''}
+    },
+
+    async saveCV(){
+      if(!this.result?.file_id||!this.cvData)return;
+      try{
+        const r=await fetch(`/api/cv/${this.result.file_id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.cvData)});
+        const d=await r.json();if(d.cv_data)this.cvData=d.cv_data;this.toast('Sauvegarde effectuee');
+      }catch(e){this.toast('Erreur: '+e.message,'error')}
+    },
+
+    async exportCV(format){
+      if(!this.result?.file_id||!this.cvData)return;
+      this.isExporting=true;
+      try{
+        await fetch(`/api/cv/${this.result.file_id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.cvData)});
+        const r=await fetch(`/api/export/${this.result.file_id}?format=${format}&template=${this.exportTemplate}`,{method:'POST'});
+        if(!r.ok){const e=await r.json();this.toast(e.detail?.message||'Erreur export','error');return}
+        const d=await r.json();if(d.download_url){window.open(d.download_url,'_blank');this.toast(`Export ${format.toUpperCase()} genere`)}
+      }catch(e){this.toast('Erreur: '+e.message,'error')}
+      finally{this.isExporting=false}
+    },
+
+    async exportAll(){
+      if(!this.result?.file_id||!this.cvData)return;
+      this.isExporting=true;
+      try{
+        await fetch(`/api/cv/${this.result.file_id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.cvData)});
+        window.open(`/api/export/${this.result.file_id}/all?template=${this.exportTemplate}`,'_blank');
+        this.toast('ZIP multi-export genere');
+      }catch(e){this.toast('Erreur: '+e.message,'error')}
+      finally{this.isExporting=false}
+    },
+
+    previewCV(){if(this.result?.file_id)window.open(`/api/preview/${this.result.file_id}/${this.exportTemplate}`,'_blank')},
+
+    resetAll(){this.currentFile=null;this.result=null;this.cvData=null;this.errorMsg=null;this.uploadSuccess=false;this.progress=0;this.loadHistory()},
+
+    async loadHistory(){try{const r=await fetch('/api/history');const d=await r.json();this.history=d.items||[]}catch(e){}},
+    async deleteCV(fid){try{await fetch(`/api/cv/${fid}`,{method:'DELETE'});this.toast('CV supprime');this.loadHistory()}catch(e){}},
+
+    completenessColor(){const s=this.cvData?.extraction_metadata?.completeness_score||0;if(s>=70)return'text-green-600';if(s>=40)return'text-amber-600';return'text-red-600'},
+    completenessBarColor(){const s=this.cvData?.extraction_metadata?.completeness_score||0;if(s>=70)return'bg-green-500';if(s>=40)return'bg-amber-500';return'bg-red-500'},
+    formatSize(b){if(b<1024)return b+' o';if(b<1048576)return(b/1024).toFixed(1)+' Ko';return(b/1048576).toFixed(1)+' Mo'},
+  }
+}
+</script>
+</body>
+</html>

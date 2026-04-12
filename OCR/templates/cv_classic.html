@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ cv.personal_info.full_name or 'CV' }}</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 11pt; color: #333; line-height: 1.5; max-width: 21cm; margin: 0 auto; padding: 2cm; background: white; }
+  @media print { body { padding: 0; } }
+  .header { text-align: center; margin-bottom: 20px; }
+  .header h1 { font-size: 22pt; color: #1a1a1a; margin-bottom: 4px; }
+  .header .title { font-size: 13pt; color: #555; font-style: italic; margin-bottom: 8px; }
+  .header .contact { font-size: 10pt; color: #666; }
+  .section { margin-top: 18px; }
+  .section-title { font-size: 12pt; font-weight: bold; color: #1a1a1a; border-bottom: 1.5px solid #888; padding-bottom: 4px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .entry { margin-bottom: 12px; }
+  .entry-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; }
+  .entry-title { font-weight: bold; font-size: 11pt; }
+  .entry-company { color: #555; }
+  .entry-dates { font-style: italic; font-size: 10pt; color: #888; }
+  .entry-desc { margin-top: 4px; }
+  .achievements { margin-top: 4px; padding-left: 20px; }
+  .achievements li { margin-bottom: 2px; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .skill-tag { background: #f0f0f0; padding: 2px 8px; border-radius: 3px; font-size: 10pt; }
+  .summary { font-style: italic; color: #444; margin-top: 8px; }
+  .langs-line { margin: 2px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>{{ cv.personal_info.full_name }}</h1>
+  {% if cv.professional_title %}<div class="title">{{ cv.professional_title }}</div>{% endif %}
+  <div class="contact">
+    {% set parts = [] %}
+    {% if cv.personal_info.email %}{% set _ = parts.append(cv.personal_info.email) %}{% endif %}
+    {% if cv.personal_info.phone %}{% set _ = parts.append(cv.personal_info.phone) %}{% endif %}
+    {% if cv.personal_info.city %}{% set loc = cv.personal_info.city %}{% if cv.personal_info.country %}{% set loc = loc ~ ', ' ~ cv.personal_info.country %}{% endif %}{% set _ = parts.append(loc) %}{% endif %}
+    {% if cv.personal_info.linkedin %}{% set _ = parts.append(cv.personal_info.linkedin) %}{% endif %}
+    {{ parts | join(' | ') }}
+  </div>
+</div>
+
+{% if cv.summary %}
+<div class="section">
+  <div class="section-title">Profil</div>
+  <p class="summary">{{ cv.summary }}</p>
+</div>
+{% endif %}
+
+{% if cv.experience %}
+<div class="section">
+  <div class="section-title">Experience professionnelle</div>
+  {% for exp in cv.experience %}
+  <div class="entry">
+    <div class="entry-header">
+      <span><span class="entry-title">{{ exp.job_title }}</span>{% if exp.company %} <span class="entry-company">| {{ exp.company }}</span>{% endif %}</span>
+      <span class="entry-dates">{% if exp.start_date %}{{ exp.start_date }}{% endif %}{% if exp.end_date %} - {{ exp.end_date }}{% endif %}</span>
+    </div>
+    {% if exp.description %}<div class="entry-desc">{{ exp.description }}</div>{% endif %}
+    {% if exp.achievements %}
+    <ul class="achievements">{% for a in exp.achievements %}<li>{{ a }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if cv.education %}
+<div class="section">
+  <div class="section-title">Formation</div>
+  {% for edu in cv.education %}
+  <div class="entry">
+    <div class="entry-header">
+      <span><span class="entry-title">{{ edu.degree }}</span>{% if edu.institution %} <span class="entry-company">| {{ edu.institution }}</span>{% endif %}</span>
+      <span class="entry-dates">{% if edu.start_date %}{{ edu.start_date }}{% endif %}{% if edu.end_date %} - {{ edu.end_date }}{% endif %}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if cv.skills.technical or cv.skills.soft %}
+<div class="section">
+  <div class="section-title">Competences</div>
+  {% if cv.skills.technical %}
+  <div><strong>Techniques :</strong>
+    <div class="skills-list">{% for s in cv.skills.technical %}<span class="skill-tag">{{ s }}</span>{% endfor %}</div>
+  </div>
+  {% endif %}
+  {% if cv.skills.soft %}
+  <div style="margin-top:6px"><strong>Transversales :</strong> {{ cv.skills.soft | join(', ') }}</div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if cv.skills.languages %}
+<div class="section">
+  <div class="section-title">Langues</div>
+  {% for l in cv.skills.languages %}
+  <div class="langs-line">{{ l.language }}{% if l.level %} - {{ l.level }}{% endif %}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if cv.interests %}
+<div class="section">
+  <div class="section-title">Centres d'interet</div>
+  <p>{{ cv.interests | join(', ') }}</p>
+</div>
+{% endif %}
+
+</body>
+</html>

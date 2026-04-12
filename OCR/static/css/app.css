@@ -1,0 +1,12 @@
+/* CV Analyzer - Styles personnalises */
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.drop-zone {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>{{ cv.personal_info.full_name or 'CV' }}</title>
+<style>
+  @page { size: A4; margin: 2.5cm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10pt; color: #444; line-height: 1.6; max-width: 21cm; margin: 0 auto; padding: 2.5cm; background: white; }
+  @media print { body { padding: 0; } }
+  h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 26pt; color: #1a1a1a; font-weight: 400; margin-bottom: 2px; }
+  .pro-title { font-size: 12pt; color: #6366f1; margin-bottom: 6px; }
+  .contact { font-size: 9pt; color: #888; margin-bottom: 18px; }
+  .separator { border: none; border-top: 1px solid #ddd; margin: 0 0 16px 0; }
+  .summary { font-style: italic; color: #555; margin-bottom: 20px; font-size: 10pt; }
+  .section { margin-bottom: 22px; }
+  .section-title { font-size: 10pt; color: #6366f1; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; font-weight: 400; }
+  .entry { margin-bottom: 14px; }
+  .entry-title { font-weight: 600; font-size: 11pt; color: #1a1a1a; }
+  .entry-meta { font-size: 9pt; color: #888; margin-top: 1px; }
+  .entry-desc { margin-top: 4px; }
+  .skills-line { margin: 4px 0; }
+  .langs-line { font-size: 10pt; }
+</style>
+</head>
+<body>
+
+<h1>{{ cv.personal_info.full_name }}</h1>
+{% if cv.professional_title %}<div class="pro-title">{{ cv.professional_title }}</div>{% endif %}
+<div class="contact">
+  {% set parts = [] %}
+  {% if cv.personal_info.email %}{% set _ = parts.append(cv.personal_info.email) %}{% endif %}
+  {% if cv.personal_info.phone %}{% set _ = parts.append(cv.personal_info.phone) %}{% endif %}
+  {% if cv.personal_info.linkedin %}{% set _ = parts.append(cv.personal_info.linkedin) %}{% endif %}
+  {% if cv.personal_info.city %}{% set _ = parts.append(cv.personal_info.city) %}{% endif %}
+  {{ parts | join(' | ') }}
+</div>
+<hr class="separator">
+
+{% if cv.summary %}
+<p class="summary">{{ cv.summary }}</p>
+{% endif %}
+
+{% if cv.experience %}
+<div class="section">
+  <div class="section-title">Experience</div>
+  {% for exp in cv.experience %}
+  <div class="entry">
+    <div class="entry-title">{{ exp.job_title }}</div>
+    <div class="entry-meta">
+      {% set meta = [] %}
+      {% if exp.company %}{% set _ = meta.append(exp.company) %}{% endif %}
+      {% if exp.start_date %}{% set d = exp.start_date %}{% if exp.end_date %}{% set d = d ~ ' - ' ~ exp.end_date %}{% endif %}{% set _ = meta.append(d) %}{% endif %}
+      {{ meta | join(' | ') }}
+    </div>
+    {% if exp.description %}<div class="entry-desc">{{ exp.description }}</div>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if cv.education %}
+<div class="section">
+  <div class="section-title">Formation</div>
+  {% for edu in cv.education %}
+  <div class="entry">
+    <div class="entry-title">{{ edu.degree }}</div>
+    <div class="entry-meta">
+      {% set meta = [] %}
+      {% if edu.institution %}{% set _ = meta.append(edu.institution) %}{% endif %}
+      {% if edu.start_date %}{% set d = edu.start_date %}{% if edu.end_date %}{% set d = d ~ ' - ' ~ edu.end_date %}{% endif %}{% set _ = meta.append(d) %}{% endif %}
+      {{ meta | join(' | ') }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if cv.skills.technical or cv.skills.soft %}
+<div class="section">
+  <div class="section-title">Competences</div>
+  {% if cv.skills.technical %}<div class="skills-line">{{ cv.skills.technical | join(', ') }}</div>{% endif %}
+  {% if cv.skills.soft %}<div class="skills-line" style="color:#888">{{ cv.skills.soft | join(', ') }}</div>{% endif %}
+</div>
+{% endif %}
+
+{% if cv.skills.languages %}
+<div class="section">
+  <div class="section-title">Langues</div>
+  <div class="langs-line">
+    {% set parts = [] %}
+    {% for l in cv.skills.languages %}{% set t = l.language %}{% if l.level %}{% set t = t ~ ' (' ~ l.level ~ ')' %}{% endif %}{% set _ = parts.append(t) %}{% endfor %}
+    {{ parts | join(' | ') }}
+  </div>
+</div>
+{% endif %}
+
+{% if cv.interests %}
+<div class="section">
+  <div class="section-title">Interets</div>
+  <p>{{ cv.interests | join(', ') }}</p>
+</div>
+{% endif %}
+
+</body>
+</html>

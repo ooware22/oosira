@@ -101,6 +101,10 @@
 }
 
 /* ── CV Page base (fixed A4 dimensions for PDF) ── */
+/* Fix dom-to-image-more rendering bug with Tailwind's global solid border style */
+.cv-page, .cv-page *, .cv-page *::before, .cv-page *::after {
+  border-color: transparent;
+}
 .cv-page {
   width: 595px;
   min-height: 842px;
