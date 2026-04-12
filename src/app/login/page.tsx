@@ -4,16 +4,24 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/i18n/LanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const { t, dir } = useLanguage();
+  const { login } = useAuth();
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/builder');
+    const success = await login(email, password);
+    if (success) {
+      router.push('/dashboard');
+    }
   };
 
   return (
