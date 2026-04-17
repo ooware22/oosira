@@ -5,6 +5,11 @@ CV Analyzer - Configuration centrale
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Try loading .env file (if it exists)
+env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=env_path)
 
 # -- Chemins ------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
@@ -24,6 +29,11 @@ DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = 8500
 APP_TITLE = "CV Analyzer"
 APP_VERSION = "1.0.0"
+
+# -- LLM API ------------------------------------------------------------------
+# Add your free Gemini API key here for perfect structural parsing!
+# Get it at: https://aistudio.google.com/
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 # -- Upload -------------------------------------------------------------------
 MAX_UPLOAD_SIZE_MB = 20
