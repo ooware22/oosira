@@ -1,25 +1,30 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { loginAuth, logoutAuth } from '@/store/slices/authSlice';
+import { duplicateDraft, removeDraft, fetchDrafts } from '@/store/slices/cvsSlice';
 
+// Expose same typings for UI
 export interface User {
   id: string;
   name: string;
   email: string;
-  avatar: string;
-  plan: 'free' | 'pro' | 'enterprise';
-  joinedAt: string;
+  avatar?: string;
+  plan: string;
+  joinedAt?: string;
 }
 
 export interface DraftCV {
   id: string;
   title: string;
-  templateId: number;
+  templateId?: number;
   templateName: string;
   lastEdited: string;
-  createdAt: string;
+  createdAt?: string;
   status: 'draft' | 'completed' | 'shared';
-  fullName: string;
+  fullName?: string;
   jobTitle: string;
   completionPercent: number;
   previewColor: string;
@@ -38,135 +43,63 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ── Mock User Data ──
-const MOCK_USER: User = {
-  id: 'usr_001',
-  name: 'Islem Charaf Eddine',
-  email: 'islem@oosira.com',
-  avatar: '',
-  plan: 'pro',
-  joinedAt: '2025-11-15',
-};
-
-// ── Mock Draft CVs ──
-const MOCK_DRAFTS: DraftCV[] = [
-  {
-    id: 'cv_001',
-    title: 'Software Engineer CV',
-    templateId: 5,
-    templateName: 'Tech & IT',
-    lastEdited: '2026-04-11T18:30:00',
-    createdAt: '2026-04-01T10:00:00',
-    status: 'completed',
-    fullName: 'Islem Charaf Eddine',
-    jobTitle: 'Full Stack Developer',
-    completionPercent: 100,
-    previewColor: '#0D1117',
-  },
-  {
-    id: 'cv_002',
-    title: 'Senior Engineer Application',
-    templateId: 2,
-    templateName: 'Ingenieur',
-    lastEdited: '2026-04-10T14:20:00',
-    createdAt: '2026-03-28T09:00:00',
-    status: 'draft',
-    fullName: 'Islem Charaf Eddine',
-    jobTitle: 'Ingénieur Logiciel Senior',
-    completionPercent: 72,
-    previewColor: '#2C3E50',
-  },
-  {
-    id: 'cv_003',
-    title: 'Freelance Portfolio',
-    templateId: 3,
-    templateName: 'Cadre Moderne',
-    lastEdited: '2026-04-08T11:45:00',
-    createdAt: '2026-03-20T15:00:00',
-    status: 'draft',
-    fullName: 'Islem C.E.',
-    jobTitle: 'Consultant Freelance',
-    completionPercent: 45,
-    previewColor: '#1A1A2E',
-  },
-  {
-    id: 'cv_004',
-    title: 'Academic Resume',
-    templateId: 1,
-    templateName: 'Classique Pro',
-    lastEdited: '2026-04-05T09:10:00',
-    createdAt: '2026-03-15T12:00:00',
-    status: 'completed',
-    fullName: 'Islem Charaf Eddine',
-    jobTitle: 'Chercheur / Doctorant',
-    completionPercent: 100,
-    previewColor: '#1B3A6B',
-  },
-  {
-    id: 'cv_005',
-    title: 'Medical Application',
-    templateId: 4,
-    templateName: 'Medical',
-    lastEdited: '2026-03-30T16:00:00',
-    createdAt: '2026-03-10T08:00:00',
-    status: 'shared',
-    fullName: 'Islem C.E.',
-    jobTitle: 'Clinical Data Analyst',
-    completionPercent: 88,
-    previewColor: '#2563EB',
-  },
-];
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [drafts, setDrafts] = useState<DraftCV[]>(MOCK_DRAFTS);
+  const dispatch = useDispatch<AppDispatch>();
+  
+  // Read state straight from Redux Store
+  const user = useSelector((state: RootState) => state.auth.user) as User | null;
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const drafts = useSelector((state: RootState) => state.cvs.drafts);
+  const cvsStatus = useSelector((state: RootState) => state.cvs.status);
 
   useEffect(() => {
-    const saved = localStorage.getItem('sira-auth');
-    if (saved === 'true') {
-      setUser(MOCK_USER);
+    // Initial fetch of mock data
+    if (cvsStatus === 'idle') {
+      dispatch(fetchDrafts());
     }
-  }, []);
+  }, [cvsStatus, dispatch]);
 
-  const login = async (_email: string, _password: string): Promise<boolean> => {
-    // Mock: always succeed
-    setUser(MOCK_USER);
-    localStorage.setItem('sira-auth', 'true');
-    return true;
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      await dispatch(loginAuth({ email, password })).unwrap();
+      return true;
+    } catch {
+      return false;
+    }
   };
 
-  const register = async (_name: string, _email: string, _password: string): Promise<boolean> => {
-    setUser(MOCK_USER);
-    localStorage.setItem('sira-auth', 'true');
-    return true;
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      await dispatch(loginAuth({ email, password })).unwrap(); // mocked mapping 
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem('sira-auth');
+    dispatch(logoutAuth());
   };
 
   const deleteDraft = (id: string) => {
-    setDrafts((prev) => prev.filter((d) => d.id !== id));
+    dispatch(removeDraft(id));
   };
 
-  const duplicateDraft = (id: string) => {
-    const original = drafts.find((d) => d.id === id);
-    if (!original) return;
-    const newDraft: DraftCV = {
-      ...original,
-      id: `cv_${Date.now()}`,
-      title: `${original.title} (Copy)`,
-      lastEdited: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      status: 'draft',
-      completionPercent: original.completionPercent,
-    };
-    setDrafts((prev) => [newDraft, ...prev]);
+  const handleDuplicateDraft = (id: string) => {
+    dispatch(duplicateDraft(id));
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, drafts, deleteDraft, duplicateDraft }}>
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated,
+      login,
+      register,
+      logout,
+      drafts,
+      deleteDraft,
+      duplicateDraft: handleDuplicateDraft
+    }}>
       {children}
     </AuthContext.Provider>
   );

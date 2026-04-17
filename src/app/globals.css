@@ -105,17 +105,55 @@
 .cv-page, .cv-page *, .cv-page *::before, .cv-page *::after {
   border-color: transparent;
 }
+/* A4 = 210mm × 297mm. At 96dpi ≈ 794px × 1123px */
 .cv-page {
-  width: 595px;
-  min-height: 842px;
+  width: 794px;
+  min-height: 1123px;
   background: var(--cv-body-bg, #fff);
   color: var(--cv-body-text, #1a1a1a);
   font-family: var(--cv-body-font, 'DM Sans', sans-serif);
   font-size: var(--cv-font-size, 12px);
   line-height: 1.5;
   position: relative;
-  overflow: hidden;
   text-align: start;
+  box-sizing: border-box;
+}
+
+/* ── Paginated Preview System ── */
+/* Each .cv-a4-sheet is a viewport window into the full CV content */
+.cv-a4-sheet {
+  width: 794px;
+  height: 1123px;
+  overflow: hidden;
+  position: relative;
+  background: white;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.08),
+    0 8px 30px rgba(0,0,0,0.12);
+  border-radius: 2px;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.dark .cv-a4-sheet {
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.2),
+    0 8px 30px rgba(0,0,0,0.4);
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* Page number badge */
+.cv-a4-sheet-badge {
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.12);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  pointer-events: none;
+  z-index: 10;
+  font-family: var(--font-mono, monospace);
 }
 
 /* ══════════════════════════════════════════

@@ -51,6 +51,7 @@ import {
   TrashIcon,
   Squares2X2Icon,
   SwatchIcon,
+  MinusIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useLanguage } from "@/app/i18n/LanguageContext";
@@ -251,6 +252,35 @@ export default function BuilderPage() {
     prive: [],
   });
   const previewRef = useRef<HTMLDivElement>(null);
+  const [previewZoom, setPreviewZoom] = useState(0.75);
+  const cvMeasureRef = useRef<HTMLDivElement>(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const A4_WIDTH = 794; // px at 96dpi
+  const A4_HEIGHT = 1123; // px at 96dpi
+  // Page margins: bottom margin on every page, top margin on pages 2+
+  const PAGE_MARGIN = 40; // ~15mm
+  // Content that fits on page 1 (no top margin, has bottom margin)
+  const FIRST_PAGE_CONTENT = A4_HEIGHT - PAGE_MARGIN;
+  // Content that fits on pages 2+ (top + bottom margin)
+  const OTHER_PAGE_CONTENT = A4_HEIGHT - 2 * PAGE_MARGIN;
+
+  // Measure CV content height and compute page count
+  useEffect(() => {
+    const measure = () => {
+      if (cvMeasureRef.current) {
+        const h = cvMeasureRef.current.scrollHeight;
+        if (h <= A4_HEIGHT) {
+          setTotalPages(1);
+        } else {
+          setTotalPages(1 + Math.ceil((h - FIRST_PAGE_CONTENT) / OTHER_PAGE_CONTENT));
+        }
+      }
+    };
+    measure();
+    // Re-measure on window resize
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [formData, activeTemplate, styleConfig]);
 
   /* OCR State Integration */
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
@@ -653,20 +683,8 @@ export default function BuilderPage() {
   const handlePrint = async () => {
     setIsDownloading(true);
     try {
-      const desktopContainer = document.getElementById("cv-desktop-container");
-      const mobileContainer = document.getElementById("cv-mobile-container");
-
-      let targetElement: HTMLElement | null = null;
-      if (
-        desktopContainer &&
-        window.getComputedStyle(desktopContainer.parentElement!).display !==
-          "none"
-      ) {
-        targetElement = desktopContainer;
-      } else if (mobileContainer) {
-        targetElement = mobileContainer;
-      }
-
+      // Use the hidden full-render div for capture
+      const targetElement = cvMeasureRef.current;
       if (!targetElement) {
         throw new Error("CV container not found");
       }
@@ -675,8 +693,8 @@ export default function BuilderPage() {
       const domtoimage = (await import("dom-to-image-more")).default;
       const imgData = await domtoimage.toPng(targetElement, {
         bgcolor: "#ffffff",
-        width: targetElement.clientWidth * scale,
-        height: targetElement.clientHeight * scale,
+        width: A4_WIDTH * scale,
+        height: targetElement.scrollHeight * scale,
         style: {
           transform: `scale(${scale})`,
           transformOrigin: "top left",
@@ -684,24 +702,24 @@ export default function BuilderPage() {
       });
 
       const pdf = new jsPDF("p", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const pdfHeight =
-          (targetElement.clientHeight * pdfWidth) / targetElement.clientWidth;
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210
+      const pdfPageHeight = pdf.internal.pageSize.getHeight(); // 297
+      const totalPdfHeight =
+        (targetElement.scrollHeight * pdfWidth) / A4_WIDTH;
 
-        let position = 0;
-        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-        
-        let heightLeft = pdfHeight - pageHeight;
-        
-        while (heightLeft > 0) {
-          position = position - pageHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-          heightLeft -= pageHeight;
-        }
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, pdfWidth, totalPdfHeight);
 
-        pdf.save(`CV_${formData.prenom || "Sira"}_${formData.nom || "CV"}.pdf`);
+      let heightLeft = totalPdfHeight - pdfPageHeight;
+
+      while (heightLeft > 0) {
+        position = position - pdfPageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pdfWidth, totalPdfHeight);
+        heightLeft -= pdfPageHeight;
+      }
+
+      pdf.save(`CV_${formData.prenom || "Sira"}_${formData.nom || "CV"}.pdf`);
     } catch (err) {
       console.error("Error generating PDF:", err);
     } finally {
@@ -709,29 +727,91 @@ export default function BuilderPage() {
     }
   };
 
-  const renderCV = () => {
-    const cssVars = styleToCSSVars(styleConfig) as React.CSSProperties;
-    const content = (() => {
-      switch (activeTemplate) {
-        case 1:
-          return <CVClassique data={formData} config={styleConfig} />;
-        case 2:
-          return <CVIngenieur data={formData} config={styleConfig} />;
-        case 3:
-          return <CVCadre data={formData} config={styleConfig} />;
-        case 4:
-          return <CVMedical data={formData} config={styleConfig} />;
-        case 5:
-          return <CVTech data={formData} config={styleConfig} />;
-        default:
-          return <CVClassique data={formData} config={styleConfig} />;
-      }
-    })();
-    return (
-      <div style={cssVars} className="w-full h-full">
-        {content}
-      </div>
-    );
+  const getCVContent = () => {
+    switch (activeTemplate) {
+      case 1: return <CVClassique data={formData} config={styleConfig} />;
+      case 2: return <CVIngenieur data={formData} config={styleConfig} />;
+      case 3: return <CVCadre data={formData} config={styleConfig} />;
+      case 4: return <CVMedical data={formData} config={styleConfig} />;
+      case 5: return <CVTech data={formData} config={styleConfig} />;
+      default: return <CVClassique data={formData} config={styleConfig} />;
+    }
+  };
+
+  const cssVars = styleToCSSVars(styleConfig) as React.CSSProperties;
+
+  /** Render the full CV in a single continuous .cv-page (used for measuring + PDF capture) */
+  const renderCVFull = () => (
+    <div style={cssVars} className="cv-page" >
+      {getCVContent()}
+    </div>
+  );
+
+  /** Helper: compute the content offset for page i */
+  const getContentOffset = (i: number) => {
+    if (i === 0) return 0;
+    return FIRST_PAGE_CONTENT + (i - 1) * OTHER_PAGE_CONTENT;
+  };
+
+  /** Render paginated A4 sheets with proper margins.
+   *  Each sheet contains an inner clipping window that enforces
+   *  top margin (pages 2+) and bottom margin (all pages). */
+  const renderPaginatedSheets = (scale: number = 1) => {
+    const sheetW = Math.round(A4_WIDTH * scale);
+    const sheetH = Math.round(A4_HEIGHT * scale);
+    const sheets = [];
+    for (let i = 0; i < totalPages; i++) {
+      const topMargin = i === 0 ? 0 : PAGE_MARGIN;
+      const contentOffset = getContentOffset(i);
+      sheets.push(
+        <div
+          key={i}
+          style={{ width: sheetW, height: sheetH, position: 'relative', flexShrink: 0 }}
+        >
+          {/* Scaled cv-a4-sheet */}
+          <div
+            className="cv-a4-sheet"
+            style={{
+              ...cssVars,
+              background: 'var(--cv-body-bg, #ffffff)',
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+          >
+            {/* Inner clipping window with margins */}
+            <div
+              style={{
+                position: 'absolute',
+                top: topMargin,
+                left: 0,
+                right: 0,
+                bottom: PAGE_MARGIN,
+                overflow: 'hidden',
+              }}
+            >
+              {/* CV content positioned to show the right slice */}
+              <div
+                style={{
+                  ...cssVars,
+                  width: A4_WIDTH,
+                  position: 'absolute',
+                  top: -contentOffset,
+                  left: 0,
+                }}
+                className="cv-page"
+              >
+                {getCVContent()}
+              </div>
+            </div>
+            {/* Page number badge */}
+            <div className="cv-a4-sheet-badge">
+              {i + 1} / {totalPages}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return sheets;
   };
 
   const stepLabel = (id: string) =>
@@ -2112,37 +2192,60 @@ export default function BuilderPage() {
               </button>
             </div>
 
-            {/* Desktop preview */}
-            <div className="hidden lg:flex justify-center">
-              <div
-                id="cv-desktop-container"
-                  className="w-[595px] shadow-2xl shadow-black/20 rounded-lg overflow-hidden bg-white relative"
-                  style={{ minHeight: "842px" }}
+            <div className="flex flex-col gap-6">
+              {/* Zoom Controls + Page Info */}
+              <div className="flex items-center justify-center gap-4 bg-surface/50 backdrop-blur-md py-2 px-4 rounded-full border border-border w-fit mx-auto">
+                <button
+                  onClick={() => setPreviewZoom(Math.max(0.3, +(previewZoom - 0.1).toFixed(1)))
+                  }
+                  className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
+                >
+                  <MinusIcon className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-bold text-txt tabular-nums w-12 text-center">
+                  {Math.round(previewZoom * 100)}%
+                </span>
+                <button
+                  onClick={() => setPreviewZoom(Math.min(1.2, +(previewZoom + 0.1).toFixed(1)))
+                  }
+                  className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                </button>
+                <div className="w-px h-4 bg-border" />
+                <span className="text-[10px] font-bold text-txt-muted uppercase tracking-wider">
+                  {totalPages} {totalPages === 1 ? "page" : "pages"}
+                </span>
+              </div>
+
+              {/* Desktop preview — paginated A4 sheets */}
+              <div className="hidden lg:flex flex-col items-center gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar">
+                <div
+                  className="flex flex-col items-center gap-6"
                   dir={dir}
                 >
-                {renderCV()}
-                  <div className="absolute inset-0 pointer-events-none z-[100]" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 841px, #ff0000 841px, #ff0000 842px)" }} />
+                  {renderPaginatedSheets(previewZoom)}
+                </div>
+              </div>
+
+              {/* Mobile preview — paginated A4 sheets */}
+              <div className="lg:hidden">
+                <div className="overflow-x-auto pb-4 -mx-4 px-4 bg-surface2/30 rounded-2xl py-6">
+                  <div
+                    className="flex flex-col items-center gap-4"
+                    style={{ margin: '0 auto', width: Math.round(A4_WIDTH * 0.45) }}
+                    dir={dir}
+                  >
+                    {renderPaginatedSheets(0.45)}
+                  </div>
+                </div>
+                <p className="text-center text-xs text-txt-dim mt-2">
+                  {t("builder.scrollText") ||
+                    "↔ Scroll horizontally to view full CV ↔"}
+                </p>
               </div>
             </div>
 
-            {/* Mobile preview */}
-            <div className="lg:hidden">
-              <div className="overflow-x-auto pb-4 -mx-4 px-4">
-                <div
-                  id="cv-mobile-container"
-                    className="w-[595px] shadow-2xl shadow-black/20 rounded-lg overflow-hidden mx-auto bg-white relative"
-                    style={{ minHeight: "842px" }}
-                    dir={dir}
-                  >
-                  {renderCV()}
-                  <div className="absolute inset-0 pointer-events-none z-[100]" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 841px, #ff0000 841px, #ff0000 842px)" }} />
-                </div>
-              </div>
-              <p className="text-center text-xs text-txt-dim mt-2 lg:hidden">
-                {t("builder.scrollText") ||
-                  "? Scroll horizontally to view full CV ?"}
-              </p>
-            </div>
 
             {/* Save CV Promo */}
             <div className="mt-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start mb-6">
@@ -2405,26 +2508,15 @@ export default function BuilderPage() {
                   onClick={() => goTo(7)}
                   className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  {t("builder.fullScreen") || "Full Screen ?"}
+                  {t("builder.fullScreen") || "Full Screen →"}
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto preview-scrollbar p-4 flex justify-center items-start">
+              <div className="flex-1 overflow-y-auto preview-scrollbar p-4 flex flex-col items-center gap-4">
                 <div
-                  className="origin-top-left"
-                  style={{
-                    transform: "scale(0.62)",
-                    transformOrigin: "top center",
-                    width: "595px",
-                    minWidth: "595px",
-                  }}
+                  className="flex flex-col items-center gap-4"
+                  dir={dir}
                 >
-                  <div
-                    className="shadow-2xl shadow-black/15 rounded-lg overflow-hidden"
-                    dir={dir}
-                  >
-                    {renderCV()}
-                  <div className="absolute inset-0 pointer-events-none z-[100]" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 841px, #ff0000 841px, #ff0000 842px)" }} />
-                  </div>
+                  {renderPaginatedSheets(0.52)}
                 </div>
               </div>
             </div>
@@ -2462,14 +2554,11 @@ export default function BuilderPage() {
                 </button>
               </div>
               <div className="flex-1 overflow-auto p-4">
-                <div className="overflow-x-auto">
-                  <div
-                    className="w-[595px] mx-auto shadow-2xl shadow-black/20 rounded-lg overflow-hidden"
-                    dir={dir}
-                  >
-                    {renderCV()}
-                  <div className="absolute inset-0 pointer-events-none z-[100]" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 841px, #ff0000 841px, #ff0000 842px)" }} />
-                  </div>
+                <div
+                  className="flex flex-col items-center gap-4"
+                  dir={dir}
+                >
+                  {renderPaginatedSheets(0.55)}
                 </div>
               </div>
               <div className="p-4 border-t border-border">
@@ -2486,10 +2575,22 @@ export default function BuilderPage() {
         </AnimatePresence>
       </div>
 
-      {/* Print area (hidden, used for PDF export) */}
-      <div id="print-area" style={{ display: "none" }} dir={dir}>
-        {renderCV()}
-                  <div className="absolute inset-0 pointer-events-none z-[100]" style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent, transparent 841px, #ff0000 841px, #ff0000 842px)" }} />
+      {/* Hidden full-render div for measuring content height + PDF capture */}
+      <div
+        ref={cvMeasureRef}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          top: 0,
+          width: A4_WIDTH,
+          overflow: 'visible',
+          pointerEvents: 'none',
+          zIndex: -1,
+        }}
+        dir={dir}
+      >
+        {renderCVFull()}
       </div>
 
       <datalist id="ecoles-list-all">
