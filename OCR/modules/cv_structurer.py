@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 """
 CV Analyzer - Structuration robuste du CV en JSON normalise
-Pipeline : TextExtractor -> NLP (optionnel) -> Assemblage -> Validation
+Pipeline : LLM (Gemini) -> Fallback (TextExtractor -> NLP -> Assemblage -> Validation)
 """
 
 import re
+import json
 import time
 import logging
 from typing import Dict, List, Optional
 
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
+
+from config import GEMINI_API_KEY
 from modules.text_extractor import TextExtractor, MONTHS, CURRENT_MARKERS, LANG_LEVELS
 
 logger = logging.getLogger("cv_analyzer.cv_structurer")
@@ -153,33 +160,45 @@ class CVStructurer:
     # -----------------------------------------------------------------
     def structure(self, raw_text: str, extraction_metadata: dict = None) -> dict:
         t0 = time.perf_counter()
-        cv = _empty_cv()
-        cv["raw_text"] = raw_text
+        
+        # 1. Attempt LLM structuring first if available
+        llm_cv = self._structure_with_llm(raw_text)
+        if llm_cv:
+            cv = llm_cv
+            cv["raw_text"] = raw_text
+            if not "extraction_metadata" in cv:
+                 cv["extraction_metadata"] = _empty_cv()["extraction_metadata"]
+                 cv["extraction_metadata"]["sections_detected"] = ["LLM_PARSED"]
+        else:
+            # 2. Fallback to Regex / spaCy pipeline
+            logger.info("Falling back to regex/spaCy CV structurer.")
+            cv = _empty_cv()
+            cv["raw_text"] = raw_text
 
-        if not raw_text or not raw_text.strip():
-            return cv
+            if not raw_text or not raw_text.strip():
+                return cv
 
-        extracted = self.text_extractor.extract(raw_text)
-        nlp_ents = self._run_nlp(raw_text) if self.nlp else {}
+            extracted = self.text_extractor.extract(raw_text)
+            nlp_ents = self._run_nlp(raw_text) if self.nlp else {}
 
-        self._fill_personal(cv, extracted, nlp_ents, raw_text)
-        self._fill_summary(cv, extracted)
-        self._fill_experience(cv, extracted)
-        self._fill_education(cv, extracted)
-        self._fill_stages(cv, extracted)
-        self._fill_skills(cv, extracted)
-        self._fill_languages(cv, extracted)
-        self._fill_certifications(cv, extracted)
-        self._fill_projects(cv, extracted)
-        self._fill_publications(cv, extracted)
-        self._fill_interests(cv, extracted)
-        self._fill_references(cv, extracted)
-        self._fill_regulations(cv, extracted)
+            self._fill_personal(cv, extracted, nlp_ents, raw_text)
+            self._fill_summary(cv, extracted)
+            self._fill_experience(cv, extracted)
+            self._fill_education(cv, extracted)
+            self._fill_stages(cv, extracted)
+            self._fill_skills(cv, extracted)
+            self._fill_languages(cv, extracted)
+            self._fill_certifications(cv, extracted)
+            self._fill_projects(cv, extracted)
+            self._fill_publications(cv, extracted)
+            self._fill_interests(cv, extracted)
+            self._fill_references(cv, extracted)
+            self._fill_regulations(cv, extracted)
+            cv["extraction_metadata"]["detected_language"] = extracted.get("detected_language", "")
+            cv["extraction_metadata"]["sections_detected"] = [s["type"] for s in extracted.get("sections", [])]
 
         meta = cv["extraction_metadata"]
         meta["structuring_duration_ms"] = int((time.perf_counter() - t0) * 1000)
-        meta["detected_language"] = extracted.get("detected_language", "")
-        meta["sections_detected"] = [s["type"] for s in extracted.get("sections", [])]
 
         if extraction_metadata:
             for k in ("source_format", "ocr_engine_used", "ocr_confidence",
@@ -195,6 +214,56 @@ class CVStructurer:
         logger.info(f"Structuration : {meta['structuring_duration_ms']} ms, "
                      f"completude {meta['completeness_score']}%")
         return cv
+
+    # -----------------------------------------------------------------
+    # LLM Structuring
+    # -----------------------------------------------------------------
+    def _structure_with_llm(self, raw_text: str) -> Optional[dict]:
+        """Uses Gemini API to structure the CV perfectly."""
+        if not genai or not GEMINI_API_KEY:
+            logger.warning("Gemini API skipped: No token or missing package.")
+            return None
+        
+        try:
+            logger.info("Attempting CV structuring with Gemini API...")
+            genai.configure(api_key=GEMINI_API_KEY)
+            
+            # Using gemini-2.5-flash as it's the current fast/free tier and easily does JSON
+            model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
+            
+            empty = _empty_cv()
+            schema_keys = json.dumps(empty, indent=2)
+            
+            prompt = f"""Extract the data from this raw OCR CV text into the exact JSON format provided below.
+            Rules:
+            1. ONLY answer with valid JSON. Do not include markdown blocks or any other text.
+            2. If you cannot find a field, output an empty string "" or empty array [].
+            3. Fix obvious OCR typos (e.g. 'Inforrnatique' -> 'Informatique').
+            4. Make sure dates are separated from titles, and experiences are properly separated from education.
+            5. In 'skills', list individual skills instead of long sentences.
+
+            JSON Schema format:
+            {schema_keys}
+
+            Raw OCR Text:
+            {raw_text}
+            """
+            
+            response = model.generate_content(prompt)
+            data = json.loads(response.text)
+            
+            # Ensure safe nested dicts exist
+            if "skills" not in data:
+                data["skills"] = empty["skills"]
+            if "personal_info" not in data:
+                data["personal_info"] = empty["personal_info"]
+            if "extraction_metadata" not in data:
+                data["extraction_metadata"] = empty["extraction_metadata"]
+                
+            return data
+        except Exception as e:
+            logger.error(f"Gemini LLM Structuring failed: {str(e)}")
+            return None
 
     # -----------------------------------------------------------------
     # NLP
