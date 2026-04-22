@@ -172,7 +172,17 @@ export const dictionaries = {
       annee: "Year",
       specialite: "Specialty",
       mention: "Grade / Mention",
-      secteur: "Industry / Sector"
+      secteur: "Industry / Sector",
+      cvSaved: "✓ CV saved to your account!",
+      cvSavedDesc: "You can edit and download it anytime from your dashboard.",
+      saveYourCV: "Save this CV to your account",
+      saveYourCVDesc: "Keep your progress and access it from your dashboard anytime.",
+      saving: "Saving...",
+      updateCV: "Update CV",
+      saveCV: "Save CV",
+      saveAndExit: "Save & Exit",
+      save: "Save",
+      goToDashboard: "My Dashboard"
     },
     dashboard: {
       draft: "Draft",
@@ -426,7 +436,17 @@ export const dictionaries = {
       annee: "Année",
       specialite: "Spécialité",
       mention: "Mention",
-      secteur: "Secteur"
+      secteur: "Secteur",
+      cvSaved: "✓ CV sauvegardé dans votre compte !",
+      cvSavedDesc: "Vous pouvez le modifier et le télécharger à tout moment depuis votre tableau de bord.",
+      saveYourCV: "Sauvegarder ce CV dans votre compte",
+      saveYourCVDesc: "Conservez votre progression et accédez-y depuis votre tableau de bord.",
+      saving: "Sauvegarde...",
+      updateCV: "Mettre à jour le CV",
+      saveCV: "Sauvegarder le CV",
+      saveAndExit: "Sauvegarder & Quitter",
+      save: "Sauvegarder",
+      goToDashboard: "Mon tableau de bord"
     },
     dashboard: {
       draft: "Brouillon",
@@ -680,7 +700,17 @@ export const dictionaries = {
       annee: "السنة",
       specialite: "التخصص",
       mention: "التقدير",
-      secteur: "القطاع"
+      secteur: "القطاع",
+      cvSaved: "✓ تم حفظ السيرة الذاتية في حسابك!",
+      cvSavedDesc: "يمكنك تعديلها وتحميلها في أي وقت من لوحة التحكم.",
+      saveYourCV: "احفظ هذه السيرة الذاتية في حسابك",
+      saveYourCVDesc: "احتفظ بتقدمك وارجع إليه من لوحة التحكم في أي وقت.",
+      saving: "جاري الحفظ...",
+      updateCV: "تحديث السيرة الذاتية",
+      saveCV: "حفظ السيرة الذاتية",
+      saveAndExit: "حفظ وخروج",
+      save: "حفظ",
+      goToDashboard: "لوحة التحكم"
     },
     dashboard: {
       draft: "مسودة",

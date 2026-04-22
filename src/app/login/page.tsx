@@ -15,12 +15,24 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await login(email, password);
-    if (success) {
-      router.push('/dashboard');
+    setError('');
+    setLoading(true);
+    try {
+      const success = await login(email, password);
+      if (success) {
+        router.push('/dashboard');
+      } else {
+        setError(t('auth.login_error') || 'Invalid email or password.');
+      }
+    } catch {
+      setError(t('auth.login_error') || 'Invalid email or password.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,11 +84,18 @@ export default function LoginPage() {
             <p className="text-txt-muted text-center text-sm mb-8">{t('auth.login_subtitle')}</p>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-400 text-center">
+                  {error}
+                </div>
+              )}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.email')}</label>
                 <input
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="hello@example.com"
                   className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
                 />
@@ -87,11 +106,13 @@ export default function LoginPage() {
                 <input
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
                 />
                 <div className="flex justify-end pt-1">
-                  <Link href="#" className="text-[11px] font-medium text-txt-muted hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors">{t('auth.forgot')}</Link>
+                  <Link href="/forgot-password" className="text-[11px] font-medium text-txt-muted hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors">{t('auth.forgot')}</Link>
                 </div>
               </div>
 

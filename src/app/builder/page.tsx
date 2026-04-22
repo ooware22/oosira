@@ -52,10 +52,17 @@ import {
   Squares2X2Icon,
   SwatchIcon,
   MinusIcon,
+  BookmarkIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 import { ThemeToggle, LanguageToggle } from "@/components/Toggles";
+import { useAuth } from "@/app/auth/AuthContext";
+import { apiFetch } from "@/api/apiClient";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { trackDownload } from "@/store/slices/statsSlice";
 
 /* -- Constants -- */
 const CANDIDATE_ICONS: Record<
@@ -209,17 +216,62 @@ function TextArea({
 /* -- Main Builder Component -- */
 export default function BuilderPage() {
   const { t, dir, language } = useLanguage();
-  const [[currentStep, direction], setStep] = useState([0, 0]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, isAuthenticated } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
+  const [[currentStep, direction], setStep] = useState(() => {
+    const stepParam = searchParams.get('step');
+    return [stepParam ? Number(stepParam) : 0, 0];
+  });
   const [activeCandidate, setActiveCandidate] = useState(-1);
   const [activeTemplate, setActiveTemplate] = useState(1);
   const [styleConfig, setStyleConfig] = useState<CVStyleConfig>(
     TEMPLATE_DEFAULTS[1],
   );
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedCvId, setSavedCvId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const [shuffledTemplates, setShuffledTemplates] = useState<any[] | null>(null);
+  const [shuffledPalettes, setShuffledPalettes] = useState<any[] | null>(null);
 
   useEffect(() => {
-    // Randomize initial style when entering the builder page
-    setStyleConfig(getRandomStyleConfig(TEMPLATE_DEFAULTS[1]));
-  }, []);
+    const _templateThumbs = [
+      { id: 1, name: "Classique Pro", color: "#1B3A6B", style: "elegant" },
+      { id: 2, name: "Ingenieur", color: "#2C3E50", style: "technical" },
+      { id: 3, name: "Cadre Moderne", color: "#1A1A2E", style: "executive" },
+      { id: 4, name: "Medical", color: "#2563EB", style: "medical" },
+      { id: 5, name: "Tech & IT", color: "#0D1117", style: "tech" },
+      { id: 6, name: "Minimaliste", color: "#f3f4f6", style: "minimalist" },
+      { id: 7, name: "Créatif", color: "#ec4899", style: "creative" },
+      { id: 8, name: "Exécutif Dark", color: "#0f172a", style: "executive-dark" },
+      { id: 9, name: "Universitaire", color: "#7e22ce", style: "academic" },
+      { id: 10, name: "Startup", color: "#14b8a6", style: "startup" },
+    ];
+    setShuffledTemplates([..._templateThumbs].sort(() => Math.random() - 0.5));
+    setShuffledPalettes([...COLOR_PALETTES].sort(() => Math.random() - 0.5));
+    
+    const editId = searchParams.get('id');
+    if (editId && isAuthenticated) {
+      apiFetch(`/cvs/${editId}/`)
+        .then(data => {
+          if (data.cvData && Object.keys(data.cvData).length > 0) setFormData(data.cvData);
+          if (data.styleConfig) {
+            setStyleConfig({...TEMPLATE_DEFAULTS[data.templateId || 1], ...data.styleConfig});
+          }
+          if (data.templateId) setActiveTemplate(data.templateId);
+          setSavedCvId(data.id);
+        })
+        .catch(err => console.error("Error loading CV:", err));
+    } else if (!editId) {
+      // Randomize initial template and style when entering the builder page
+      const templateKeys = Object.keys(TEMPLATE_DEFAULTS).map(Number);
+      const randomTemplateId = templateKeys[Math.floor(Math.random() * templateKeys.length)];
+      setActiveTemplate(randomTemplateId);
+      setStyleConfig(getRandomStyleConfig(TEMPLATE_DEFAULTS[randomTemplateId]));
+    }
+  }, [searchParams, isAuthenticated]);
   const [formData, setFormData] = useState<Candidate>({
     id: -1,
     prenom: "",
@@ -506,11 +558,87 @@ export default function BuilderPage() {
     });
   }, []);
 
+  // ── Save CV to backend ──
+  const saveCV = async () => {
+    if (!isAuthenticated) return;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const calculateCompletion = (data: Candidate): number => {
+        let score = 0;
+        if (data.prenom || data.nom) score += 10;
+        if (data.titre) score += 10;
+        if (data.email) score += 10;
+        if (data.telephone) score += 10;
+        if (data.ville) score += 10;
+        if (data.accroche) score += 10;
+        if (data.formations && data.formations.length > 0) score += 10;
+        if (data.experiences && data.experiences.length > 0) score += 15;
+        if (data.competences && data.competences.length > 0) score += 10;
+        if (data.langues && data.langues.length > 0) score += 5;
+        return Math.min(100, score);
+      };
+
+      const completionPercent = calculateCompletion(formData);
+      const cvStatus = completionPercent === 100 ? 'completed' : 'draft';
+
+      const cvPayload = {
+        title: `${formData.prenom || 'Mon'} ${formData.nom || 'CV'}`.trim(),
+        jobTitle: formData.titre || '',
+        templateName: TEMPLATE_NAMES[activeTemplate - 1] || 'Classique Pro',
+        templateId: activeTemplate,
+        previewColor: styleConfig.sidebarBg || styleConfig.accentColor || '#0D1117',
+        completionPercent,
+        status: cvStatus,
+        cvData: formData,
+        styleConfig: styleConfig,
+      };
+
+      if (savedCvId) {
+        // Update existing CV
+        await apiFetch(`/cvs/${savedCvId}/`, {
+          method: 'PUT',
+          body: JSON.stringify(cvPayload),
+        });
+      } else {
+        // Create new CV
+        const created = await apiFetch('/cvs/', {
+          method: 'POST',
+          body: JSON.stringify(cvPayload),
+        });
+        setSavedCvId(created.id);
+      }
+    } catch (err: any) {
+      console.error('Save CV error:', err);
+      setSaveError(err.message || 'Failed to save CV');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveAndExit = async () => {
+    if (isAuthenticated) {
+      await saveCV();
+    }
+    router.push("/dashboard");
+  };
+
   const goTo = (step: number) => {
     setStep([step, step > currentStep ? 1 : -1]);
+    // Auto-save when reaching the preview step
+    if (step === STEPS.length - 1 && isAuthenticated) {
+      setTimeout(() => saveCV(), 300);
+    }
   };
   const next = () => {
-    if (currentStep < STEPS.length - 1) setStep([currentStep + 1, 1]);
+    if (currentStep < STEPS.length - 1) {
+      const nextStep = currentStep + 1;
+      setStep([nextStep, 1]);
+      // Auto-save when reaching the preview step
+      if (nextStep === STEPS.length - 1 && isAuthenticated) {
+        setTimeout(() => saveCV(), 300);
+      }
+    }
   };
   const prev = () => {
     if (currentStep > 0) setStep([currentStep - 1, -1]);
@@ -720,6 +848,10 @@ export default function BuilderPage() {
       }
 
       pdf.save(`CV_${formData.prenom || "Sira"}_${formData.nom || "CV"}.pdf`);
+      
+      if (isAuthenticated && savedCvId) {
+        dispatch(trackDownload(savedCvId));
+      }
     } catch (err) {
       console.error("Error generating PDF:", err);
     } finally {
@@ -855,7 +987,7 @@ export default function BuilderPage() {
                   "Choose a professional design optimized for your industry."}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                {templateThumbs.map((tmpl) => (
+                {(shuffledTemplates || templateThumbs).map((tmpl) => (
                   <motion.div
                     key={tmpl.id}
                     variants={fadeUp}
@@ -1737,7 +1869,7 @@ export default function BuilderPage() {
                 </h3>
               </div>
               <div className="grid grid-cols-5 sm:grid-cols-10 gap-3 mb-4">
-                {COLOR_PALETTES.map((palette) => (
+                {(shuffledPalettes || COLOR_PALETTES).map((palette) => (
                   <button
                     key={palette.id}
                     onClick={() =>
@@ -2247,33 +2379,77 @@ export default function BuilderPage() {
             </div>
 
 
-            {/* Save CV Promo */}
-            <div className="mt-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start mb-6">
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-txt mb-1">
-                  {t("builder.saveCVTitle") ||
-                    "Want to save your CV for later?"}
-                </h3>
-                <p className="text-sm text-txt-muted">
-                  {t("builder.saveCVDesc") ||
-                    "Create an account to save your progress, edit later, and unlock more templates."}
-                </p>
+            {/* Save CV — conditional on auth */}
+            {isAuthenticated ? (
+              <div className="mt-8 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start mb-6">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-txt mb-1">
+                    {savedCvId
+                      ? (t("builder.cvSaved") || "✓ CV saved to your account!")
+                      : (t("builder.saveYourCV") || "Save this CV to your account")}
+                  </h3>
+                  <p className="text-sm text-txt-muted">
+                    {savedCvId
+                      ? (t("builder.cvSavedDesc") || "You can edit and download it anytime from your dashboard.")
+                      : (t("builder.saveYourCVDesc") || "Keep your progress and access it from your dashboard anytime.")}
+                  </p>
+                  {saveError && (
+                    <p className="text-sm text-red-500 mt-2">{saveError}</p>
+                  )}
+                </div>
+                <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 justify-center">
+                  <button
+                    onClick={saveCV}
+                    disabled={isSaving}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSaving ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : savedCvId ? (
+                      <CheckIcon className="w-4 h-4" />
+                    ) : null}
+                    {isSaving
+                      ? (t("builder.saving") || "Saving...")
+                      : savedCvId
+                        ? (t("builder.updateCV") || "Update CV")
+                        : (t("builder.saveCV") || "Save CV")}
+                  </button>
+                  <Link
+                    href="/dashboard"
+                    className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-semibold transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40"
+                  >
+                    {t("builder.goToDashboard") || "My Dashboard"}
+                  </Link>
+                </div>
               </div>
-              <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 justify-center">
-                <Link
-                  href="/login"
-                  className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-semibold transition-all hover:bg-blue-500/10 hover:border-blue-500/40"
-                >
-                  {t("nav.login") || "Log In"}
-                </Link>
-                <Link
-                  href="/register"
-                  className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md shadow-blue-500/20"
-                >
-                  {t("nav.signup") || "Sign Up"}
-                </Link>
+            ) : (
+              <div className="mt-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start mb-6">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-txt mb-1">
+                    {t("builder.saveCVTitle") ||
+                      "Want to save your CV for later?"}
+                  </h3>
+                  <p className="text-sm text-txt-muted">
+                    {t("builder.saveCVDesc") ||
+                      "Create an account to save your progress, edit later, and unlock more templates."}
+                  </p>
+                </div>
+                <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 justify-center">
+                  <Link
+                    href="/login"
+                    className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-semibold transition-all hover:bg-blue-500/10 hover:border-blue-500/40"
+                  >
+                    {t("nav.login") || "Log In"}
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md shadow-blue-500/20"
+                  >
+                    {t("nav.signup") || "Sign Up"}
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </motion.div>
         );
     }
@@ -2361,6 +2537,19 @@ export default function BuilderPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={handleSaveAndExit}
+              disabled={isSaving}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full text-[11px] font-bold hover:bg-emerald-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? (
+                <span className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <BookmarkIcon className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline">{t("builder.saveAndExit") || "Save & Exit"}</span>
+              <span className="sm:hidden">{t("builder.save") || "Save"}</span>
+            </button>
             <ThemeToggle />
             <LanguageToggle />
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-full text-[11px] font-bold">

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { mockApi } from '../../api/mockData';
+import { apiFetch, setToken, setRefreshToken, clearToken, getToken } from '../../api/apiClient';
 
 interface User {
   id: string;
@@ -17,26 +17,54 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  // Initialize with dummy data for immediate access in the builder/dashboard without logging in for now
-  user: {
-    id: 'user_1',
-    name: 'Islem Charaf Eddine',
-    email: 'islem@oosira.com',
-    plan: 'pro'
-  },
-  isAuthenticated: true,
+  user: null,
+  isAuthenticated: false,
   status: 'idle',
   error: null,
 };
 
-export const loginAuth = createAsyncThunk('auth/login', async (credentials: any) => {
-  const response = await mockApi.auth.login(credentials);
-  return response;
+// ── Login ──
+export const loginAuth = createAsyncThunk(
+  'auth/login',
+  async (credentials: { email: string; password: string }) => {
+    const data = await apiFetch('/auth/login/', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    // Store tokens
+    setToken(data.token);
+    if (data.refreshToken) setRefreshToken(data.refreshToken);
+    return data;
+  }
+);
+
+// ── Register ──
+export const registerAuth = createAsyncThunk(
+  'auth/register',
+  async (credentials: { name: string; email: string; password: string }) => {
+    const data = await apiFetch('/auth/register/', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+    // Store tokens
+    setToken(data.token);
+    if (data.refreshToken) setRefreshToken(data.refreshToken);
+    return data;
+  }
+);
+
+// ── Logout ──
+export const logoutAuth = createAsyncThunk('auth/logout', async () => {
+  clearToken();
+  return null;
 });
 
-export const logoutAuth = createAsyncThunk('auth/logout', async () => {
-  await mockApi.auth.logout();
-  return null;
+// ── Hydrate (restore session from localStorage on app load) ──
+export const hydrateAuth = createAsyncThunk('auth/hydrate', async () => {
+  const token = getToken();
+  if (!token) throw new Error('No token');
+  const data = await apiFetch('/users/profile/');
+  return data;
 });
 
 const authSlice = createSlice({
@@ -45,8 +73,10 @@ const authSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Login
       .addCase(loginAuth.pending, (state) => {
         state.status = 'loading';
+        state.error = null;
       })
       .addCase(loginAuth.fulfilled, (state, action) => {
         state.status = 'succeeded';
@@ -57,10 +87,39 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || 'Login failed';
       })
+      // Register
+      .addCase(registerAuth.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(registerAuth.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.isAuthenticated = true;
+        state.user = action.payload;
+      })
+      .addCase(registerAuth.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Registration failed';
+      })
+      // Logout
       .addCase(logoutAuth.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
         state.status = 'idle';
+      })
+      // Hydrate
+      .addCase(hydrateAuth.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(hydrateAuth.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.status = 'succeeded';
+      })
+      .addCase(hydrateAuth.rejected, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+        state.status = 'failed';
       });
   },
 });

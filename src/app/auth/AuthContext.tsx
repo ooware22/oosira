@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { loginAuth, logoutAuth } from '@/store/slices/authSlice';
+import { loginAuth, registerAuth, logoutAuth, hydrateAuth } from '@/store/slices/authSlice';
 import { duplicateDraft, removeDraft, fetchDrafts } from '@/store/slices/cvsSlice';
 
 // Expose same typings for UI
@@ -11,9 +11,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  avatar?: string;
+  avatarUrl?: string;
   plan: string;
   joinedAt?: string;
+  phone?: string;
+  location?: string;
+  linkedin?: string;
 }
 
 export interface DraftCV {
@@ -33,12 +36,14 @@ export interface DraftCV {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
+  isHydrating: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   drafts: DraftCV[];
   deleteDraft: (id: string) => void;
   duplicateDraft: (id: string) => void;
+  refreshUser: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -50,14 +55,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user) as User | null;
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const drafts = useSelector((state: RootState) => state.cvs.drafts);
-  const cvsStatus = useSelector((state: RootState) => state.cvs.status);
+  const authStatus = useSelector((state: RootState) => state.auth.status);
 
+  // Hydrate session from localStorage on mount
   useEffect(() => {
-    // Initial fetch of mock data
-    if (cvsStatus === 'idle') {
+    if (authStatus === 'idle') {
+      dispatch(hydrateAuth());
+    }
+  }, [authStatus, dispatch]);
+
+  // Fetch drafts when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
       dispatch(fetchDrafts());
     }
-  }, [cvsStatus, dispatch]);
+  }, [isAuthenticated, dispatch]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -70,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      await dispatch(loginAuth({ email, password })).unwrap(); // mocked mapping 
+      await dispatch(registerAuth({ name, email, password })).unwrap();
       return true;
     } catch {
       return false;
@@ -89,16 +101,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     dispatch(duplicateDraft(id));
   };
 
+  const isHydrating = authStatus === 'idle' || authStatus === 'loading';
+
   return (
     <AuthContext.Provider value={{
       user,
       isAuthenticated,
+      isHydrating,
       login,
       register,
       logout,
       drafts,
       deleteDraft,
-      duplicateDraft: handleDuplicateDraft
+      duplicateDraft: handleDuplicateDraft,
+      refreshUser: () => dispatch(hydrateAuth()),
     }}>
       {children}
     </AuthContext.Provider>

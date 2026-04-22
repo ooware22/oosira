@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { mockApi } from '../../api/mockData';
+import { apiFetch } from '../../api/apiClient';
 
 export interface DraftCV {
   id: string;
@@ -24,19 +24,34 @@ const initialState: CVsState = {
   error: null,
 };
 
+// ── Fetch all CVs ──
 export const fetchDrafts = createAsyncThunk('cvs/fetchDrafts', async () => {
-  const response = await mockApi.cvs.getAll();
-  return response as DraftCV[];
+  const data = await apiFetch('/cvs/');
+  return data as DraftCV[];
 });
 
+// ── Create a new CV ──
+export const createDraft = createAsyncThunk(
+  'cvs/createDraft',
+  async (cvData: Partial<DraftCV>) => {
+    const data = await apiFetch('/cvs/', {
+      method: 'POST',
+      body: JSON.stringify(cvData),
+    });
+    return data as DraftCV;
+  }
+);
+
+// ── Delete a CV ──
 export const removeDraft = createAsyncThunk('cvs/removeDraft', async (id: string) => {
-  await mockApi.cvs.delete(id);
+  await apiFetch(`/cvs/${id}/`, { method: 'DELETE' });
   return id;
 });
 
+// ── Duplicate a CV ──
 export const duplicateDraft = createAsyncThunk('cvs/duplicateDraft', async (id: string) => {
-  const response = await mockApi.cvs.duplicate(id);
-  return response as DraftCV;
+  const data = await apiFetch(`/cvs/${id}/duplicate/`, { method: 'POST' });
+  return data as DraftCV;
 });
 
 const cvsSlice = createSlice({
@@ -55,6 +70,9 @@ const cvsSlice = createSlice({
       .addCase(fetchDrafts.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch drafts';
+      })
+      .addCase(createDraft.fulfilled, (state, action) => {
+        state.drafts.unshift(action.payload);
       })
       .addCase(removeDraft.fulfilled, (state, action) => {
         state.drafts = state.drafts.filter((d) => d.id !== action.payload);

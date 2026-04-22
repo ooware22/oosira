@@ -2,11 +2,15 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { apiFetch } from '@/api/apiClient';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { useAuth, DraftCV } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { fetchDashboardStats } from '@/store/slices/statsSlice';
 import {
   DocumentTextIcon,
   Cog6ToothIcon,
@@ -36,7 +40,135 @@ import {
   SwatchIcon,
   ShieldCheckIcon,
   KeyIcon,
+  LockClosedIcon
 } from '@heroicons/react/24/outline';
+
+// ════════════════════════════════════════════════════════════
+// NEW FORMS FOR PROFILE AND PASSWORD
+// ════════════════════════════════════════════════════════════
+
+function ProfileSettingsForm({ user, refreshUser }: { user: any, refreshUser: () => void }) {
+  const { t } = useLanguage();
+  const [firstName, setFirstName] = useState(user.name?.split(' ')[0] || '');
+  const [lastName, setLastName] = useState(user.name?.split(' ').slice(1).join(' ') || '');
+  const [phone, setPhone] = useState(user.phone || '');
+  const [location, setLocation] = useState(user.location || '');
+  const [linkedin, setLinkedin] = useState(user.linkedin || '');
+  const [status, setStatus] = useState<'idle'|'loading'|'success'|'error'>('idle');
+  const [errorText, setErrorText] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    setErrorText('');
+    try {
+      await apiFetch('/users/profile/', {
+        method: 'PUT',
+        body: JSON.stringify({ firstName, lastName, phone, location, linkedin })
+      });
+      setStatus('success');
+      refreshUser();
+      setTimeout(() => setStatus('idle'), 3000);
+    } catch (err: any) {
+      console.error(err);
+      setStatus('error');
+      setErrorText(err.message || 'Failed to update profile');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-[15px] font-bold text-txt flex items-center gap-2">
+          <UserCircleIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.personalInformation') || "Personal Information"}
+        </h3>
+        {status === 'success' && <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">Saved!</span>}
+        {status === 'error' && <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-full">{errorText}</span>}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormField label={t('dashboard.firstName') || "First Name"} value={firstName} onChange={setFirstName} />
+        <FormField label={t('dashboard.lastName') || "Last Name"} value={lastName} onChange={setLastName} />
+        <div className="space-y-1.5 opacity-50 cursor-not-allowed">
+           <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('dashboard.emailAddress') || "Email Address"}</label>
+           <input type="email" readOnly value={user.email} className="w-full bg-surface2 border border-border rounded-xl px-4 py-3 text-[13px] text-txt outline-none" />
+        </div>
+        <FormField label={t('dashboard.phoneLabel') || "Phone"} value={phone} onChange={setPhone} />
+        <FormField label={t('dashboard.locationLabel') || "Location"} value={location} onChange={setLocation} />
+        <FormField label={t('dashboard.linkedinLabel') || "LinkedIn"} value={linkedin} onChange={setLinkedin} />
+      </div>
+      <div className="mt-5 flex justify-end">
+        <button disabled={status === 'loading'} type="submit" className="group relative inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-white font-medium text-[13px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 overflow-hidden disabled:opacity-70 disabled:pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 z-0" />
+          <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 z-0" />
+          <span className="relative z-10">{status === 'loading' ? 'Saving...' : (t('dashboard.saveChanges') || "Save Changes")}</span>
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function PasswordChangeForm() {
+  const { t } = useLanguage();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [status, setStatus] = useState<'idle'|'loading'|'success'|'error'>('idle');
+  const [errorText, setErrorText] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setStatus('error');
+      setErrorText('New passwords do not match');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setStatus('error');
+      setErrorText('Password must be at least 8 characters');
+      return;
+    }
+
+    setStatus('loading');
+    setErrorText('');
+    try {
+      await apiFetch('/users/password/', {
+        method: 'PUT',
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+      setStatus('success');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setStatus('idle'), 3000);
+    } catch (err: any) {
+      console.error(err);
+      setStatus('error');
+      setErrorText(err.message || 'Failed to update password');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-[15px] font-bold text-txt flex items-center gap-2">
+          <KeyIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.changePassword') || "Change Password"}
+        </h3>
+        {status === 'success' && <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">Updated!</span>}
+        {status === 'error' && <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-full">{errorText}</span>}
+      </div>
+      <div className="space-y-4 max-w-sm">
+        <FormField label={t('dashboard.currentPassword') || "Current Password"} value={currentPassword} onChange={setCurrentPassword} type="password" placeholder="••••••••" />
+        <FormField label={t('dashboard.newPassword') || "New Password"} value={newPassword} onChange={setNewPassword} type="password" placeholder="••••••••" />
+        <FormField label={t('dashboard.confirmNewPassword') || "Confirm New Password"} value={confirmPassword} onChange={setConfirmPassword} type="password" placeholder="••••••••" />
+      </div>
+      <div className="mt-5">
+        <button disabled={status === 'loading'} type="submit" className="px-5 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors disabled:opacity-50">
+          {status === 'loading' ? 'Updating...' : (t('dashboard.updatePassword') || "Update Password")}
+        </button>
+      </div>
+    </form>
+  );
+}
 
 type DashboardView = 'cvs' | 'settings' | 'profile' | 'analytics';
 
@@ -128,11 +260,43 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
           </div>
         </div>
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
-          <span className="text-white text-[12px] font-medium flex items-center gap-1.5">
-            <PencilSquareIcon className="w-3.5 h-3.5" /> {t('dashboard.editCV') || 'Edit CV'}
-          </span>
+        {/* Hover overlay with action buttons */}
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+          <button
+            onClick={(e) => { e.stopPropagation(); window.open('/builder?id=' + draft.id + '&step=7', '_blank'); }}
+            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center text-white backdrop-blur-md transition-all hover:scale-110"
+            title={t('dashboard.view') || 'Voir'}
+          >
+            <EyeIcon className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); onEdit(); }}
+            className="w-8 h-8 rounded-full bg-blue-500/80 hover:bg-blue-500 flex items-center justify-center text-white backdrop-blur-md transition-all hover:scale-110 shadow-lg shadow-blue-500/30"
+            title={t('dashboard.edit') || 'Modifier'}
+          >
+            <PencilSquareIcon className="w-4 h-4" />
+          </button>
+          
+          <button
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              navigator.clipboard.writeText(window.location.origin + '/builder?id=' + draft.id);
+              alert(t('dashboard.linkCopied') || 'Lien copié!'); 
+            }}
+            className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center text-white backdrop-blur-md transition-all hover:scale-110"
+            title={t('dashboard.share') || 'Partager'}
+          >
+            <ShareIcon className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            className="w-8 h-8 rounded-full bg-red-500/80 hover:bg-red-500 flex items-center justify-center text-white backdrop-blur-md transition-all hover:scale-110 shadow-lg shadow-red-500/30"
+            title={t('dashboard.delete') || 'Supprimer'}
+          >
+            <TrashIcon className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Template badge */}
@@ -170,7 +334,7 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
                   <button onClick={() => { onDuplicate(); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-txt hover:bg-surface2 transition">
                     <DocumentDuplicateIcon className="w-3.5 h-3.5" /> {t('dashboard.duplicate') || 'Duplicate'}
                   </button>
-                  <button onClick={() => { window.open('/builder', '_blank'); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-txt hover:bg-surface2 transition">
+                  <button onClick={() => { window.open('/builder?id=' + draft.id, '_blank'); setMenuOpen(false); }} className="w-full flex items-center gap-2.5 px-3 py-2 text-[12px] text-txt hover:bg-surface2 transition">
                     <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" /> {t('dashboard.openNewTab') || 'Open in new tab'}
                   </button>
                   <div className="border-t border-border my-1" />
@@ -219,20 +383,30 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
 // ════════════════════════════════════════════════════════════
 export default function DashboardPage() {
   const { t, dir } = useLanguage();
-  const { user, isAuthenticated, logout, drafts, deleteDraft, duplicateDraft } = useAuth();
+  const { user, isAuthenticated, isHydrating, logout, drafts, deleteDraft, duplicateDraft, refreshUser } = useAuth();
   const router = useRouter();
   const [activeView, setActiveView] = useState<DashboardView>('cvs');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  
+  const dispatch = useDispatch<AppDispatch>();
+  const stats = useSelector((state: RootState) => state.stats);
+
+  useEffect(() => {
+    if (isAuthenticated && stats.status === 'idle') {
+      dispatch(fetchDashboardStats());
+    }
+  }, [isAuthenticated, stats.status, dispatch]);
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isHydrating) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isHydrating, router]);
 
+  if (isHydrating) return null; // Show nothing or a loading spinner
   if (!isAuthenticated || !user) return null;
 
   const filteredDrafts = drafts.filter((d) =>
@@ -433,10 +607,10 @@ export default function DashboardPage() {
               >
                 {/* Quick Stats Row */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                  <StatCard icon={DocumentTextIcon} label={t('dashboard.statTotal') || "Total CVs"} value={String(drafts.length)} trend="+2" color="bg-gradient-to-br from-blue-600 to-blue-500" />
-                  <StatCard icon={CheckCircleIcon} label={t('dashboard.completed') || "Completed"} value={String(completedCount)} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
-                  <StatCard icon={ClockIcon} label={t('dashboard.draft') || "In Progress"} value={String(draftCount)} color="bg-gradient-to-br from-amber-600 to-amber-500" />
-                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Downloads"} value="24" trend="+8" color="bg-gradient-to-br from-purple-600 to-purple-500" />
+                  <StatCard icon={DocumentTextIcon} label={t('dashboard.statTotal') || "Total CVs"} value={stats.data?.quickStats.totalCvs.toString() || "0"} color="bg-gradient-to-br from-blue-600 to-blue-500" />
+                  <StatCard icon={CheckCircleIcon} label={t('dashboard.completed') || "Completed"} value={stats.data?.quickStats.completedCvs.toString() || "0"} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
+                  <StatCard icon={ClockIcon} label={t('dashboard.draft') || "In Progress"} value={stats.data?.quickStats.draftCvs.toString() || "0"} color="bg-gradient-to-br from-amber-600 to-amber-500" />
+                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Downloads"} value={stats.data?.quickStats.totalDownloads.toString() || "0"} color="bg-gradient-to-br from-purple-600 to-purple-500" />
                 </div>
 
                 {/* CV Grid */}
@@ -464,8 +638,11 @@ export default function DashboardPage() {
                       key={draft.id}
                       draft={draft}
                       delay={i + 1}
-                      onEdit={() => router.push('/builder')}
-                      onDuplicate={() => duplicateDraft(draft.id)}
+                      onEdit={() => router.push('/builder?id=' + draft.id)}
+                      onDuplicate={async () => {
+                        await duplicateDraft(draft.id);
+                        dispatch(fetchDashboardStats());
+                      }}
                       onDelete={() => setDeleteConfirm(draft.id)}
                     />
                   ))}
@@ -492,10 +669,10 @@ export default function DashboardPage() {
               >
                 {/* Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard icon={EyeIcon} label={t('dashboard.statViews') || "Total Views"} value="1,247" trend="+18%" color="bg-gradient-to-br from-blue-600 to-blue-500" />
-                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Total Downloads"} value="24" trend="+33%" color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
-                  <StatCard icon={ShareIcon} label={t('dashboard.shared') || "Shared Links"} value="8" trend="+5" color="bg-gradient-to-br from-purple-600 to-purple-500" />
-                  <StatCard icon={ArrowTrendingUpIcon} label={t('dashboard.statSuccess') || "Profile Score"} value="92/100" color="bg-gradient-to-br from-amber-600 to-amber-500" />
+                  <StatCard icon={EyeIcon} label={t('dashboard.statViews') || "Total Views"} value={stats.data?.quickStats.totalViews.toString() || "0"} color="bg-gradient-to-br from-blue-600 to-blue-500" />
+                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Total Downloads"} value={stats.data?.quickStats.totalDownloads.toString() || "0"} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
+                  <StatCard icon={ShareIcon} label={t('dashboard.shared') || "Shared Links"} value={stats.data?.quickStats.sharedLinks.toString() || "0"} color="bg-gradient-to-br from-purple-600 to-purple-500" />
+                  <StatCard icon={ArrowTrendingUpIcon} label={t('dashboard.statSuccess') || "Profile Score"} value={`${stats.data?.quickStats.profileScore || 0}/100`} color="bg-gradient-to-br from-amber-600 to-amber-500" />
                 </div>
 
                 {/* Charts mockup */}
@@ -504,23 +681,27 @@ export default function DashboardPage() {
                   <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
                     <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.viewsOverTime') || 'Weekly Activity'}</h3>
                     <div className="flex items-end gap-2 h-40">
-                      {[40, 65, 30, 80, 55, 90, 70].map((h, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${h}%` }}
-                          transition={{ delay: i * 0.1 + 0.3, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                          className="flex-1 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-lg relative group cursor-pointer hover:from-blue-500 hover:to-cyan-300 transition-all"
-                        >
-                          <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-bold text-txt opacity-0 group-hover:opacity-100 transition bg-surface px-1.5 py-0.5 rounded shadow">
-                            {h}
-                          </div>
-                        </motion.div>
-                      ))}
+                      {stats.data?.weeklyActivity.map((activity, i) => {
+                        const maxValue = Math.max(...(stats.data?.weeklyActivity.map(a => a.value) || [1]));
+                        const heightPct = activity.value > 0 ? (activity.value / maxValue) * 100 : 0;
+                        return (
+                          <motion.div
+                            key={i}
+                            initial={{ height: 0 }}
+                            animate={{ height: `${heightPct}%` }}
+                            transition={{ delay: i * 0.1 + 0.3, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                            className="flex-1 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-lg relative group cursor-pointer hover:from-blue-500 hover:to-cyan-300 transition-all min-h-[4px]"
+                          >
+                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-bold text-txt opacity-0 group-hover:opacity-100 transition bg-surface px-1.5 py-0.5 rounded shadow">
+                              {activity.value}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
                     </div>
                     <div className="flex justify-between mt-3 text-[10px] text-txt-dim font-medium">
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-                        <span key={d}>{d}</span>
+                      {stats.data?.weeklyActivity.map((activity) => (
+                        <span key={activity.day}>{activity.day}</span>
                       ))}
                     </div>
                   </div>
@@ -529,13 +710,7 @@ export default function DashboardPage() {
                   <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
                     <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.overview') || 'Template Usage'}</h3>
                     <div className="space-y-4">
-                      {[
-                        { name: 'Tech & IT', pct: 38, color: 'from-blue-600 to-blue-400' },
-                        { name: 'Cadre Moderne', pct: 27, color: 'from-purple-600 to-purple-400' },
-                        { name: 'Classique Pro', pct: 20, color: 'from-emerald-600 to-emerald-400' },
-                        { name: 'Ingenieur', pct: 10, color: 'from-amber-600 to-amber-400' },
-                        { name: 'Medical', pct: 5, color: 'from-red-600 to-red-400' },
-                      ].map((t, i) => (
+                      {stats.data?.templateUsage.map((t, i) => (
                         <div key={t.name}>
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="text-[12px] font-medium text-txt">{t.name}</span>
@@ -550,7 +725,7 @@ export default function DashboardPage() {
                             />
                           </div>
                         </div>
-                      ))}
+                      )) || <div className="text-sm text-txt-dim">No templates used yet.</div>}
                     </div>
                   </div>
                 </div>
@@ -559,14 +734,13 @@ export default function DashboardPage() {
                 <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
                   <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.comingSoon') || 'Recent Activity'}</h3>
                   <div className="space-y-3">
-                    {[
-                      { action: 'Downloaded', cv: 'Software Engineer CV', time: '2 hours ago', icon: ArrowDownTrayIcon, color: 'text-blue-500 bg-blue-500/10' },
-                      { action: 'Edited', cv: 'Senior Engineer Application', time: '1 day ago', icon: PencilSquareIcon, color: 'text-amber-500 bg-amber-500/10' },
-                      { action: 'Created', cv: 'Freelance Portfolio', time: '4 days ago', icon: PlusIcon, color: 'text-emerald-500 bg-emerald-500/10' },
-                      { action: 'Shared', cv: 'Medical Application', time: '1 week ago', icon: ShareIcon, color: 'text-purple-500 bg-purple-500/10' },
-                      { action: 'Completed', cv: 'Academic Resume', time: '1 week ago', icon: CheckCircleIcon, color: 'text-emerald-500 bg-emerald-500/10' },
-                    ].map((item, i) => {
-                      const Icon = item.icon;
+                    {stats.data?.recentActivity.map((item, i) => {
+                      let Icon = PlusIcon;
+                      let color = 'text-emerald-500 bg-emerald-500/10';
+                      if (item.type === 'downloaded') { Icon = ArrowDownTrayIcon; color = 'text-blue-500 bg-blue-500/10'; }
+                      else if (item.type === 'edited') { Icon = PencilSquareIcon; color = 'text-amber-500 bg-amber-500/10'; }
+                      else if (item.type === 'shared') { Icon = ShareIcon; color = 'text-purple-500 bg-purple-500/10'; }
+                      
                       return (
                         <motion.div
                           key={i}
@@ -575,7 +749,7 @@ export default function DashboardPage() {
                           transition={{ delay: i * 0.05 + 0.2 }}
                           className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0"
                         >
-                          <div className={`p-2 rounded-lg ${item.color}`}>
+                          <div className={`p-2 rounded-lg ${color}`}>
                             <Icon className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -586,7 +760,7 @@ export default function DashboardPage() {
                           <span className="text-[10px] text-txt-dim shrink-0">{item.time}</span>
                         </motion.div>
                       );
-                    })}
+                    }) || <div className="text-sm text-txt-dim">No recent activity.</div>}
                   </div>
                 </div>
               </motion.div>
@@ -615,11 +789,11 @@ export default function DashboardPage() {
                     <LanguageToggle />
                   </SettingsRow>
                   <SettingsRow label={t('dashboard.cvPreviewScale') || "CV Preview Scale"} description={t('dashboard.cvPreviewScaleDesc') || "Default zoom level for CV previews"}>
-                    <select className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
-                      <option>75%</option>
-                      <option selected>100%</option>
-                      <option>125%</option>
-                      <option>150%</option>
+                    <select defaultValue="100%" className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
+                      <option value="75%">75%</option>
+                      <option value="100%">100%</option>
+                      <option value="125%">125%</option>
+                      <option value="150%">150%</option>
                     </select>
                   </SettingsRow>
                 </SettingsSection>
@@ -730,44 +904,10 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Personal Info Form */}
-                <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-txt mb-5 flex items-center gap-2">
-                    <UserCircleIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.personalInformation') || "Personal Information"}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField label={t('dashboard.firstName') || "First Name"} value="Islem" />
-                    <FormField label={t('dashboard.lastName') || "Last Name"} value="Charaf Eddine" />
-                    <FormField label={t('dashboard.emailAddress') || "Email Address"} value="islem@oosira.com" type="email" />
-                    <FormField label={t('dashboard.phoneLabel') || "Phone"} value="+213 555 00 00 00" />
-                    <FormField label={t('dashboard.locationLabel') || "Location"} value="Algeria" />
-                    <FormField label={t('dashboard.linkedinLabel') || "LinkedIn"} value="linkedin.com/in/islem" />
-                  </div>
-                  <div className="mt-5 flex justify-end">
-                    <button className="group relative inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-white font-medium text-[13px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 z-0" />
-                      <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 z-0" />
-                      <span className="relative z-10">{t('dashboard.saveChanges') || "Save Changes"}</span>
-
-                    </button>
-                  </div>
-                </div>
+                <ProfileSettingsForm user={user} refreshUser={refreshUser} />
 
                 {/* Password Change */}
-                <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-txt mb-5 flex items-center gap-2">
-                    <KeyIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.changePassword') || "Change Password"}
-                  </h3>
-                  <div className="space-y-4 max-w-sm">
-                    <FormField label={t('dashboard.currentPassword') || "Current Password"} value="" type="password" placeholder="••••••••" />
-                    <FormField label={t('dashboard.newPassword') || "New Password"} value="" type="password" placeholder="••••••••" />
-                    <FormField label={t('dashboard.confirmNewPassword') || "Confirm New Password"} value="" type="password" placeholder="••••••••" />
-                  </div>
-                  <div className="mt-5">
-                    <button className="px-5 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors">
-                      {t('dashboard.updatePassword') || "Update Password"}
-                    </button>
-                  </div>
-                </div>
+                <PasswordChangeForm />
               </motion.div>
             )}
           </AnimatePresence>
@@ -806,7 +946,13 @@ export default function DashboardPage() {
                   {t('dashboard.cancel') || 'Cancel'}
                 </button>
                 <button
-                  onClick={() => { deleteDraft(deleteConfirm); setDeleteConfirm(null); }}
+                  onClick={async () => {
+                    if (deleteConfirm) {
+                      await deleteDraft(deleteConfirm);
+                      dispatch(fetchDashboardStats());
+                    }
+                    setDeleteConfirm(null);
+                  }}
                   className="px-4 py-2.5 bg-red-500 text-white rounded-xl text-[13px] font-medium hover:bg-red-600 transition"
                 >
                   {t('dashboard.delete') || 'Delete'}
@@ -880,15 +1026,16 @@ function ToggleSwitch({ defaultChecked }: { defaultChecked: boolean }) {
   );
 }
 
-function FormField({ label, value, type = 'text', placeholder }: {
-  label: string; value: string; type?: string; placeholder?: string;
+function FormField({ label, value, onChange, type = 'text', placeholder }: {
+  label: string; value: string; onChange?: (val: string) => void; type?: string; placeholder?: string;
 }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{label}</label>
       <input
         type={type}
-        defaultValue={value}
+        value={value}
+        onChange={e => onChange?.(e.target.value)}
         placeholder={placeholder}
         className="w-full bg-surface2 border border-border rounded-xl px-4 py-3 text-[13px] text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 placeholder:text-txt-dim"
       />
