@@ -55,6 +55,7 @@ import {
   BookmarkIcon,
   LinkIcon,
   LockClosedIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -65,6 +66,7 @@ import { apiFetch } from "@/api/apiClient";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { trackDownload } from "@/store/slices/statsSlice";
+import { useSubscription, invalidateSubscriptionCache } from "@/app/hooks/useSubscription";
 
 /* -- Constants -- */
 const CANDIDATE_ICONS: Record<
@@ -217,13 +219,12 @@ function TextArea({
 
 /* -- Main Builder Component -- */
 export default function BuilderPage() {
-  const MOCK_USER_PLAN = "basic"; // Switch to 'pro' to test OCR feature
-
   const { t, dir, language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
+  const { subscription, isPro, canDownload, canOcr, refresh: refreshSubscription } = useSubscription();
   const [[currentStep, direction], setStep] = useState(() => {
     const stepParam = searchParams.get('step');
     return [stepParam ? Number(stepParam) : 0, 0];
@@ -347,6 +348,18 @@ export default function BuilderPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Gate: free users who already used their OCR trial
+    if (isAuthenticated && !canOcr) {
+      const msg = language === 'fr'
+        ? 'Vous avez d\u00e9j\u00e0 utilis\u00e9 votre essai OCR gratuit. Passez \u00e0 Pro pour des importations illimit\u00e9es.'
+        : language === 'ar'
+          ? '\u0644\u0642\u062f \u0627\u0633\u062a\u062e\u062f\u0645\u062a \u062a\u062c\u0631\u0628\u062a\u0643 \u0627\u0644\u0645\u062c\u0627\u0646\u064a\u0629. \u0642\u0645 \u0628\u0627\u0644\u062a\u0631\u0642\u064a\u0629 \u0625\u0644\u0649 Pro \u0644\u0627\u0633\u062a\u064a\u0631\u0627\u062f \u063a\u064a\u0631 \u0645\u062d\u062f\u0648\u062f.'
+          : 'You have already used your free OCR trial. Upgrade to Pro for unlimited imports.';
+      if (confirm(msg)) router.push('/dashboard?view=pricing');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
 
     setIsOcrProcessing(true);
     try {
@@ -507,6 +520,10 @@ export default function BuilderPage() {
 
       // Automatically proceed to next step to show mapped info
       if (currentStep === 0) setStep([1, 1]);
+
+      // OCR trial was consumed \u2013 refresh subscription status
+      invalidateSubscriptionCache();
+      refreshSubscription();
     } catch (err: any) {
       alert(`OCR Error: ${err.message}`);
     } finally {
@@ -815,6 +832,19 @@ export default function BuilderPage() {
     }));
   };
   const handlePrint = async () => {
+    // Quota gate – block free users who exhausted 5 downloads
+    if (isAuthenticated && !canDownload) {
+      const msg = language === 'fr'
+        ? 'Vous avez atteint votre limite de 5 téléchargements ce mois-ci. Passez à Pro pour des téléchargements illimités.'
+        : language === 'ar'
+          ? 'لقد وصلت إلى حد 5 تنزيلات هذا الشهر. قم بالترقية إلى Pro للتنزيلات غير المحدودة.'
+          : 'You have reached your 5 downloads limit this month. Upgrade to Pro for unlimited downloads.';
+      if (confirm(msg)) {
+        router.push('/dashboard?view=pricing');
+      }
+      return;
+    }
+
     setIsDownloading(true);
     try {
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -835,6 +865,17 @@ export default function BuilderPage() {
         })
       });
 
+      if (response.status === 402) {
+        // Quota exceeded server-side
+        invalidateSubscriptionCache();
+        refreshSubscription();
+        const msg = language === 'fr'
+          ? 'Limite de téléchargements atteinte. Passez à Pro.'
+          : 'Download limit reached. Upgrade to Pro.';
+        if (confirm(msg)) router.push('/dashboard?view=pricing');
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Failed to generate PDF from server");
       }
@@ -850,12 +891,15 @@ export default function BuilderPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
       
+      // Refresh subscription cache after a download (quota changed)
+      invalidateSubscriptionCache();
+      refreshSubscription();
+
       if (isAuthenticated && savedCvId) {
         dispatch(trackDownload(savedCvId));
       }
     } catch (err) {
       console.error("Error generating PDF:", err);
-      // Fallback or show toast error
     } finally {
       setIsDownloading(false);
     }
@@ -1229,7 +1273,7 @@ export default function BuilderPage() {
                 </motion.div>
 
                 {/* Import OCR Resume */}
-                {MOCK_USER_PLAN === "basic" ? (
+                {!isPro ? (
                   <motion.div
                     key="import-trial"
                     variants={fadeUp}
@@ -2616,7 +2660,7 @@ export default function BuilderPage() {
         {/* -- Premium Top Bar -- */}
         <header className="h-16 min-h-[64px] flex items-center justify-between px-4 sm:px-6 bg-surface/80 backdrop-blur-xl border-b border-border z-50 shadow-sm">
           <Link
-            href="/"
+            href="/dashboard"
             dir="ltr"
             className="flex flex-row items-end group select-none hover:opacity-80 transition-opacity"
           >

@@ -13,6 +13,9 @@ export interface User {
   email: string;
   avatarUrl?: string;
   plan: string;
+  effectivePlan?: string;
+  ocrTrialUsed?: boolean;
+  pdfDownloadsThisMonth?: number;
   joinedAt?: string;
   phone?: string;
   location?: string;

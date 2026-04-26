@@ -42,6 +42,7 @@ import {
   KeyIcon,
   LockClosedIcon
 } from '@heroicons/react/24/outline';
+import { useSubscription } from '@/app/hooks/useSubscription';
 
 // ════════════════════════════════════════════════════════════
 // NEW FORMS FOR PROFILE AND PASSWORD
@@ -379,9 +380,40 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
 
 
 // ── Pricing View ──
-function PricingView() {
-  const { t } = useLanguage();
+function PricingView({ subscription }: { subscription: ReturnType<typeof useSubscription> }) {
+  const { t, language } = useLanguage();
   const [isAnnual, setIsAnnual] = useState(true);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const currentPlan = subscription.subscription?.effectivePlan || 'free';
+
+  const handleUpgrade = async () => {
+    if (currentPlan === 'pro' || isCheckingOut) return;
+    setIsCheckingOut(true);
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      const res = await fetch(`${API_BASE}/subscriptions/checkout/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('oosira_token')}`,
+        },
+        body: JSON.stringify({
+          billing_cycle: isAnnual ? 'yearly' : 'monthly',
+          locale: language === 'ar' ? 'ar' : language === 'fr' ? 'fr' : 'en',
+        }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url;
+      } else {
+        alert(data.detail || 'Failed to create checkout');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Payment service error');
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   return (
     <motion.div
@@ -453,8 +485,8 @@ function PricingView() {
             </li>
           </ul>
 
-          <button className="w-full py-3.5 rounded-xl font-bold text-txt-muted bg-surface2 border border-border cursor-default">
-            {t('pricing.currentPlan') || "Current Plan"}
+          <button className={`w-full py-3.5 rounded-xl font-bold ${currentPlan === 'free' ? 'text-txt-muted bg-surface2 border border-border cursor-default' : 'text-white bg-emerald-500'}`}>
+            {currentPlan === 'free' ? (t('pricing.currentPlan') || "Current Plan") : (t('pricing.basic') || "Basic")}
           </button>
         </div>
 
@@ -473,7 +505,7 @@ function PricingView() {
               <span className="text-5xl font-extrabold text-txt">{isAnnual ? '400 DA' : '500 DA'}</span>
               <span className="text-txt-muted font-medium">{t('pricing.month') || "/ month"}</span>
             </div>
-            {isAnnual && <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">{t('pricing.billedYearly') || "Billed $108 yearly"}</p>}
+            {isAnnual && <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">{t('pricing.billedYearly') || "Billed 4800 DA yearly"}</p>}
           </div>
 
           <ul className="space-y-4 mb-8">
@@ -499,8 +531,17 @@ function PricingView() {
             </li>
           </ul>
 
-          <button className="w-full py-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-[0.98]">
-            {t('pricing.upgradePro') || "Upgrade to Pro"}
+          <button
+            onClick={handleUpgrade}
+            disabled={currentPlan === 'pro' || isCheckingOut}
+            className={`w-full py-4 rounded-xl font-bold transition-all active:scale-[0.98] ${currentPlan === 'pro' ? 'text-white bg-emerald-500 cursor-default' : 'text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'} disabled:opacity-70`}
+          >
+            {isCheckingOut ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                {t('pricing.processing') || "Processing..."}
+              </span>
+            ) : currentPlan === 'pro' ? (t('pricing.currentPlan') || "Current Plan") : (t('pricing.upgradePro') || "Upgrade to Pro")}
           </button>
         </div>
       </div>
@@ -525,12 +566,43 @@ function DashboardContent() {
   
   const dispatch = useDispatch<AppDispatch>();
   const stats = useSelector((state: RootState) => state.stats);
+  const sub = useSubscription();
 
   useEffect(() => {
     if (isAuthenticated && stats.status === 'idle') {
       dispatch(fetchDashboardStats());
     }
   }, [isAuthenticated, stats.status, dispatch]);
+
+  // Auto-verify payment when returning from Chargily
+  useEffect(() => {
+    const paymentStatus = searchParams?.get('payment');
+    if (paymentStatus === 'success' && isAuthenticated) {
+      const verifyPayment = async () => {
+        try {
+          const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+          const res = await fetch(`${API_BASE}/subscriptions/verify/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('oosira_token')}`,
+            },
+            body: JSON.stringify({}),
+          });
+          const data = await res.json();
+          if (data.status === 'paid') {
+            // Refresh subscription status to show Pro badge
+            sub.refresh();
+            // Clean URL
+            router.replace('/dashboard?view=pricing');
+          }
+        } catch (err) {
+          console.error('Payment verification failed:', err);
+        }
+      };
+      verifyPayment();
+    }
+  }, [searchParams, isAuthenticated]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -585,7 +657,7 @@ function DashboardContent() {
       `}>
         {/* Logo */}
         <div className="px-6 py-6 flex items-center justify-between">
-          <Link href="/" dir="ltr" className="flex flex-row items-end group select-none">
+          <Link href="/dashboard" dir="ltr" className="flex flex-row items-end group select-none">
             <svg width="30" height="17" viewBox="1 6 22 12" className="text-blue-600 dark:text-blue-500 transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.6)] overflow-visible mb-0.5">
               <defs>
                 <linearGradient id="infinityDash" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -647,10 +719,31 @@ function DashboardContent() {
           {/* Plan badge */}
           <button onClick={() => { setActiveView('pricing'); setSidebarOpen(false); }} className="w-full text-left block bg-surface2 border border-border rounded-xl p-3.5 hover:border-blue-500/40 transition-colors group">
             <div className="flex items-center gap-2 mb-1.5">
-              <DocumentTextIcon className="w-4 h-4 text-txt-muted group-hover:text-blue-500 transition-colors" />
-              <span className="text-[12px] font-bold text-txt-muted group-hover:text-blue-500 uppercase tracking-wider transition-colors">{t('dashboard.basicPlan') || 'Basic Plan'}</span>
+              {sub.isPro ? (
+                <SparklesIcon className="w-4 h-4 text-blue-500 transition-colors" />
+              ) : (
+                <DocumentTextIcon className="w-4 h-4 text-txt-muted group-hover:text-blue-500 transition-colors" />
+              )}
+              <span className={`text-[12px] font-bold uppercase tracking-wider transition-colors ${
+                sub.isPro ? 'text-blue-500' : 'text-txt-muted group-hover:text-blue-500'
+              }`}>{sub.isPro ? (t('dashboard.proPlan') || 'Pro Plan') : (t('dashboard.basicPlan') || 'Basic Plan')}</span>
             </div>
-            <p className="text-[11px] text-txt-muted leading-relaxed">{t('dashboard.basicPlanDesc') || '5 downloads/mo. 1 free OCR.'}</p>
+            {sub.isPro ? (
+              <p className="text-[11px] text-txt-muted leading-relaxed">{t('pricing.unlimitedPdf') || 'Unlimited downloads'}</p>
+            ) : (
+              <>
+                <p className="text-[11px] text-txt-muted leading-relaxed">
+                  {sub.subscription ? `${sub.subscription.pdfDownloadsRemaining}/${sub.subscription.pdfDownloadLimit}` : '5/5'}
+                  {' '}{t('dashboard.statDownloads') || 'downloads left'}
+                </p>
+                <div className="mt-1.5 h-1 bg-surface rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full transition-all duration-500"
+                    style={{ width: `${sub.subscription ? ((sub.subscription.pdfDownloadsRemaining / sub.subscription.pdfDownloadLimit) * 100) : 100}%` }}
+                  />
+                </div>
+              </>
+            )}
           </button>
 
           {/* User row */}
@@ -732,7 +825,7 @@ function DashboardContent() {
           <AnimatePresence mode="wait">
 
             {/* ═════════ PRICING VIEW ═════════ */}
-            {activeView === 'pricing' && <PricingView />}
+            {activeView === 'pricing' && <PricingView subscription={sub} />}
 
             {/* ═════════ CVs VIEW ═════════ */}
             {activeView === 'cvs' && (
@@ -1032,8 +1125,13 @@ function DashboardContent() {
                       <h2 className="text-xl font-bold text-txt">{user.name}</h2>
                       <p className="text-[13px] text-txt-muted">{user.email}</p>
                       <div className="flex items-center gap-3 mt-2">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2.5 py-0.5 rounded-full">
-                          <SparklesIcon className="w-3 h-3" /> {t('dashboard.proPlan') || "Pro Plan"}
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
+                          sub.isPro
+                            ? 'text-blue-600 dark:text-blue-400 bg-blue-500/10'
+                            : 'text-txt-muted bg-surface2'
+                        }`}>
+                          {sub.isPro && <SparklesIcon className="w-3 h-3" />}
+                          {sub.isPro ? (t('dashboard.proPlan') || 'Pro Plan') : (t('dashboard.basicPlan') || 'Basic Plan')}
                         </span>
                         <span className="text-[11px] text-txt-dim">{t('dashboard.memberSince') || "Member since Nov 2025"}</span>
                       </div>

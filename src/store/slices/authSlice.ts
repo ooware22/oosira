@@ -6,6 +6,9 @@ interface User {
   name: string;
   email: string;
   plan: string;
+  effectivePlan?: string;
+  ocrTrialUsed?: boolean;
+  pdfDownloadsThisMonth?: number;
   token?: string;
 }
 
