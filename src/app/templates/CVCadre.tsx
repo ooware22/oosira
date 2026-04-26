@@ -1,6 +1,6 @@
 'use client';
 import { Candidate } from '../data';
-import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon } from './ContactIcons';
+import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon, ProjectLinkIcon } from './ContactIcons';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { CVStyleConfig } from './styleConfig';
 
@@ -30,6 +30,11 @@ export function CVCadre({ data, config }: { data: Candidate, config?: CVStyleCon
                 <div className="exp-poste">{exp.poste}</div>
                 <div className="exp-company">{exp.entreprise} | {exp.secteur}</div>
                 <div className="exp-desc">{exp.description}</div>
+                {exp.links?.map((link, lIdx) => (
+                  <a key={`l-${lIdx}`} href={link.url} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                    <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
+                  </a>
+                ))}
               </div>
             ))}
           </div>
@@ -44,6 +49,11 @@ export function CVCadre({ data, config }: { data: Candidate, config?: CVStyleCon
                 <div className="year">{f.annee}</div>
                 <div className="diploma">{f.diplome} - {f.specialite}</div>
                 <div className="school">{f.etablissement}, {f.ville}</div>
+                {f.links?.map((link, lIdx) => (
+                  <a key={`fl-${lIdx}`} href={link.url} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                     <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
+                  </a>
+                ))}
               </div>
             ))}
           </div>
@@ -92,9 +102,9 @@ export function CVCadre({ data, config }: { data: Candidate, config?: CVStyleCon
           
           <div className={isOneCol ? "flex flex-wrap gap-4 mt-2" : "mt-6"}>
             {data.telephone && <div className="contact-item"><span className="contact-icon"><PhoneIcn /></span> {data.telephone}</div>}
-            {data.email && <div className="contact-item"><span className="contact-icon"><EmailIcon /></span> {data.email}</div>}
+            {data.email && <div className="contact-item"><span className="contact-icon"><EmailIcon /></span> <a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></div>}
             {data.ville && <div className="contact-item"><span className="contact-icon"><LocationIcon /></span> {data.ville}</div>}
-            {data.linkedin && <div className="contact-item"><span className="contact-icon"><LinkedInIcon /></span> {data.linkedin}</div>}
+            {data.linkedin && <div className="contact-item"><span className="contact-icon"><LinkedInIcon /></span> <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</a></div>}
           </div>
           
           {!isOneCol && sideOrder.map(k => renderSection(k, true))}

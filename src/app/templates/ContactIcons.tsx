@@ -31,3 +31,7 @@ export function LocationIcon() {
 export function LinkedInIcon() {
   return <LinkIcon style={iconStyle} />;
 }
+
+export function ProjectLinkIcon() {
+  return <LinkIcon style={iconStyle} />;
+}

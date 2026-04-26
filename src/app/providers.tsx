@@ -8,7 +8,7 @@ import ReduxProvider from '@/store/Provider';
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ReduxProvider>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
         <LanguageProvider>
           <AuthProvider>
             {children}

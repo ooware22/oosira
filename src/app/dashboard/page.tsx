@@ -3,11 +3,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { apiFetch } from '@/api/apiClient';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { useAuth, DraftCV } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchDashboardStats } from '@/store/slices/statsSlice';
@@ -170,7 +170,7 @@ function PasswordChangeForm() {
   );
 }
 
-type DashboardView = 'cvs' | 'settings' | 'profile' | 'analytics';
+type DashboardView = 'cvs' | 'settings' | 'profile' | 'analytics' | 'pricing';
 
 // ── Stat Card ──
 function StatCard({ icon: Icon, label, value, trend, color }: {
@@ -378,14 +378,147 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
 }
 
 
+// ── Pricing View ──
+function PricingView() {
+  const { t } = useLanguage();
+  const [isAnnual, setIsAnnual] = useState(true);
+
+  return (
+    <motion.div
+      key="pricing"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.3 }}
+      className="max-w-5xl mx-auto"
+    >
+      <div className="text-center max-w-3xl mx-auto mb-16">
+        <h2 className="text-3xl md:text-4xl font-bold text-txt mb-4 tracking-tight">
+          {t('pricing.title1') || "Simple, transparent"} <span className="text-blue-600 dark:text-blue-400">{t('pricing.title2') || "pricing"}</span>
+        </h2>
+        <p className="text-lg text-txt-muted">
+          {t('pricing.subtitle') || "Choose the perfect plan for your career growth. No hidden fees."}
+        </p>
+
+        <div className="mt-10 flex justify-center items-center gap-4">
+          <span className={`text-sm font-medium ${!isAnnual ? 'text-txt' : 'text-txt-dim'}`}>{t('pricing.monthly') || "Monthly"}</span>
+          <button
+            onClick={() => setIsAnnual(!isAnnual)}
+            className="relative inline-flex h-8 w-16 items-center rounded-full bg-blue-600 transition-colors focus:outline-none"
+          >
+            <span
+              className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${isAnnual ? 'translate-x-9 rtl:-translate-x-9' : 'translate-x-1 rtl:-translate-x-1'}`}
+            />
+          </button>
+          <span className={`text-sm font-medium ${isAnnual ? 'text-txt' : 'text-txt-dim'}`}>
+            {t('pricing.annually') || "Annually"} <span className="ml-1.5 rtl:mr-1.5 rtl:ml-0 inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t('pricing.save20') || "Save 20%"}</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Basic Plan */}
+        <div className="rounded-3xl border border-border bg-surface p-8 shadow-sm hover:border-blue-500/30 transition-all duration-300 relative overflow-hidden group">
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold text-txt flex items-center gap-2">
+              <DocumentTextIcon className="w-6 h-6 text-txt-muted" />
+              {t('pricing.basic') || "Basic"}
+            </h3>
+            <p className="text-txt-muted mt-2 text-sm">{t('pricing.basicDesc') || "Perfect for starting your job hunt."}</p>
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="text-5xl font-extrabold text-txt">{t('pricing.free') || "Free"}</span>
+            </div>
+          </div>
+
+          <ul className="space-y-4 mb-8">
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.buildCVs') || "Build professional CVs"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.pdfLimit') || "5 PDF downloads per month"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.standardTemplates') || "Access to standard templates"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.noOcr') || "1 free trial OCR"}</span>
+            </li>
+            <li className="flex items-start gap-3 opacity-60">
+              <XMarkIcon className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <span className="text-txt-muted">{t('pricing.limitedColors') || "Limited color palettes"}</span>
+            </li>
+          </ul>
+
+          <button className="w-full py-3.5 rounded-xl font-bold text-txt-muted bg-surface2 border border-border cursor-default">
+            {t('pricing.currentPlan') || "Current Plan"}
+          </button>
+        </div>
+
+        {/* Pro Plan */}
+        <div className="rounded-3xl border-2 border-blue-500 bg-surface p-8 shadow-2xl shadow-blue-500/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 rtl:left-0 rtl:right-auto bg-blue-500 text-white px-4 py-1 rounded-bl-xl rtl:rounded-br-xl rtl:rounded-bl-none font-bold text-sm tracking-wider uppercase">
+            {t('pricing.mostPopular') || "Most Popular"}
+          </div>
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold text-txt flex items-center gap-2">
+              <SparklesIcon className="w-6 h-6 text-blue-500" />
+              {t('pricing.pro') || "Pro"}
+            </h3>
+            <p className="text-txt-muted mt-2 text-sm">{t('pricing.proDesc') || "Everything you need to stand out."}</p>
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="text-5xl font-extrabold text-txt">{isAnnual ? '400 DA' : '500 DA'}</span>
+              <span className="text-txt-muted font-medium">{t('pricing.month') || "/ month"}</span>
+            </div>
+            {isAnnual && <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">{t('pricing.billedYearly') || "Billed $108 yearly"}</p>}
+          </div>
+
+          <ul className="space-y-4 mb-8">
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <span className="text-txt font-medium">{t('pricing.unlimitedPdf') || "Unlimited PDF downloads"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <span className="text-txt font-medium">{t('pricing.aiOcr') || "AI-powered OCR Resume Import"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.premiumTemplates') || "All premium templates unlocked"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.advancedColors') || "Advanced color palettes & customization"}</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <span className="text-txt">{t('pricing.prioritySupport') || "Priority support"}</span>
+            </li>
+          </ul>
+
+          <button className="w-full py-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-[0.98]">
+            {t('pricing.upgradePro') || "Upgrade to Pro"}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+
 // ════════════════════════════════════════════════════════════
-// ██████  MAIN DASHBOARD  ██████
+// ██████  MAIN DASHBOARD CONTENT  ██████
 // ════════════════════════════════════════════════════════════
-export default function DashboardPage() {
+function DashboardContent() {
   const { t, dir } = useLanguage();
   const { user, isAuthenticated, isHydrating, logout, drafts, deleteDraft, duplicateDraft, refreshUser } = useAuth();
   const router = useRouter();
-  const [activeView, setActiveView] = useState<DashboardView>('cvs');
+  const searchParams = useSearchParams();
+  const initialView = (searchParams?.get('view') as DashboardView) || 'cvs';
+  const [activeView, setActiveView] = useState<DashboardView>(initialView);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -511,14 +644,14 @@ export default function DashboardPage() {
 
         {/* Plan Badge & User */}
         <div className="px-4 pb-5 space-y-3">
-          {/* Pro badge */}
-          <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/15 rounded-xl p-3.5">
+          {/* Plan badge */}
+          <button onClick={() => { setActiveView('pricing'); setSidebarOpen(false); }} className="w-full text-left block bg-surface2 border border-border rounded-xl p-3.5 hover:border-blue-500/40 transition-colors group">
             <div className="flex items-center gap-2 mb-1.5">
-              <SparklesIcon className="w-4 h-4 text-blue-500" />
-              <span className="text-[12px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Pro Plan</span>
+              <DocumentTextIcon className="w-4 h-4 text-txt-muted group-hover:text-blue-500 transition-colors" />
+              <span className="text-[12px] font-bold text-txt-muted group-hover:text-blue-500 uppercase tracking-wider transition-colors">{t('dashboard.basicPlan') || 'Basic Plan'}</span>
             </div>
-            <p className="text-[11px] text-txt-muted leading-relaxed">Unlimited CVs, all templates, PDF export</p>
-          </div>
+            <p className="text-[11px] text-txt-muted leading-relaxed">{t('dashboard.basicPlanDesc') || '5 downloads/mo. 1 free OCR.'}</p>
+          </button>
 
           {/* User row */}
           <div className="flex items-center gap-3 px-1">
@@ -558,12 +691,14 @@ export default function DashboardPage() {
                 {activeView === 'analytics' && (t('dashboard.tabAnalytics') || 'Analytics')}
                 {activeView === 'settings' && (t('dashboard.tabSettings') || 'Settings')}
                 {activeView === 'profile' && (t('dashboard.tabProfile') || 'Profile')}
+                {activeView === 'pricing' && (t('nav.pricing') || 'Pricing')}
               </h1>
               <p className="text-[12px] text-txt-muted hidden sm:block">
                 {activeView === 'cvs' && `${drafts.length} CVs · ${completedCount} ${t('dashboard.completed') || 'completed'}`}
                 {activeView === 'analytics' && (t('dashboard.analyticsDesc') || 'Track your CV performance')}
                 {activeView === 'settings' && (t('dashboard.settingsDesc') || 'Manage your preferences')}
                 {activeView === 'profile' && (t('dashboard.profileDesc') || 'Your personal information')}
+                {activeView === 'pricing' && (t('pricing.subtitle') || 'Upgrade your plan to unlock premium features')}
               </p>
             </div>
           </div>
@@ -595,6 +730,9 @@ export default function DashboardPage() {
         {/* ── Content Area ── */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <AnimatePresence mode="wait">
+
+            {/* ═════════ PRICING VIEW ═════════ */}
+            {activeView === 'pricing' && <PricingView />}
 
             {/* ═════════ CVs VIEW ═════════ */}
             {activeView === 'cvs' && (
@@ -839,10 +977,10 @@ export default function DashboardPage() {
                   description={t('dashboard.dataExportDesc') || "Manage your data and export options"}
                 >
                   <SettingsRow label={t('dashboard.defaultPdfSize') || "Default PDF Size"} description={t('dashboard.defaultPdfSizeDesc') || "Choose default paper size for exports"}>
-                    <select className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
-                      <option selected>A4</option>
-                      <option>Letter</option>
-                      <option>Legal</option>
+                    <select defaultValue="A4" className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
+                      <option value="A4">A4</option>
+                      <option value="Letter">Letter</option>
+                      <option value="Legal">Legal</option>
                     </select>
                   </SettingsRow>
                   <SettingsRow label={t('dashboard.exportAllCvs') || "Export all CVs"} description={t('dashboard.exportAllCvsDesc') || "Download all your CVs as a ZIP archive"}>
@@ -1040,5 +1178,13 @@ function FormField({ label, value, onChange, type = 'text', placeholder }: {
         className="w-full bg-surface2 border border-border rounded-xl px-4 py-3 text-[13px] text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 placeholder:text-txt-dim"
       />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="h-screen flex items-center justify-center bg-bg text-txt">Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

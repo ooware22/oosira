@@ -1,6 +1,6 @@
 'use client';
 import { Candidate } from '../data';
-import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon } from './ContactIcons';
+import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon, ProjectLinkIcon } from './ContactIcons';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { CVStyleConfig } from './styleConfig';
 
@@ -25,6 +25,11 @@ export function CVClassique({ data, config }: { data: Candidate, config?: CVStyl
                 </div>
                 <div className="exp-company">{exp.entreprise} | {exp.secteur}</div>
                 <div className="exp-desc">{exp.description}</div>
+                {exp.links?.map((link, lIdx) => (
+                  <a key={`l-${lIdx}`} href={link.url} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                    <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
+                  </a>
+                ))}
               </div>
             ))}
           </div>
@@ -40,6 +45,11 @@ export function CVClassique({ data, config }: { data: Candidate, config?: CVStyl
                 <div className="diploma">{f.diplome} - {f.specialite}</div>
                 <div className="school">{f.etablissement}, {f.ville}</div>
                 {f.mention && <div className="mention-badge">{f.mention}</div>}
+                {f.links?.map((link, lIdx) => (
+                  <a key={`fl-${lIdx}`} href={link.url} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                     <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
+                  </a>
+                ))}
               </div>
             ))}
           </div>
@@ -89,10 +99,14 @@ export function CVClassique({ data, config }: { data: Candidate, config?: CVStyl
         <div className="cv-name">{data.prenom} {data.nom}</div>
         <div className="cv-title">{data.titre}</div>
         <div className="cv-contact-row">
-          <span><EmailIcon />{data.email}</span>
+          <span><EmailIcon /><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></span>
           <span><PhoneIcn />{data.telephone}</span>
           <span><LocationIcon />{data.ville}</span>
-          {data.linkedin && <span><LinkedInIcon />{data.linkedin}</span>}
+          {data.linkedin && (
+            <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{textDecoration: 'none', color: 'inherit'}}>
+              <span><LinkedInIcon />{data.linkedin}</span>
+            </a>
+          )}
         </div>
       </div>
       <div className="cv-body">

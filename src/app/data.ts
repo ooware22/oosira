@@ -1,3 +1,8 @@
+export interface CustomLink {
+  url: string;
+  label: string;
+}
+
 export interface Formation {
   diplome: string;
   specialite: string;
@@ -6,6 +11,7 @@ export interface Formation {
   annee: string;
   mention: string;
   type_etablissement?: string;
+  links?: CustomLink[];
 }
 
 export interface Experience {
@@ -15,6 +21,7 @@ export interface Experience {
   dateDebut: string;
   dateFin: string;
   description: string;
+  links?: CustomLink[];
 }
 
 export interface Langue {
