@@ -99,8 +99,7 @@ export default function LandingPage() {
           <Link href={isLoggedIn ? "/dashboard" : "/login"} className="group relative inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full bg-txt text-bg font-semibold text-[12px] sm:text-[13px] transition-all duration-300 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md hover:shadow-txt/20 ml-1 sm:ml-0 rtl:ml-0 rtl:mr-1 sm:rtl:mr-0 overflow-hidden">
             {/* Quick Light Sweep */}
             <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-bg/20 to-transparent -skew-x-12 transition-all duration-500 ease-in-out z-0"></div>
-            
-            <span className="relative z-10">{isLoggedIn ? (t('nav.dashboard') || "Dashboard") : t('nav.login')}</span>
+            <span className="relative z-10">{isLoggedIn ? (t('nav.dashboard') && t('nav.dashboard') !== 'nav.dashboard' ? t('nav.dashboard') : "Dashboard") : t('nav.login')}</span>
             <ArrowRightIcon className={`relative z-10 w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-300 group-hover:${dir === 'rtl' ? '-translate-x-1' : 'translate-x-1'} rtl:rotate-180`} />
           </Link>
         </motion.div>
