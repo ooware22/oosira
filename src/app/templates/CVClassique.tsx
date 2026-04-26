@@ -26,7 +26,7 @@ export function CVClassique({ data, config }: { data: Candidate, config?: CVStyl
                 <div className="exp-company">{exp.entreprise} | {exp.secteur}</div>
                 <div className="exp-desc">{exp.description}</div>
                 {exp.links?.map((link, lIdx) => (
-                  <a key={`l-${lIdx}`} href={link.url} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                  <a key={`l-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                     <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
                   </a>
                 ))}
@@ -46,7 +46,7 @@ export function CVClassique({ data, config }: { data: Candidate, config?: CVStyl
                 <div className="school">{f.etablissement}, {f.ville}</div>
                 {f.mention && <div className="mention-badge">{f.mention}</div>}
                 {f.links?.map((link, lIdx) => (
-                  <a key={`fl-${lIdx}`} href={link.url} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+                  <a key={`fl-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                      <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
                   </a>
                 ))}
