@@ -311,6 +311,9 @@ export const dictionaries = {
       advancedColors: "Advanced color palettes & customization",
       prioritySupport: "Priority support",
       upgradePro: "Upgrade to Pro",
+      downgrade: "Downgrade",
+      confirmDowngrade: "Are you sure you want to downgrade to the Basic plan? You will lose access to Pro features.",
+      downgradeSuccess: "You have been downgraded to the Basic plan.",
       month: "/ month"
     }
   },
@@ -624,6 +627,9 @@ export const dictionaries = {
       advancedColors: "Palettes de couleurs avancées & personnalisation",
       prioritySupport: "Support prioritaire",
       upgradePro: "Passer à Pro",
+      downgrade: "Rétrograder",
+      confirmDowngrade: "Êtes-vous sûr de vouloir rétrograder au plan Basique ? Vous perdrez l'accès aux fonctionnalités Pro.",
+      downgradeSuccess: "Vous avez été rétrogradé au plan Basique.",
       month: "/ mois"
     }
   },
@@ -936,6 +942,9 @@ export const dictionaries = {
       advancedColors: "لوحات ألوان متقدمة وتخصيص",
       prioritySupport: "دعم ذو أولوية",
       upgradePro: "الترقية إلى الاحترافية",
+      downgrade: "الرجوع للأساسي",
+      confirmDowngrade: "هل أنت متأكد من الرجوع إلى الخطة الأساسية؟ ستفقد الوصول إلى الميزات الاحترافية.",
+      downgradeSuccess: "تم الرجوع إلى الخطة الأساسية.",
       month: "/ شهر"
     }
   }

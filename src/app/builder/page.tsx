@@ -64,12 +64,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 import { ThemeToggle, LanguageToggle } from "@/components/Toggles";
 import { useAuth } from "@/app/auth/AuthContext";
-import { apiFetch } from "@/api/apiClient";
+import { apiFetch, getToken } from "@/api/apiClient";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { trackDownload } from "@/store/slices/statsSlice";
 import { fetchDrafts } from "@/store/slices/cvsSlice";
-import { useSubscription, invalidateSubscriptionCache } from "@/app/hooks/useSubscription";
+import {
+  useSubscription,
+  invalidateSubscriptionCache,
+} from "@/app/hooks/useSubscription";
 
 /* -- Constants -- */
 const CANDIDATE_ICONS: Record<
@@ -96,7 +99,11 @@ const STEPS = [
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
   template: { en: "Template", fr: "Modèle", ar: "القالب" },
-  personal: { en: "Personal Info", fr: "Informations", ar: "المعلومات الشخصية" },
+  personal: {
+    en: "Personal Info",
+    fr: "Informations",
+    ar: "المعلومات الشخصية",
+  },
   summary: { en: "Summary", fr: "Résumé", ar: "الملخص" },
   experience: { en: "Experience", fr: "Expériences", ar: "الخبرات" },
   education: { en: "Education", fr: "Formations", ar: "التعليم" },
@@ -227,9 +234,15 @@ export default function BuilderPage() {
   const searchParams = useSearchParams();
   const { user, isAuthenticated } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
-  const { subscription, isPro, canDownload, canOcr, refresh: refreshSubscription } = useSubscription();
+  const {
+    subscription,
+    isPro,
+    canDownload,
+    canOcr,
+    refresh: refreshSubscription,
+  } = useSubscription();
   const [[currentStep, direction], setStep] = useState(() => {
-    const stepParam = searchParams.get('step');
+    const stepParam = searchParams.get("step");
     return [stepParam ? Number(stepParam) : 0, 0];
   });
   const [activeCandidate, setActiveCandidate] = useState(-1);
@@ -243,7 +256,9 @@ export default function BuilderPage() {
   const [expandedExpLinks, setExpandedExpLinks] = useState<number[]>([]);
   const [expandedFormLinks, setExpandedFormLinks] = useState<number[]>([]);
 
-  const [shuffledTemplates, setShuffledTemplates] = useState<any[] | null>(null);
+  const [shuffledTemplates, setShuffledTemplates] = useState<any[] | null>(
+    null,
+  );
   const [shuffledPalettes, setShuffledPalettes] = useState<any[] | null>(null);
 
   useEffect(() => {
@@ -255,31 +270,43 @@ export default function BuilderPage() {
       { id: 5, name: "Tech & IT", color: "#0D1117", style: "tech" },
       { id: 6, name: "Minimaliste", color: "#f3f4f6", style: "minimalist" },
       { id: 7, name: "Créatif", color: "#ec4899", style: "creative" },
-      { id: 8, name: "Exécutif Dark", color: "#0f172a", style: "executive-dark" },
+      {
+        id: 8,
+        name: "Exécutif Dark",
+        color: "#0f172a",
+        style: "executive-dark",
+      },
       { id: 9, name: "Universitaire", color: "#7e22ce", style: "academic" },
       { id: 10, name: "Startup", color: "#14b8a6", style: "startup" },
     ];
     setShuffledTemplates([..._templateThumbs].sort(() => Math.random() - 0.5));
     setShuffledPalettes([...COLOR_PALETTES].sort(() => Math.random() - 0.5));
-    
-    const editId = searchParams.get('id');
+
+    const editId = searchParams.get("id");
     if (editId && isAuthenticated) {
       apiFetch(`/cvs/${editId}/`)
-        .then(data => {
-          if (data.cvData && Object.keys(data.cvData).length > 0) setFormData(data.cvData);
+        .then((data) => {
+          if (data.cvData && Object.keys(data.cvData).length > 0)
+            setFormData(data.cvData);
           if (data.styleConfig) {
-            setStyleConfig({...TEMPLATE_DEFAULTS[data.templateId || 1], ...data.styleConfig});
+            setStyleConfig({
+              ...TEMPLATE_DEFAULTS[data.templateId || 1],
+              ...data.styleConfig,
+            });
           }
           if (data.templateId) setActiveTemplate(data.templateId);
-          if (data.title && data.title !== 'Untitled CV') setCvTitle(data.title);
-          if (data.reminderDate) setReminderDate(data.reminderDate.split('T')[0]);
+          if (data.title && data.title !== "Untitled CV")
+            setCvTitle(data.title);
+          if (data.reminderDate)
+            setReminderDate(data.reminderDate.split("T")[0]);
           setSavedCvId(data.id);
         })
-        .catch(err => console.error("Error loading CV:", err));
+        .catch((err) => console.error("Error loading CV:", err));
     } else if (!editId) {
       // Randomize initial template and style when entering the builder page
       const templateKeys = Object.keys(TEMPLATE_DEFAULTS).map(Number);
-      const randomTemplateId = templateKeys[Math.floor(Math.random() * templateKeys.length)];
+      const randomTemplateId =
+        templateKeys[Math.floor(Math.random() * templateKeys.length)];
       setActiveTemplate(randomTemplateId);
       setStyleConfig(getRandomStyleConfig(TEMPLATE_DEFAULTS[randomTemplateId]));
     }
@@ -340,14 +367,16 @@ export default function BuilderPage() {
         if (h <= A4_HEIGHT) {
           setTotalPages(1);
         } else {
-          setTotalPages(1 + Math.ceil((h - FIRST_PAGE_CONTENT) / OTHER_PAGE_CONTENT));
+          setTotalPages(
+            1 + Math.ceil((h - FIRST_PAGE_CONTENT) / OTHER_PAGE_CONTENT),
+          );
         }
       }
     };
     measure();
     // Re-measure on window resize
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
   }, [formData, activeTemplate, styleConfig]);
 
   /* OCR State Integration */
@@ -360,42 +389,42 @@ export default function BuilderPage() {
 
     // Gate: free users who already used their OCR trial
     if (isAuthenticated && !canOcr) {
-      const msg = language === 'fr'
-        ? 'Vous avez d\u00e9j\u00e0 utilis\u00e9 votre essai OCR gratuit. Passez \u00e0 Pro pour des importations illimit\u00e9es.'
-        : language === 'ar'
-          ? '\u0644\u0642\u062f \u0627\u0633\u062a\u062e\u062f\u0645\u062a \u062a\u062c\u0631\u0628\u062a\u0643 \u0627\u0644\u0645\u062c\u0627\u0646\u064a\u0629. \u0642\u0645 \u0628\u0627\u0644\u062a\u0631\u0642\u064a\u0629 \u0625\u0644\u0649 Pro \u0644\u0627\u0633\u062a\u064a\u0631\u0627\u062f \u063a\u064a\u0631 \u0645\u062d\u062f\u0648\u062f.'
-          : 'You have already used your free OCR trial. Upgrade to Pro for unlimited imports.';
-      if (confirm(msg)) router.push('/dashboard?view=pricing');
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      const msg =
+        language === "fr"
+          ? "Vous avez d\u00e9j\u00e0 utilis\u00e9 votre essai OCR gratuit. Passez \u00e0 Pro pour des importations illimit\u00e9es."
+          : language === "ar"
+            ? "\u0644\u0642\u062f \u0627\u0633\u062a\u062e\u062f\u0645\u062a \u062a\u062c\u0631\u0628\u062a\u0643 \u0627\u0644\u0645\u062c\u0627\u0646\u064a\u0629. \u0642\u0645 \u0628\u0627\u0644\u062a\u0631\u0642\u064a\u0629 \u0625\u0644\u0649 Pro \u0644\u0627\u0633\u062a\u064a\u0631\u0627\u062f \u063a\u064a\u0631 \u0645\u062d\u062f\u0648\u062f."
+            : "You have already used your free OCR trial. Upgrade to Pro for unlimited imports.";
+      if (confirm(msg)) router.push("/dashboard?view=pricing");
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
     setIsOcrProcessing(true);
     try {
-      // 1. Upload to OCR backend
+      // Upload file and run OCR via Django backend (single request)
       const dataForm = new FormData();
       dataForm.append("file", file);
 
-      const uploadRes = await fetch("http://localhost:8500/api/upload", {
+      const ocrApiUrl =
+        (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api") +
+        "/cvs/ocr/";
+      const token = getToken();
+      const authHeaders: Record<string, string> = {};
+      if (token) authHeaders["Authorization"] = `Bearer ${token}`;
+
+      const ocrRes = await fetch(ocrApiUrl, {
         method: "POST",
+        headers: authHeaders,
         body: dataForm,
       });
-      const uploadData = await uploadRes.json();
-      if (!uploadData.file_id)
-        throw new Error(uploadData.detail?.message || "Upload failed");
+      const ocrData = await ocrRes.json();
+      if (!ocrRes.ok || !ocrData.cv_data)
+        throw new Error(
+          ocrData.detail?.message || ocrData.detail || "Analysis failed",
+        );
 
-      // 2. Analyze
-      const analyzeRes = await fetch(
-        `http://localhost:8500/api/analyze/${uploadData.file_id}`,
-        {
-          method: "POST",
-        },
-      );
-      const analyzeData = await analyzeRes.json();
-      if (!analyzeData.cv_data)
-        throw new Error(analyzeData.detail?.message || "Analysis failed");
-
-      const cvData = analyzeData.cv_data;
+      const cvData = ocrData.cv_data;
 
       // 3. Map to Oosira state
       const safeArray = <T,>(value: any): T[] =>
@@ -598,7 +627,7 @@ export default function BuilderPage() {
     try {
       const calculateCompletion = (data: Candidate): number => {
         let score = 0;
-        
+
         // Step 1: Template (Assume done if CV is being saved) -> 15%
         score += 15;
 
@@ -623,9 +652,11 @@ export default function BuilderPage() {
         }
 
         // Step 6: Skills & More (Competences or Langues) -> 15%
-        if ((data.competences && data.competences.length > 0) || 
-            (data.langues && data.langues.length > 0) ||
-            (data.hobbies && data.hobbies.length > 0)) {
+        if (
+          (data.competences && data.competences.length > 0) ||
+          (data.langues && data.langues.length > 0) ||
+          (data.hobbies && data.hobbies.length > 0)
+        ) {
           score += 15;
         }
 
@@ -636,15 +667,17 @@ export default function BuilderPage() {
       };
 
       const completionPercent = calculateCompletion(formData);
-      const cvStatus = completionPercent === 100 ? 'completed' : 'draft';
+      const cvStatus = completionPercent === 100 ? "completed" : "draft";
 
-      const defaultTitle = `${formData.prenom || 'Mon'} ${formData.nom || 'CV'}`.trim();
+      const defaultTitle =
+        `${formData.prenom || "Mon"} ${formData.nom || "CV"}`.trim();
       const cvPayload = {
         title: cvTitle.trim() || defaultTitle,
-        jobTitle: formData.titre || '',
-        templateName: TEMPLATE_NAMES[activeTemplate - 1] || 'Classique Pro',
+        jobTitle: formData.titre || "",
+        templateName: TEMPLATE_NAMES[activeTemplate - 1] || "Classique Pro",
         templateId: activeTemplate,
-        previewColor: styleConfig.sidebarBg || styleConfig.accentColor || '#0D1117',
+        previewColor:
+          styleConfig.sidebarBg || styleConfig.accentColor || "#0D1117",
         completionPercent,
         status: cvStatus,
         reminderDate: reminderDate || null,
@@ -655,22 +688,22 @@ export default function BuilderPage() {
       if (savedCvId) {
         // Update existing CV
         await apiFetch(`/cvs/${savedCvId}/`, {
-          method: 'PUT',
+          method: "PUT",
           body: JSON.stringify(cvPayload),
         });
         dispatch(fetchDrafts());
       } else {
         // Create new CV
-        const created = await apiFetch('/cvs/', {
-          method: 'POST',
+        const created = await apiFetch("/cvs/", {
+          method: "POST",
           body: JSON.stringify(cvPayload),
         });
         setSavedCvId(created.id);
         dispatch(fetchDrafts());
       }
     } catch (err: any) {
-      console.error('Save CV error:', err);
-      setSaveError(err.message || 'Failed to save CV');
+      console.error("Save CV error:", err);
+      setSaveError(err.message || "Failed to save CV");
     } finally {
       setIsSaving(false);
     }
@@ -751,11 +784,7 @@ export default function BuilderPage() {
   const updateField = (key: keyof Candidate, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
-  const updateFormation = (
-    idx: number,
-    key: keyof Formation,
-    value: any,
-  ) => {
+  const updateFormation = (idx: number, key: keyof Formation, value: any) => {
     setFormData((prev) => {
       const formations = [...prev.formations];
       formations[idx] = { ...formations[idx], [key]: value };
@@ -784,11 +813,7 @@ export default function BuilderPage() {
       formations: prev.formations.filter((_, i) => i !== idx),
     }));
   };
-  const updateExperience = (
-    idx: number,
-    key: keyof Experience,
-    value: any,
-  ) => {
+  const updateExperience = (idx: number, key: keyof Experience, value: any) => {
     setFormData((prev) => {
       const experiences = [...prev.experiences];
       experiences[idx] = { ...experiences[idx], [key]: value };
@@ -871,45 +896,52 @@ export default function BuilderPage() {
   const handlePrint = async () => {
     // Quota gate – block free users who exhausted 5 downloads
     if (isAuthenticated && !canDownload) {
-      const msg = language === 'fr'
-        ? 'Vous avez atteint votre limite de 5 téléchargements ce mois-ci. Passez à Pro pour des téléchargements illimités.'
-        : language === 'ar'
-          ? 'لقد وصلت إلى حد 5 تنزيلات هذا الشهر. قم بالترقية إلى Pro للتنزيلات غير المحدودة.'
-          : 'You have reached your 5 downloads limit this month. Upgrade to Pro for unlimited downloads.';
+      const msg =
+        language === "fr"
+          ? "Vous avez atteint votre limite de 5 téléchargements ce mois-ci. Passez à Pro pour des téléchargements illimités."
+          : language === "ar"
+            ? "لقد وصلت إلى حد 5 تنزيلات هذا الشهر. قم بالترقية إلى Pro للتنزيلات غير المحدودة."
+            : "You have reached your 5 downloads limit this month. Upgrade to Pro for unlimited downloads.";
       if (confirm(msg)) {
-        router.push('/dashboard?view=pricing');
+        router.push("/dashboard?view=pricing");
       }
       return;
     }
 
     setIsDownloading(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-      const url = savedCvId 
-        ? `${API_BASE}/cvs/${savedCvId}/pdf/` 
+      const API_BASE =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      const url = savedCvId
+        ? `${API_BASE}/cvs/${savedCvId}/pdf/`
         : `${API_BASE}/cvs/pdf/`;
 
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(isAuthenticated ? { Authorization: `Bearer ${localStorage.getItem('oosira_token')}` } : {})
+          ...(isAuthenticated
+            ? {
+                Authorization: `Bearer ${localStorage.getItem("oosira_token")}`,
+              }
+            : {}),
         },
         body: JSON.stringify({
           cv_data: formData,
           style_config: styleConfig,
-          template_id: activeTemplate
-        })
+          template_id: activeTemplate,
+        }),
       });
 
       if (response.status === 402) {
         // Quota exceeded server-side
         invalidateSubscriptionCache();
         refreshSubscription();
-        const msg = language === 'fr'
-          ? 'Limite de téléchargements atteinte. Passez à Pro.'
-          : 'Download limit reached. Upgrade to Pro.';
-        if (confirm(msg)) router.push('/dashboard?view=pricing');
+        const msg =
+          language === "fr"
+            ? "Limite de téléchargements atteinte. Passez à Pro."
+            : "Download limit reached. Upgrade to Pro.";
+        if (confirm(msg)) router.push("/dashboard?view=pricing");
         return;
       }
 
@@ -920,14 +952,14 @@ export default function BuilderPage() {
       // Download the PDF blob
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = downloadUrl;
       link.download = `CV_${formData.prenom || "Sira"}_${formData.nom || "CV"}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
-      
+
       // Refresh subscription cache after a download (quota changed)
       invalidateSubscriptionCache();
       refreshSubscription();
@@ -944,19 +976,33 @@ export default function BuilderPage() {
 
   const getCVContent = () => {
     switch (activeTemplate) {
-      case 1: return <CVClassique data={formData} config={styleConfig} />;
-      case 2: return <CVIngenieur data={formData} config={styleConfig} />;
-      case 3: return <CVCadre data={formData} config={styleConfig} />;
-      case 4: return <CVMedical data={formData} config={styleConfig} />;
-      case 5: return <CVTech data={formData} config={styleConfig} />;
-      default: return <CVClassique data={formData} config={styleConfig} />;
+      case 1:
+        return <CVClassique data={formData} config={styleConfig} />;
+      case 2:
+        return <CVIngenieur data={formData} config={styleConfig} />;
+      case 3:
+        return <CVCadre data={formData} config={styleConfig} />;
+      case 4:
+        return <CVMedical data={formData} config={styleConfig} />;
+      case 5:
+        return <CVTech data={formData} config={styleConfig} />;
+      default:
+        return <CVClassique data={formData} config={styleConfig} />;
     }
   };
 
   const cssVars = styleToCSSVars(styleConfig) as React.CSSProperties;
 
   const renderCVFull = () => (
-    <div style={{ ...cssVars, minHeight: '1123px', display: 'flex', flexDirection: 'column' }} className="cv-page-wrapper" >
+    <div
+      style={{
+        ...cssVars,
+        minHeight: "1123px",
+        display: "flex",
+        flexDirection: "column",
+      }}
+      className="cv-page-wrapper"
+    >
       {getCVContent()}
     </div>
   );
@@ -980,27 +1026,32 @@ export default function BuilderPage() {
       sheets.push(
         <div
           key={i}
-          style={{ width: sheetW, height: sheetH, position: 'relative', flexShrink: 0 }}
+          style={{
+            width: sheetW,
+            height: sheetH,
+            position: "relative",
+            flexShrink: 0,
+          }}
         >
           {/* Scaled cv-a4-sheet */}
           <div
             className="cv-a4-sheet"
             style={{
               ...cssVars,
-              background: 'var(--cv-body-bg, #ffffff)',
+              background: "var(--cv-body-bg, #ffffff)",
               transform: `scale(${scale})`,
-              transformOrigin: 'top left',
+              transformOrigin: "top left",
             }}
           >
             {/* Inner clipping window with margins */}
             <div
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: topMargin,
                 left: 0,
                 right: 0,
                 bottom: PAGE_MARGIN,
-                overflow: 'hidden',
+                overflow: "hidden",
               }}
             >
               {/* CV content positioned to show the right slice */}
@@ -1009,9 +1060,9 @@ export default function BuilderPage() {
                   ...cssVars,
                   width: A4_WIDTH,
                   minHeight: A4_HEIGHT,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  position: 'absolute',
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "absolute",
                   top: -contentOffset,
                   left: 0,
                 }}
@@ -1025,7 +1076,7 @@ export default function BuilderPage() {
               {i + 1} / {totalPages}
             </div>
           </div>
-        </div>
+        </div>,
       );
     }
     return sheets;
@@ -1345,7 +1396,11 @@ export default function BuilderPage() {
                             ? "استيراد سيرة ذاتية"
                             : "Import AI Resume"}
                         <span className="ml-2 inline-flex items-center rounded-md bg-emerald-100 px-1.5 py-0.5 text-xs font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10">
-                          {language === "fr" ? "1 essai gratuit" : language === "ar" ? "1 تجربة مجانية" : "1 free try"}
+                          {language === "fr"
+                            ? "1 essai gratuit"
+                            : language === "ar"
+                              ? "1 تجربة مجانية"
+                              : "1 free try"}
                         </span>
                       </div>
                       <div className="text-xs text-txt-muted truncate group-hover:hidden mt-0.5">
@@ -1692,49 +1747,59 @@ export default function BuilderPage() {
 
                     {/* Multiple URLs Toggle */}
                     <div className="pt-2">
-                       <div className="space-y-4 pt-2">
-                         {exp.links?.map((link, linkIdx) => (
-                           <div key={linkIdx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end bg-surface2/30 p-4 rounded-xl border border-border/50">
-                             <Input
-                               label={"Lien URL"}
-                               value={link.url}
-                               onChange={(v) => {
-                                 const newLinks = [...(exp.links || [])];
-                                 newLinks[linkIdx].url = v;
-                                 updateExperience(idx, "links", newLinks);
-                               }}
-                             />
-                             <Input
-                               label={"Label du lien"}
-                               value={link.label}
-                               onChange={(v) => {
-                                 const newLinks = [...(exp.links || [])];
-                                 newLinks[linkIdx].label = v;
-                                 updateExperience(idx, "links", newLinks);
-                               }}
-                             />
-                             <button
-                               onClick={() => {
-                                 const newLinks = exp.links?.filter((_, i) => i !== linkIdx);
-                                 updateExperience(idx, "links", newLinks);
-                               }}
-                               className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all mb-0.5"
-                               title="Supprimer ce lien"
-                             >
-                                <TrashIcon className="w-4 h-4" />
-                             </button>
-                           </div>
-                         ))}
-                       </div>
-                       <button
-                         onClick={() => {
-                           const newLinks = [...(exp.links || []), { url: "", label: "" }];
-                           updateExperience(idx, "links", newLinks);
-                         }}
-                         className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/5 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold transition-all hover:bg-blue-600 hover:text-white"
-                       >
-                         <LinkIcon className="w-4 h-4" /> {t("builder.addLink") || 'Ajouter un lien (Projet, Certificat...)'}
-                       </button>
+                      <div className="space-y-4 pt-2">
+                        {exp.links?.map((link, linkIdx) => (
+                          <div
+                            key={linkIdx}
+                            className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end bg-surface2/30 p-4 rounded-xl border border-border/50"
+                          >
+                            <Input
+                              label={"Lien URL"}
+                              value={link.url}
+                              onChange={(v) => {
+                                const newLinks = [...(exp.links || [])];
+                                newLinks[linkIdx].url = v;
+                                updateExperience(idx, "links", newLinks);
+                              }}
+                            />
+                            <Input
+                              label={"Label du lien"}
+                              value={link.label}
+                              onChange={(v) => {
+                                const newLinks = [...(exp.links || [])];
+                                newLinks[linkIdx].label = v;
+                                updateExperience(idx, "links", newLinks);
+                              }}
+                            />
+                            <button
+                              onClick={() => {
+                                const newLinks = exp.links?.filter(
+                                  (_, i) => i !== linkIdx,
+                                );
+                                updateExperience(idx, "links", newLinks);
+                              }}
+                              className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all mb-0.5"
+                              title="Supprimer ce lien"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newLinks = [
+                            ...(exp.links || []),
+                            { url: "", label: "" },
+                          ];
+                          updateExperience(idx, "links", newLinks);
+                        }}
+                        className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/5 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold transition-all hover:bg-blue-600 hover:text-white"
+                      >
+                        <LinkIcon className="w-4 h-4" />{" "}
+                        {t("builder.addLink") ||
+                          "Ajouter un lien (Projet, Certificat...)"}
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -1861,49 +1926,59 @@ export default function BuilderPage() {
 
                     {/* Multiple URLs Toggle */}
                     <div className="pt-2">
-                       <div className="space-y-4 pt-2">
-                         {f.links?.map((link, linkIdx) => (
-                           <div key={linkIdx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end bg-surface2/30 p-4 rounded-xl border border-border/50">
-                             <Input
-                               label={"Lien URL"}
-                               value={link.url}
-                               onChange={(v) => {
-                                 const newLinks = [...(f.links || [])];
-                                 newLinks[linkIdx].url = v;
-                                 updateFormation(idx, "links", newLinks);
-                               }}
-                             />
-                             <Input
-                               label={"Label du lien"}
-                               value={link.label}
-                               onChange={(v) => {
-                                 const newLinks = [...(f.links || [])];
-                                 newLinks[linkIdx].label = v;
-                                 updateFormation(idx, "links", newLinks);
-                               }}
-                             />
-                             <button
-                               onClick={() => {
-                                 const newLinks = f.links?.filter((_, i) => i !== linkIdx);
-                                 updateFormation(idx, "links", newLinks);
-                               }}
-                               className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all mb-0.5"
-                               title="Supprimer ce lien"
-                             >
-                                <TrashIcon className="w-4 h-4" />
-                             </button>
-                           </div>
-                         ))}
-                       </div>
-                       <button
-                         onClick={() => {
-                           const newLinks = [...(f.links || []), { url: "", label: "" }];
-                           updateFormation(idx, "links", newLinks);
-                         }}
-                         className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/5 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold transition-all hover:bg-blue-600 hover:text-white"
-                       >
-                         <LinkIcon className="w-4 h-4" /> {t("builder.addLink") || 'Ajouter un lien (Certificat, Portfolio...)'}
-                       </button>
+                      <div className="space-y-4 pt-2">
+                        {f.links?.map((link, linkIdx) => (
+                          <div
+                            key={linkIdx}
+                            className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end bg-surface2/30 p-4 rounded-xl border border-border/50"
+                          >
+                            <Input
+                              label={"Lien URL"}
+                              value={link.url}
+                              onChange={(v) => {
+                                const newLinks = [...(f.links || [])];
+                                newLinks[linkIdx].url = v;
+                                updateFormation(idx, "links", newLinks);
+                              }}
+                            />
+                            <Input
+                              label={"Label du lien"}
+                              value={link.label}
+                              onChange={(v) => {
+                                const newLinks = [...(f.links || [])];
+                                newLinks[linkIdx].label = v;
+                                updateFormation(idx, "links", newLinks);
+                              }}
+                            />
+                            <button
+                              onClick={() => {
+                                const newLinks = f.links?.filter(
+                                  (_, i) => i !== linkIdx,
+                                );
+                                updateFormation(idx, "links", newLinks);
+                              }}
+                              className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all mb-0.5"
+                              title="Supprimer ce lien"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => {
+                          const newLinks = [
+                            ...(f.links || []),
+                            { url: "", label: "" },
+                          ];
+                          updateFormation(idx, "links", newLinks);
+                        }}
+                        className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/5 text-blue-600 dark:text-blue-400 rounded-full text-[13px] font-bold transition-all hover:bg-blue-600 hover:text-white"
+                      >
+                        <LinkIcon className="w-4 h-4" />{" "}
+                        {t("builder.addLink") ||
+                          "Ajouter un lien (Certificat, Portfolio...)"}
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -2135,7 +2210,11 @@ export default function BuilderPage() {
                       value={styleConfig.primaryColor}
                       onChange={(e) => {
                         const val = e.target.value;
-                        setStyleConfig((p) => p.primaryColor === val ? p : { ...p, primaryColor: val });
+                        setStyleConfig((p) =>
+                          p.primaryColor === val
+                            ? p
+                            : { ...p, primaryColor: val },
+                        );
                       }}
                     />
                     <span className="text-xs font-mono">
@@ -2154,7 +2233,11 @@ export default function BuilderPage() {
                       value={styleConfig.accentColor}
                       onChange={(e) => {
                         const val = e.target.value;
-                        setStyleConfig((p) => p.accentColor === val ? p : { ...p, accentColor: val });
+                        setStyleConfig((p) =>
+                          p.accentColor === val
+                            ? p
+                            : { ...p, accentColor: val },
+                        );
                       }}
                     />
                     <span className="text-xs font-mono">
@@ -2564,7 +2647,10 @@ export default function BuilderPage() {
               {/* Zoom Controls + Page Info */}
               <div className="flex items-center justify-center gap-4 bg-surface/50 backdrop-blur-md py-2 px-4 rounded-full border border-border w-fit mx-auto">
                 <button
-                  onClick={() => setPreviewZoom(Math.max(0.3, +(previewZoom - 0.1).toFixed(1)))
+                  onClick={() =>
+                    setPreviewZoom(
+                      Math.max(0.3, +(previewZoom - 0.1).toFixed(1)),
+                    )
                   }
                   className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
                 >
@@ -2574,7 +2660,10 @@ export default function BuilderPage() {
                   {Math.round(previewZoom * 100)}%
                 </span>
                 <button
-                  onClick={() => setPreviewZoom(Math.min(1.2, +(previewZoom + 0.1).toFixed(1)))
+                  onClick={() =>
+                    setPreviewZoom(
+                      Math.min(1.2, +(previewZoom + 0.1).toFixed(1)),
+                    )
                   }
                   className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
                 >
@@ -2588,10 +2677,7 @@ export default function BuilderPage() {
 
               {/* Desktop preview — paginated A4 sheets */}
               <div className="hidden lg:flex flex-col items-center gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar">
-                <div
-                  className="flex flex-col items-center gap-6"
-                  dir={dir}
-                >
+                <div className="flex flex-col items-center gap-6" dir={dir}>
                   {renderPaginatedSheets(previewZoom)}
                 </div>
               </div>
@@ -2601,7 +2687,10 @@ export default function BuilderPage() {
                 <div className="overflow-x-auto pb-4 -mx-4 px-4 bg-surface2/30 rounded-2xl py-6">
                   <div
                     className="flex flex-col items-center gap-4"
-                    style={{ margin: '0 auto', width: Math.round(A4_WIDTH * 0.45) }}
+                    style={{
+                      margin: "0 auto",
+                      width: Math.round(A4_WIDTH * 0.45),
+                    }}
                     dir={dir}
                   >
                     {renderPaginatedSheets(0.45)}
@@ -2614,28 +2703,39 @@ export default function BuilderPage() {
               </div>
             </div>
 
-
             {/* Save CV — conditional on auth */}
             {isAuthenticated ? (
               <div className="mt-10 rounded-2xl border border-border/60 bg-surface overflow-hidden mb-6">
                 {/* Status bar */}
-                <div className={`px-6 py-4 flex items-center gap-3 ${savedCvId ? 'bg-emerald-50 dark:bg-emerald-500/10 border-b border-emerald-100 dark:border-emerald-500/20' : 'bg-blue-50 dark:bg-blue-500/10 border-b border-blue-100 dark:border-blue-500/20'}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${savedCvId ? 'bg-emerald-500' : 'bg-blue-500'}`}>
-                    {savedCvId 
-                      ? <CheckIcon className="w-4.5 h-4.5 text-white" />
-                      : <CloudArrowUpIcon className="w-4.5 h-4.5 text-white" />
-                    }
+                <div
+                  className={`px-6 py-4 flex items-center gap-3 ${savedCvId ? "bg-emerald-50 dark:bg-emerald-500/10 border-b border-emerald-100 dark:border-emerald-500/20" : "bg-blue-50 dark:bg-blue-500/10 border-b border-blue-100 dark:border-blue-500/20"}`}
+                >
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${savedCvId ? "bg-emerald-500" : "bg-blue-500"}`}
+                  >
+                    {savedCvId ? (
+                      <CheckIcon className="w-4.5 h-4.5 text-white" />
+                    ) : (
+                      <CloudArrowUpIcon className="w-4.5 h-4.5 text-white" />
+                    )}
                   </div>
                   <div>
-                    <p className={`text-sm font-bold ${savedCvId ? 'text-emerald-800 dark:text-emerald-400' : 'text-blue-800 dark:text-blue-400'}`}>
+                    <p
+                      className={`text-sm font-bold ${savedCvId ? "text-emerald-800 dark:text-emerald-400" : "text-blue-800 dark:text-blue-400"}`}
+                    >
                       {savedCvId
-                        ? (t("builder.cvSaved") || "CV saved to your account!").replace("✓ ", "")
-                        : (t("builder.saveYourCV") || "Save this CV to your account")}
+                        ? (
+                            t("builder.cvSaved") || "CV saved to your account!"
+                          ).replace("✓ ", "")
+                        : t("builder.saveYourCV") ||
+                          "Save this CV to your account"}
                     </p>
                     <p className="text-xs text-txt-muted mt-0.5">
                       {savedCvId
-                        ? (t("builder.cvSavedDesc") || "You can edit and download it anytime from your dashboard.")
-                        : (t("builder.saveYourCVDesc") || "Keep your progress and access it from your dashboard anytime.")}
+                        ? t("builder.cvSavedDesc") ||
+                          "You can edit and download it anytime from your dashboard."
+                        : t("builder.saveYourCVDesc") ||
+                          "Keep your progress and access it from your dashboard anytime."}
                     </p>
                   </div>
                 </div>
@@ -2648,12 +2748,15 @@ export default function BuilderPage() {
                       <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                         {t("builder.cvTitleLabel") || "CV Title"}
                       </label>
-                      <input 
-                        type="text" 
-                        placeholder={t("builder.cvTitlePlaceholder") || "e.g. Frontend Dev - Tech Corp"} 
+                      <input
+                        type="text"
+                        placeholder={
+                          t("builder.cvTitlePlaceholder") ||
+                          "e.g. Frontend Dev - Tech Corp"
+                        }
                         value={cvTitle}
-                        onChange={e => setCvTitle(e.target.value)}
-                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all" 
+                        onChange={(e) => setCvTitle(e.target.value)}
+                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -2661,12 +2764,12 @@ export default function BuilderPage() {
                         <BellIcon className="w-3.5 h-3.5 text-blue-500" />
                         {t("builder.reminderLabel") || "Update Reminder"}
                       </label>
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={reminderDate}
                         min={new Date().toISOString().split("T")[0]}
-                        onChange={e => setReminderDate(e.target.value)}
-                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer" 
+                        onChange={(e) => setReminderDate(e.target.value)}
+                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer"
                       />
                     </div>
                   </div>
@@ -2690,15 +2793,17 @@ export default function BuilderPage() {
                         <CheckIcon className="w-4 h-4" />
                       ) : null}
                       {isSaving
-                        ? (t("builder.saving") || "Saving...")
+                        ? t("builder.saving") || "Saving..."
                         : savedCvId
-                          ? (t("builder.updateCV") || "Update CV")
-                          : (t("builder.saveCV") || "Save CV")}
+                          ? t("builder.updateCV") || "Update CV"
+                          : t("builder.saveCV") || "Save CV"}
                     </button>
                   </div>
 
                   {saveError && (
-                    <p className="text-sm text-red-500 font-medium">{saveError}</p>
+                    <p className="text-sm text-red-500 font-medium">
+                      {saveError}
+                    </p>
                   )}
                 </div>
               </div>
@@ -2828,7 +2933,9 @@ export default function BuilderPage() {
               ) : (
                 <BookmarkIcon className="w-3.5 h-3.5" />
               )}
-              <span className="hidden sm:inline">{t("builder.saveAndExit") || "Save & Exit"}</span>
+              <span className="hidden sm:inline">
+                {t("builder.saveAndExit") || "Save & Exit"}
+              </span>
               <span className="sm:hidden">{t("builder.save") || "Save"}</span>
             </button>
             <ThemeToggle />
@@ -2972,7 +3079,7 @@ export default function BuilderPage() {
             <div className="hidden xl:flex flex-col w-[440px] 2xl:w-[500px] border-s border-border bg-surface2 overflow-hidden shrink-0">
               <div className="py-3 px-4 border-b border-border bg-surface flex items-center justify-between">
                 <span className="text-[10px] font-bold text-txt-muted uppercase tracking-widest">
-                  {t("builder.preview")}  {TEMPLATE_NAMES[activeTemplate - 1]}
+                  {t("builder.preview")} {TEMPLATE_NAMES[activeTemplate - 1]}
                 </span>
                 <button
                   onClick={() => goTo(7)}
@@ -2982,10 +3089,7 @@ export default function BuilderPage() {
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto preview-scrollbar p-4 flex flex-col items-center gap-4">
-                <div
-                  className="flex flex-col items-center gap-4"
-                  dir={dir}
-                >
+                <div className="flex flex-col items-center gap-4" dir={dir}>
                   {renderPaginatedSheets(0.52)}
                 </div>
               </div>
@@ -3024,10 +3128,7 @@ export default function BuilderPage() {
                 </button>
               </div>
               <div className="flex-1 overflow-auto p-4">
-                <div
-                  className="flex flex-col items-center gap-4"
-                  dir={dir}
-                >
+                <div className="flex flex-col items-center gap-4" dir={dir}>
                   {renderPaginatedSheets(0.55)}
                 </div>
               </div>
@@ -3050,12 +3151,12 @@ export default function BuilderPage() {
         ref={cvMeasureRef}
         aria-hidden="true"
         style={{
-          position: 'absolute',
-          left: '-9999px',
+          position: "absolute",
+          left: "-9999px",
           top: 0,
           width: A4_WIDTH,
-          overflow: 'visible',
-          pointerEvents: 'none',
+          overflow: "visible",
+          pointerEvents: "none",
           zIndex: -1,
         }}
         dir={dir}
@@ -3096,5 +3197,3 @@ export default function BuilderPage() {
     </>
   );
 }
-
-

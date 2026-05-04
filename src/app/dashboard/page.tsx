@@ -563,9 +563,9 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
 
               <button
                 onClick={() => handleUpgrade(plan.code)}
-                disabled={currentPlan === plan.code || (isCheckingOut && currentPlan !== plan.code)}
+                disabled={currentPlan === plan.code || (plan.price_da === 0 && currentPlan !== 'free') || (isCheckingOut && currentPlan !== plan.code)}
                 className={`mt-auto w-full py-4 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-70 ${
-                  currentPlan === plan.code 
+                  currentPlan === plan.code || (plan.price_da === 0 && currentPlan !== 'free')
                     ? 'text-txt-muted bg-surface2 border border-border cursor-default' 
                     : plan.is_popular 
                       ? 'text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'
