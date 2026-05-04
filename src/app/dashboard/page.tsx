@@ -40,7 +40,10 @@ import {
   SwatchIcon,
   ShieldCheckIcon,
   KeyIcon,
-  LockClosedIcon
+  LockClosedIcon,
+  Squares2X2Icon,
+  ListBulletIcon,
+  FunnelIcon
 } from '@heroicons/react/24/outline';
 import { useSubscription } from '@/app/hooks/useSubscription';
 
@@ -202,8 +205,8 @@ function StatCard({ icon: Icon, label, value, trend, color }: {
 }
 
 // ── CV Draft Card ──
-function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
-  draft: DraftCV; onEdit: () => void; onDuplicate: () => void; onDelete: () => void; delay: number;
+function CVCard({ draft, onEdit, onDuplicate, onDelete, delay, displayMode = 'grid' }: {
+  draft: DraftCV; onEdit: () => void; onDuplicate: () => void; onDelete: () => void; delay: number; displayMode?: 'grid' | 'list';
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLanguage();
@@ -228,6 +231,59 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
     if (diffD < 7) return `${diffD} ${t('dashboard.dAgo') || 'd ago'}`;
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
+
+  if (displayMode === 'list') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: delay * 0.05, duration: 0.3 }}
+        className="group relative bg-surface/80 backdrop-blur-xl border border-border rounded-xl p-3 sm:p-4 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 cursor-pointer"
+        onClick={onEdit}
+      >
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="w-12 h-16 rounded-md shadow-sm shrink-0 flex items-center justify-center relative overflow-hidden" style={{ background: draft.previewColor }}>
+             <div className="absolute inset-x-2 top-2 h-0.5 bg-white/30 rounded-full" />
+             <div className="absolute inset-x-2 top-3 h-0.5 w-1/2 bg-white/20 rounded-full" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[14px] sm:text-[15px] font-bold text-txt truncate group-hover:text-blue-500 transition-colors">{draft.title}</h3>
+            <p className="text-[11px] sm:text-[12px] text-txt-muted truncate">{draft.jobTitle || 'No title'}</p>
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full ${status.cls}`}>
+                <StatusIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {status.label}
+              </span>
+              <span className="text-[9px] sm:text-[10px] text-txt-dim px-1.5 py-0.5 bg-surface2 rounded-md">{draft.templateName}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden md:block w-32 shrink-0">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] text-txt-dim font-medium uppercase tracking-wider">{t('dashboard.completion') || 'Completion'}</span>
+            <span className="text-[10px] font-bold text-txt-muted">{draft.completionPercent}%</span>
+          </div>
+          <div className="h-1.5 bg-surface2 rounded-full overflow-hidden">
+            <div className={`h-full rounded-full ${draft.completionPercent === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gradient-to-r from-blue-600 to-cyan-500'}`} style={{ width: `${draft.completionPercent}%` }} />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 sm:ml-4 w-full sm:w-auto mt-2 sm:mt-0">
+          <span className="text-[10px] sm:text-[11px] text-txt-dim flex items-center gap-1 sm:w-24 sm:justify-end">
+            <ClockIcon className="w-3 h-3" /> {timeAgo(draft.lastEdited)}
+          </span>
+          <div className="flex items-center gap-1">
+            <button onClick={(e) => { e.stopPropagation(); window.open('/builder?id=' + draft.id, '_blank'); }} className="p-1.5 sm:p-2 rounded-lg hover:bg-surface2 text-txt-muted hover:text-blue-500 transition-colors" title={t('dashboard.openNewTab') || 'Open in new tab'}>
+              <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+            </button>
+            <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="p-1.5 sm:p-2 rounded-lg hover:bg-red-500/10 text-txt-muted hover:text-red-500 transition-colors" title={t('dashboard.delete') || 'Delete'}>
+              <TrashIcon className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -382,12 +438,31 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay }: {
 // ── Pricing View ──
 function PricingView({ subscription }: { subscription: ReturnType<typeof useSubscription> }) {
   const { t, language } = useLanguage();
-  const [isAnnual, setIsAnnual] = useState(true);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const currentPlan = subscription.subscription?.effectivePlan || 'free';
 
-  const handleUpgrade = async () => {
-    if (currentPlan === 'pro' || isCheckingOut) return;
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+        const res = await fetch(`${API_BASE}/subscriptions/plans/`);
+        if (res.ok) {
+          const data = await res.json();
+          setPlans(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch plans:", err);
+      } finally {
+        setIsLoadingPlans(false);
+      }
+    }
+    fetchPlans();
+  }, []);
+
+  const handleUpgrade = async (planCode: string) => {
+    if (currentPlan === planCode || isCheckingOut) return;
     setIsCheckingOut(true);
     try {
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -398,7 +473,7 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
           Authorization: `Bearer ${localStorage.getItem('oosira_token')}`,
         },
         body: JSON.stringify({
-          billing_cycle: isAnnual ? 'yearly' : 'monthly',
+          billing_cycle: 'yearly',
           locale: language === 'ar' ? 'ar' : language === 'fr' ? 'fr' : 'en',
         }),
       });
@@ -432,118 +507,87 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
           {t('pricing.subtitle') || "Choose the perfect plan for your career growth. No hidden fees."}
         </p>
 
-        <div className="mt-10 flex justify-center items-center gap-4">
-          <span className={`text-sm font-medium ${!isAnnual ? 'text-txt' : 'text-txt-dim'}`}>{t('pricing.monthly') || "Monthly"}</span>
-          <button
-            onClick={() => setIsAnnual(!isAnnual)}
-            className="relative inline-flex h-8 w-16 items-center rounded-full bg-blue-600 transition-colors focus:outline-none"
-          >
-            <span
-              className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${isAnnual ? 'translate-x-9 rtl:-translate-x-9' : 'translate-x-1 rtl:-translate-x-1'}`}
-            />
-          </button>
-          <span className={`text-sm font-medium ${isAnnual ? 'text-txt' : 'text-txt-dim'}`}>
-            {t('pricing.annually') || "Annually"} <span className="ml-1.5 rtl:mr-1.5 rtl:ml-0 inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">{t('pricing.save20') || "Save 20%"}</span>
-          </span>
-        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Basic Plan */}
-        <div className="rounded-3xl border border-border bg-surface p-8 shadow-sm hover:border-blue-500/30 transition-all duration-300 relative overflow-hidden group">
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold text-txt flex items-center gap-2">
-              <DocumentTextIcon className="w-6 h-6 text-txt-muted" />
-              {t('pricing.basic') || "Basic"}
-            </h3>
-            <p className="text-txt-muted mt-2 text-sm">{t('pricing.basicDesc') || "Perfect for starting your job hunt."}</p>
-            <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-5xl font-extrabold text-txt">{t('pricing.free') || "Free"}</span>
+        {isLoadingPlans ? (
+          <div className="col-span-2 text-center text-txt-muted py-12">
+            <span className="inline-block w-8 h-8 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></span>
+          </div>
+        ) : plans.length === 0 ? (
+          <div className="col-span-2 text-center text-txt-muted py-12">No plans available at the moment.</div>
+        ) : (
+          plans.map((plan) => (
+            <div 
+              key={plan.code} 
+              className={`rounded-3xl bg-surface p-8 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col ${plan.is_popular ? 'border-2 shadow-2xl border-blue-500 shadow-blue-500/10' : 'border border-border hover:border-blue-500/30 group'}`}
+            >
+              {plan.is_popular && (
+                <div className="absolute top-0 right-0 rtl:left-0 rtl:right-auto bg-blue-500 text-white px-4 py-1 rounded-bl-xl rtl:rounded-br-xl rtl:rounded-bl-none font-bold text-sm tracking-wider uppercase">
+                  {t('pricing.mostPopular') || "Most Popular"}
+                </div>
+              )}
+              
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-txt flex items-center gap-2">
+                  {plan.icon_type === 'sparkles' ? (
+                    <SparklesIcon className={`w-6 h-6 ${plan.is_popular ? 'text-blue-500' : 'text-txt-muted'}`} />
+                  ) : (
+                    <DocumentTextIcon className={`w-6 h-6 ${plan.is_popular ? 'text-blue-500' : 'text-txt-muted'}`} />
+                  )}
+                  {plan[`name_${language}`] || plan.name_en}
+                </h3>
+                <p className="text-txt-muted mt-2 text-sm">{plan[`desc_${language}`] || plan.desc_en}</p>
+                
+                <div className="mt-6 flex items-baseline gap-2">
+                  <span className="text-5xl font-extrabold text-txt">{plan.price_da > 0 ? `${plan.price_da} DA` : (t('pricing.free') || "Free")}</span>
+                  {plan.price_da > 0 && <span className="text-txt-muted font-medium">{t('pricing.month') || "/ month"}</span>}
+                </div>
+                {plan.price_da > 0 && <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">{plan[`billed_text_${language}`] || plan.billed_text_en}</p>}
+              </div>
+
+              <ul className="space-y-4 mb-8">
+                {plan.features.map((feature: any, idx: number) => (
+                  <li key={idx} className={`flex items-start gap-3 ${!feature.is_included ? 'opacity-60' : ''}`}>
+                    {feature.is_included ? (
+                      <CheckCircleIcon className={`w-5 h-5 shrink-0 mt-0.5 ${plan.is_popular ? 'text-blue-500' : 'text-emerald-500'}`} />
+                    ) : (
+                      <XMarkIcon className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                    )}
+                    <span className={feature.is_included && plan.is_popular ? 'text-txt font-medium' : 'text-txt-muted'}>
+                      {feature[`text_${language}`] || feature.text_en}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => handleUpgrade(plan.code)}
+                disabled={currentPlan === plan.code || (isCheckingOut && currentPlan !== plan.code)}
+                className={`mt-auto w-full py-4 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-70 ${
+                  currentPlan === plan.code 
+                    ? 'text-txt-muted bg-surface2 border border-border cursor-default' 
+                    : plan.is_popular 
+                      ? 'text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'
+                      : 'text-white bg-emerald-500 hover:bg-emerald-600'
+                }`}
+              >
+                {isCheckingOut ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    {t('pricing.processing') || "Processing..."}
+                  </span>
+                ) : currentPlan === plan.code ? (
+                  t('pricing.currentPlan') || "Current Plan"
+                ) : plan.price_da === 0 ? (
+                  t('pricing.basic') || "Basic"
+                ) : (
+                  t('pricing.upgradePro') || "Upgrade"
+                )}
+              </button>
             </div>
-          </div>
-
-          <ul className="space-y-4 mb-8">
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.buildCVs') || "Build professional CVs"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.pdfLimit') || "5 PDF downloads per month"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.standardTemplates') || "Access to standard templates"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.noOcr') || "1 free trial OCR"}</span>
-            </li>
-            <li className="flex items-start gap-3 opacity-60">
-              <XMarkIcon className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-              <span className="text-txt-muted">{t('pricing.limitedColors') || "Limited color palettes"}</span>
-            </li>
-          </ul>
-
-          <button className={`w-full py-3.5 rounded-xl font-bold ${currentPlan === 'free' ? 'text-txt-muted bg-surface2 border border-border cursor-default' : 'text-white bg-emerald-500'}`}>
-            {currentPlan === 'free' ? (t('pricing.currentPlan') || "Current Plan") : (t('pricing.basic') || "Basic")}
-          </button>
-        </div>
-
-        {/* Pro Plan */}
-        <div className="rounded-3xl border-2 border-blue-500 bg-surface p-8 shadow-2xl shadow-blue-500/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 rtl:left-0 rtl:right-auto bg-blue-500 text-white px-4 py-1 rounded-bl-xl rtl:rounded-br-xl rtl:rounded-bl-none font-bold text-sm tracking-wider uppercase">
-            {t('pricing.mostPopular') || "Most Popular"}
-          </div>
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold text-txt flex items-center gap-2">
-              <SparklesIcon className="w-6 h-6 text-blue-500" />
-              {t('pricing.pro') || "Pro"}
-            </h3>
-            <p className="text-txt-muted mt-2 text-sm">{t('pricing.proDesc') || "Everything you need to stand out."}</p>
-            <div className="mt-6 flex items-baseline gap-2">
-              <span className="text-5xl font-extrabold text-txt">{isAnnual ? '400 DA' : '500 DA'}</span>
-              <span className="text-txt-muted font-medium">{t('pricing.month') || "/ month"}</span>
-            </div>
-            {isAnnual && <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">{t('pricing.billedYearly') || "Billed 4800 DA yearly"}</p>}
-          </div>
-
-          <ul className="space-y-4 mb-8">
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-              <span className="text-txt font-medium">{t('pricing.unlimitedPdf') || "Unlimited PDF downloads"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-              <span className="text-txt font-medium">{t('pricing.aiOcr') || "AI-powered OCR Resume Import"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.premiumTemplates') || "All premium templates unlocked"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.advancedColors') || "Advanced color palettes & customization"}</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <CheckCircleIcon className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
-              <span className="text-txt">{t('pricing.prioritySupport') || "Priority support"}</span>
-            </li>
-          </ul>
-
-          <button
-            onClick={handleUpgrade}
-            disabled={currentPlan === 'pro' || isCheckingOut}
-            className={`w-full py-4 rounded-xl font-bold transition-all active:scale-[0.98] ${currentPlan === 'pro' ? 'text-white bg-emerald-500 cursor-default' : 'text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'} disabled:opacity-70`}
-          >
-            {isCheckingOut ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {t('pricing.processing') || "Processing..."}
-              </span>
-            ) : currentPlan === 'pro' ? (t('pricing.currentPlan') || "Current Plan") : (t('pricing.upgradePro') || "Upgrade to Pro")}
-          </button>
-        </div>
+          ))
+        )}
       </div>
     </motion.div>
   );
@@ -562,7 +606,27 @@ function DashboardContent() {
   const [activeView, setActiveView] = useState<DashboardView>(initialView);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [dismissedNotifs, setDismissedNotifs] = useState<string[]>([]);
+  const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'draft'>('all');
+  
+  useEffect(() => {
+    const stored = localStorage.getItem('oosira_dismissed_notifs');
+    if (stored) {
+      try {
+        setDismissedNotifs(JSON.parse(stored));
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleDismissNotif = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const updated = [...dismissedNotifs, id];
+    setDismissedNotifs(updated);
+    localStorage.setItem('oosira_dismissed_notifs', JSON.stringify(updated));
+  };
   
   const dispatch = useDispatch<AppDispatch>();
   const stats = useSelector((state: RootState) => state.stats);
@@ -614,13 +678,38 @@ function DashboardContent() {
   if (isHydrating) return null; // Show nothing or a loading spinner
   if (!isAuthenticated || !user) return null;
 
-  const filteredDrafts = drafts.filter((d) =>
-    d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.templateName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredDrafts = drafts.filter((d) => {
+    const matchesSearch = d.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          d.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          d.templateName?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || d.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  const completedCount = drafts.filter((d) => d.status === "completed").length;
 
-  const completedCount = drafts.filter((d) => d.status === 'completed').length;
+  let activeNotifications = drafts.filter(draft => {
+    if (!draft.reminderDate || dismissedNotifs.includes(draft.id)) return false;
+    const reminderTime = new Date(draft.reminderDate).getTime();
+    const now = new Date().getTime();
+    return reminderTime - now <= 3 * 24 * 60 * 60 * 1000;
+  });
+
+  // Populate with examples if there are no real notifications
+  if (activeNotifications.length === 0) {
+    const dummy1 = {
+      id: 'dummy-1',
+      title: 'Software Engineer - Google',
+      reminderDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    } as any;
+    const dummy2 = {
+      id: 'dummy-2',
+      title: 'Marketing Manager - Remote',
+      reminderDate: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+    } as any;
+    
+    if (!dismissedNotifs.includes('dummy-1')) activeNotifications.push(dummy1);
+    if (!dismissedNotifs.includes('dummy-2')) activeNotifications.push(dummy2);
+  }
   const draftCount = drafts.filter((d) => d.status === 'draft').length;
 
   // ── Sidebar Nav Items ──
@@ -811,10 +900,74 @@ function DashboardContent() {
               </div>
             )}
 
-            <button className="relative p-2 rounded-xl hover:bg-surface2 text-txt-muted transition-colors">
-              <BellIcon className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-bg" />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative p-2 rounded-xl hover:bg-surface2 text-txt-muted transition-colors"
+              >
+                <BellIcon className="w-5 h-5" />
+                {activeNotifications.length > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-bg" />
+                )}
+              </button>
+
+              <AnimatePresence>
+                {notificationsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full right-0 mt-2 w-80 sm:w-96 bg-surface/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl z-50 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-border flex items-center justify-between">
+                      <h3 className="font-bold text-txt">{t('dashboard.notificationsLabel') || "Notifications"}</h3>
+                      <span className="text-[11px] font-medium bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">
+                        {activeNotifications.length}
+                      </span>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto p-2">
+                      {activeNotifications.length === 0 ? (
+                        <div className="text-center py-8 text-txt-dim text-sm">
+                          {t('dashboard.noNotifications') || "No new notifications."}
+                        </div>
+                      ) : (
+                        activeNotifications.map(notification => (
+                          <div 
+                            key={notification.id}
+                            className="group relative p-3 mb-1 bg-surface2/50 hover:bg-surface2 rounded-xl transition-colors cursor-pointer flex gap-3"
+                            onClick={() => {
+                              router.push('/builder?id=' + notification.id);
+                              setNotificationsOpen(false);
+                            }}
+                          >
+                            <div className="w-10 h-10 shrink-0 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+                              <BellIcon className="w-5 h-5" />
+                            </div>
+                            <div className="pr-6">
+                              <p className="text-sm text-txt font-medium leading-tight mb-1">
+                                {t('dashboard.updateReminderFor') || "Time to update your CV:"} <span className="font-bold text-blue-500">{notification.title}</span>
+                              </p>
+                              <p className="text-[11px] text-txt-muted">
+                                {t('dashboard.reminderDate') || "Reminder date:"} {new Date(notification.reminderDate!).toLocaleDateString()}
+                              </p>
+                            </div>
+                            
+                            <button
+                              onClick={(e) => handleDismissNotif(e, notification.id)}
+                              className="absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 text-txt-muted transition-all"
+                              title="Dismiss"
+                            >
+                              <XMarkIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <ThemeToggle />
             <LanguageToggle />
           </div>
@@ -844,9 +997,51 @@ function DashboardContent() {
                   <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Downloads"} value={stats.data?.quickStats.totalDownloads.toString() || "0"} color="bg-gradient-to-br from-purple-600 to-purple-500" />
                 </div>
 
-                {/* CV Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+                {/* Controls Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
+                    <button 
+                      onClick={() => setStatusFilter('all')}
+                      className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-[13px] font-medium transition-all ${statusFilter === 'all' ? 'bg-surface2 text-txt shadow-sm border border-border' : 'text-txt-muted hover:bg-surface2/50 border border-transparent'}`}
+                    >
+                      {t('dashboard.filterAll') || 'All CVs'}
+                    </button>
+                    <button 
+                      onClick={() => setStatusFilter('completed')}
+                      className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-[13px] font-medium transition-all ${statusFilter === 'completed' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'text-txt-muted hover:bg-surface2/50 border border-transparent'}`}
+                    >
+                      {t('dashboard.completed') || 'Completed'}
+                    </button>
+                    <button 
+                      onClick={() => setStatusFilter('draft')}
+                      className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-[13px] font-medium transition-all ${statusFilter === 'draft' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' : 'text-txt-muted hover:bg-surface2/50 border border-transparent'}`}
+                    >
+                      {t('dashboard.draft') || 'Drafts'}
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-1 border border-border rounded-xl p-1 bg-surface/50 self-end sm:self-auto shrink-0">
+                    <button 
+                      onClick={() => setDisplayMode('grid')}
+                      className={`p-1.5 rounded-lg transition-all ${displayMode === 'grid' ? 'bg-surface border border-border text-blue-500 shadow-sm' : 'text-txt-muted hover:bg-surface2 hover:text-txt border border-transparent'}`}
+                      title="Grid View"
+                    >
+                      <Squares2X2Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                    </button>
+                    <button 
+                      onClick={() => setDisplayMode('list')}
+                      className={`p-1.5 rounded-lg transition-all ${displayMode === 'list' ? 'bg-surface border border-border text-blue-500 shadow-sm' : 'text-txt-muted hover:bg-surface2 hover:text-txt border border-transparent'}`}
+                      title="List View"
+                    >
+                      <ListBulletIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* CV Grid / List */}
+                <div className={displayMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5" : "flex flex-col gap-3"}>
                   {/* Create New Card */}
+                  {displayMode === 'grid' ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -863,12 +1058,32 @@ function DashboardContent() {
                       <span className="text-[11px] text-txt-dim mt-1">{t('dashboard.newCVDesc') || 'Start from scratch or use a template'}</span>
                     </Link>
                   </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <Link
+                        href="/builder"
+                        className="group flex items-center gap-4 p-3 sm:p-4 bg-surface/50 border-2 border-dashed border-border hover:border-blue-500/40 rounded-xl transition-all hover:bg-blue-500/5 cursor-pointer"
+                      >
+                        <div className="w-12 h-16 rounded-md bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-105 transition-transform shrink-0">
+                          <PlusIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-[14px] sm:text-[15px] font-bold text-txt group-hover:text-blue-500 transition-colors">{t('dashboard.newCV') || 'Create New CV'}</h3>
+                          <p className="text-[11px] sm:text-[12px] text-txt-muted">{t('dashboard.newCVDesc') || 'Start from scratch or use a template'}</p>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  )}
 
                   {filteredDrafts.map((draft, i) => (
                     <CVCard
                       key={draft.id}
                       draft={draft}
                       delay={i + 1}
+                      displayMode={displayMode}
                       onEdit={() => router.push('/builder?id=' + draft.id)}
                       onDuplicate={async () => {
                         await duplicateDraft(draft.id);

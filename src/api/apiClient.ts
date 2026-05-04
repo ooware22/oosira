@@ -72,7 +72,16 @@ export async function apiFetch(
   });
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: any = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (!response.ok) {
+      throw new Error(`API Error (${response.status}): ${endpoint} returned HTML/invalid JSON.`);
+    } else {
+      console.warn(`API ${endpoint} returned OK but invalid JSON:`, text.substring(0, 100));
+    }
+  }
 
   if (!response.ok) {
     if (response.status === 401 && !isRetry) {

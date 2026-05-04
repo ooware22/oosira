@@ -56,6 +56,8 @@ import {
   LinkIcon,
   LockClosedIcon,
   ArrowPathIcon,
+  BellIcon,
+  CloudArrowUpIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -66,6 +68,7 @@ import { apiFetch } from "@/api/apiClient";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { trackDownload } from "@/store/slices/statsSlice";
+import { fetchDrafts } from "@/store/slices/cvsSlice";
 import { useSubscription, invalidateSubscriptionCache } from "@/app/hooks/useSubscription";
 
 /* -- Constants -- */
@@ -268,6 +271,8 @@ export default function BuilderPage() {
             setStyleConfig({...TEMPLATE_DEFAULTS[data.templateId || 1], ...data.styleConfig});
           }
           if (data.templateId) setActiveTemplate(data.templateId);
+          if (data.title && data.title !== 'Untitled CV') setCvTitle(data.title);
+          if (data.reminderDate) setReminderDate(data.reminderDate.split('T')[0]);
           setSavedCvId(data.id);
         })
         .catch(err => console.error("Error loading CV:", err));
@@ -279,6 +284,10 @@ export default function BuilderPage() {
       setStyleConfig(getRandomStyleConfig(TEMPLATE_DEFAULTS[randomTemplateId]));
     }
   }, [searchParams, isAuthenticated]);
+
+  const [cvTitle, setCvTitle] = useState("");
+  const [reminderDate, setReminderDate] = useState("");
+
   const [formData, setFormData] = useState<Candidate>({
     id: -1,
     prenom: "",
@@ -589,30 +598,56 @@ export default function BuilderPage() {
     try {
       const calculateCompletion = (data: Candidate): number => {
         let score = 0;
-        if (data.prenom || data.nom) score += 10;
-        if (data.titre) score += 10;
-        if (data.email) score += 10;
-        if (data.telephone) score += 10;
-        if (data.ville) score += 10;
-        if (data.accroche) score += 10;
-        if (data.formations && data.formations.length > 0) score += 10;
-        if (data.experiences && data.experiences.length > 0) score += 15;
-        if (data.competences && data.competences.length > 0) score += 10;
-        if (data.langues && data.langues.length > 0) score += 5;
+        
+        // Step 1: Template (Assume done if CV is being saved) -> 15%
+        score += 15;
+
+        // Step 2: Personal Info (First name, last name, email, or phone) -> 15%
+        if (data.prenom || data.nom || data.email || data.telephone) {
+          score += 15;
+        }
+
+        // Step 3: Summary (Accroche) -> 15%
+        if (data.accroche && data.accroche.trim().length > 0) {
+          score += 15;
+        }
+
+        // Step 4: Experience -> 15%
+        if (data.experiences && data.experiences.length > 0) {
+          score += 15;
+        }
+
+        // Step 5: Education -> 15%
+        if (data.formations && data.formations.length > 0) {
+          score += 15;
+        }
+
+        // Step 6: Skills & More (Competences or Langues) -> 15%
+        if ((data.competences && data.competences.length > 0) || 
+            (data.langues && data.langues.length > 0) ||
+            (data.hobbies && data.hobbies.length > 0)) {
+          score += 15;
+        }
+
+        // Step 7: Design (Assume defaults are applied) -> 10%
+        score += 10;
+
         return Math.min(100, score);
       };
 
       const completionPercent = calculateCompletion(formData);
       const cvStatus = completionPercent === 100 ? 'completed' : 'draft';
 
+      const defaultTitle = `${formData.prenom || 'Mon'} ${formData.nom || 'CV'}`.trim();
       const cvPayload = {
-        title: `${formData.prenom || 'Mon'} ${formData.nom || 'CV'}`.trim(),
+        title: cvTitle.trim() || defaultTitle,
         jobTitle: formData.titre || '',
         templateName: TEMPLATE_NAMES[activeTemplate - 1] || 'Classique Pro',
         templateId: activeTemplate,
         previewColor: styleConfig.sidebarBg || styleConfig.accentColor || '#0D1117',
         completionPercent,
         status: cvStatus,
+        reminderDate: reminderDate || null,
         cvData: formData,
         styleConfig: styleConfig,
       };
@@ -623,6 +658,7 @@ export default function BuilderPage() {
           method: 'PUT',
           body: JSON.stringify(cvPayload),
         });
+        dispatch(fetchDrafts());
       } else {
         // Create new CV
         const created = await apiFetch('/cvs/', {
@@ -630,6 +666,7 @@ export default function BuilderPage() {
           body: JSON.stringify(cvPayload),
         });
         setSavedCvId(created.id);
+        dispatch(fetchDrafts());
       }
     } catch (err: any) {
       console.error('Save CV error:', err);
@@ -717,7 +754,7 @@ export default function BuilderPage() {
   const updateFormation = (
     idx: number,
     key: keyof Formation,
-    value: string,
+    value: any,
   ) => {
     setFormData((prev) => {
       const formations = [...prev.formations];
@@ -750,7 +787,7 @@ export default function BuilderPage() {
   const updateExperience = (
     idx: number,
     key: keyof Experience,
-    value: string,
+    value: any,
   ) => {
     setFormData((prev) => {
       const experiences = [...prev.experiences];
@@ -2580,45 +2617,89 @@ export default function BuilderPage() {
 
             {/* Save CV — conditional on auth */}
             {isAuthenticated ? (
-              <div className="mt-8 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start mb-6">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-txt mb-1">
-                    {savedCvId
-                      ? (t("builder.cvSaved") || "✓ CV saved to your account!")
-                      : (t("builder.saveYourCV") || "Save this CV to your account")}
-                  </h3>
-                  <p className="text-sm text-txt-muted">
-                    {savedCvId
-                      ? (t("builder.cvSavedDesc") || "You can edit and download it anytime from your dashboard.")
-                      : (t("builder.saveYourCVDesc") || "Keep your progress and access it from your dashboard anytime.")}
-                  </p>
-                  {saveError && (
-                    <p className="text-sm text-red-500 mt-2">{saveError}</p>
-                  )}
+              <div className="mt-10 rounded-2xl border border-border/60 bg-surface overflow-hidden mb-6">
+                {/* Status bar */}
+                <div className={`px-6 py-4 flex items-center gap-3 ${savedCvId ? 'bg-emerald-50 dark:bg-emerald-500/10 border-b border-emerald-100 dark:border-emerald-500/20' : 'bg-blue-50 dark:bg-blue-500/10 border-b border-blue-100 dark:border-blue-500/20'}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${savedCvId ? 'bg-emerald-500' : 'bg-blue-500'}`}>
+                    {savedCvId 
+                      ? <CheckIcon className="w-4.5 h-4.5 text-white" />
+                      : <CloudArrowUpIcon className="w-4.5 h-4.5 text-white" />
+                    }
+                  </div>
+                  <div>
+                    <p className={`text-sm font-bold ${savedCvId ? 'text-emerald-800 dark:text-emerald-400' : 'text-blue-800 dark:text-blue-400'}`}>
+                      {savedCvId
+                        ? (t("builder.cvSaved") || "CV saved to your account!").replace("✓ ", "")
+                        : (t("builder.saveYourCV") || "Save this CV to your account")}
+                    </p>
+                    <p className="text-xs text-txt-muted mt-0.5">
+                      {savedCvId
+                        ? (t("builder.cvSavedDesc") || "You can edit and download it anytime from your dashboard.")
+                        : (t("builder.saveYourCVDesc") || "Keep your progress and access it from your dashboard anytime.")}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 justify-center">
-                  <button
-                    onClick={saveCV}
-                    disabled={isSaving}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSaving ? (
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : savedCvId ? (
-                      <CheckIcon className="w-4 h-4" />
-                    ) : null}
-                    {isSaving
-                      ? (t("builder.saving") || "Saving...")
-                      : savedCvId
-                        ? (t("builder.updateCV") || "Update CV")
-                        : (t("builder.saveCV") || "Save CV")}
-                  </button>
-                  <Link
-                    href="/dashboard"
-                    className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-semibold transition-all hover:bg-emerald-500/10 hover:border-emerald-500/40"
-                  >
-                    {t("builder.goToDashboard") || "My Dashboard"}
-                  </Link>
+
+                {/* Form */}
+                <div className="p-5 sm:p-6 space-y-5">
+                  {/* Inputs row */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                        {t("builder.cvTitleLabel") || "CV Title"}
+                      </label>
+                      <input 
+                        type="text" 
+                        placeholder={t("builder.cvTitlePlaceholder") || "e.g. Frontend Dev - Tech Corp"} 
+                        value={cvTitle}
+                        onChange={e => setCvTitle(e.target.value)}
+                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all" 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="flex items-center gap-1.5 text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                        <BellIcon className="w-3.5 h-3.5 text-blue-500" />
+                        {t("builder.reminderLabel") || "Update Reminder"}
+                      </label>
+                      <input 
+                        type="date" 
+                        value={reminderDate}
+                        min={new Date().toISOString().split("T")[0]}
+                        onChange={e => setReminderDate(e.target.value)}
+                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all cursor-pointer" 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Buttons row */}
+                  <div className="flex items-center justify-end gap-3 pt-1">
+                    <Link
+                      href="/dashboard"
+                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-border text-txt text-sm font-semibold transition-all hover:bg-surface2"
+                    >
+                      {t("builder.goToDashboard") || "My Dashboard"}
+                    </Link>
+                    <button
+                      onClick={saveCV}
+                      disabled={isSaving}
+                      className="inline-flex items-center justify-center gap-2 px-7 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold transition-all hover:bg-emerald-700 active:scale-[0.97] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSaving ? (
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : savedCvId ? (
+                        <CheckIcon className="w-4 h-4" />
+                      ) : null}
+                      {isSaving
+                        ? (t("builder.saving") || "Saving...")
+                        : savedCvId
+                          ? (t("builder.updateCV") || "Update CV")
+                          : (t("builder.saveCV") || "Save CV")}
+                    </button>
+                  </div>
+
+                  {saveError && (
+                    <p className="text-sm text-red-500 font-medium">{saveError}</p>
+                  )}
                 </div>
               </div>
             ) : (

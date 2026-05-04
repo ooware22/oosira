@@ -34,6 +34,7 @@ export interface DraftCV {
   jobTitle: string;
   completionPercent: number;
   previewColor: string;
+  reminderDate?: string | null;
 }
 
 type AuthContextType = {
