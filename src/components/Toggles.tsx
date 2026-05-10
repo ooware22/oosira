@@ -46,17 +46,21 @@ export function LanguageToggle() {
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-2 py-1 w-24 bg-surface border border-black/10 dark:border-white/10 rounded-lg shadow-xl z-50">
-          {langs.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => { setLanguage(l.code); setIsOpen(false); }}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${language === l.code ? 'text-primary font-bold' : 'text-txt'}`}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
+        <>
+          {/* Invisible backdrop to close dropdown when clicking outside */}
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute end-0 mt-2 py-1 w-24 bg-surface border border-black/10 dark:border-white/10 rounded-lg shadow-xl z-50">
+            {langs.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => { setLanguage(l.code); setIsOpen(false); }}
+                className={`w-full text-start px-4 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${language === l.code ? 'text-primary font-bold' : 'text-txt'}`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

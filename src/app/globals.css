@@ -163,7 +163,7 @@
 .cv-a4-sheet-badge {
   position: absolute;
   bottom: 14px;
-  right: 18px;
+  inset-inline-end: 18px;
   font-size: 9px;
   font-weight: 700;
   color: rgba(0,0,0,0.12);
