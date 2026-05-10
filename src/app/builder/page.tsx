@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { jsPDF } from "jspdf";
 import {
@@ -231,6 +231,14 @@ function TextArea({
 
 /* -- Main Builder Component -- */
 export default function BuilderPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-bg flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" /></div>}>
+      <BuilderPageContent />
+    </Suspense>
+  );
+}
+
+function BuilderPageContent() {
   const { t, dir, language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -657,7 +665,7 @@ export default function BuilderPage() {
         if (
           (data.competences && data.competences.length > 0) ||
           (data.langues && data.langues.length > 0) ||
-          (data.hobbies && data.hobbies.length > 0)
+          (data.logiciels && data.logiciels.length > 0)
         ) {
           score += 15;
         }
