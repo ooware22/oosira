@@ -290,11 +290,11 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay, displayMode = 'gr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delay * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative bg-surface/80 backdrop-blur-xl border border-border rounded-2xl overflow-hidden hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500 hover:-translate-y-1"
+      className="group relative bg-surface/80 backdrop-blur-xl border border-border rounded-2xl hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500 hover:-translate-y-1"
     >
       {/* ── Preview Header ── */}
       <div
-        className="h-32 relative overflow-hidden cursor-pointer"
+        className="h-32 relative overflow-hidden cursor-pointer rounded-t-2xl"
         onClick={onEdit}
         style={{ background: draft.previewColor }}
       >
@@ -633,10 +633,10 @@ function DashboardContent() {
   const sub = useSubscription();
 
   useEffect(() => {
-    if (isAuthenticated && stats.status === 'idle') {
+    if (isAuthenticated) {
       dispatch(fetchDashboardStats());
     }
-  }, [isAuthenticated, stats.status, dispatch]);
+  }, [isAuthenticated, activeView, dispatch]);
 
   // Auto-verify payment when returning from Chargily
   useEffect(() => {
@@ -1104,7 +1104,30 @@ function DashboardContent() {
             )}
 
             {/* ═════════ ANALYTICS VIEW ═════════ */}
-            {activeView === 'analytics' && (
+            {activeView === 'analytics' && (() => {
+              const sd = stats.data;
+              const trends = sd?.monthlyTrends || [];
+              const maxTrend = Math.max(...trends.map(t => t.downloads + t.activity), 1);
+              const tUsage = sd?.templateUsage || [];
+              const totalTpl = tUsage.reduce((s, t) => s + (t.count || 0), 0) || 1;
+              // Donut arc helper
+              const donutArcs = (() => {
+                let cum = 0;
+                return tUsage.map((t) => {
+                  const pct = (t.count || 0) / totalTpl;
+                  const start = cum;
+                  cum += pct;
+                  return { ...t, start, end: cum, pct };
+                });
+              })();
+              const arcPath = (start: number, end: number, r: number, cx: number, cy: number) => {
+                const s = start * 2 * Math.PI - Math.PI / 2;
+                const e = end * 2 * Math.PI - Math.PI / 2;
+                const large = end - start > 0.5 ? 1 : 0;
+                return `M ${cx + r * Math.cos(s)} ${cy + r * Math.sin(s)} A ${r} ${r} 0 ${large} 1 ${cx + r * Math.cos(e)} ${cy + r * Math.sin(e)}`;
+              };
+
+              return (
               <motion.div
                 key="analytics"
                 initial={{ opacity: 0, x: -20 }}
@@ -1113,104 +1136,232 @@ function DashboardContent() {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                {/* Stats */}
+                {/* ── Stat Cards ── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard icon={EyeIcon} label={t('dashboard.statViews') || "Total Views"} value={stats.data?.quickStats.totalViews.toString() || "0"} color="bg-gradient-to-br from-blue-600 to-blue-500" />
-                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Total Downloads"} value={stats.data?.quickStats.totalDownloads.toString() || "0"} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
-                  <StatCard icon={ShareIcon} label={t('dashboard.shared') || "Shared Links"} value={stats.data?.quickStats.sharedLinks.toString() || "0"} color="bg-gradient-to-br from-purple-600 to-purple-500" />
-                  <StatCard icon={ArrowTrendingUpIcon} label={t('dashboard.statSuccess') || "Profile Score"} value={`${stats.data?.quickStats.profileScore || 0}/100`} color="bg-gradient-to-br from-amber-600 to-amber-500" />
+                  <StatCard icon={EyeIcon} label={t('dashboard.statViews') || "Profile Views"} value={sd?.quickStats.totalViews.toString() || "0"} color="bg-gradient-to-br from-blue-600 to-blue-500" />
+                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Downloads"} value={sd?.quickStats.totalDownloads.toString() || "0"} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
+                  <StatCard icon={ShareIcon} label={t('dashboard.shared') || "Shared"} value={sd?.quickStats.sharedLinks.toString() || "0"} color="bg-gradient-to-br from-purple-600 to-purple-500" />
+                  <StatCard icon={ArrowTrendingUpIcon} label={t('dashboard.statSuccess') || "Score"} value={`${sd?.quickStats.profileScore || 0}/100`} color="bg-gradient-to-br from-amber-600 to-amber-500" />
                 </div>
 
-                {/* Charts mockup */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Activity Card */}
-                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                    <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.viewsOverTime') || 'Weekly Activity'}</h3>
-                    <div className="flex items-end gap-2 h-40">
-                      {stats.data?.weeklyActivity.map((activity, i) => {
-                        const maxValue = Math.max(...(stats.data?.weeklyActivity.map(a => a.value) || [1]));
-                        const heightPct = activity.value > 0 ? (activity.value / maxValue) * 100 : 0;
-                        return (
-                          <motion.div
-                            key={i}
-                            initial={{ height: 0 }}
-                            animate={{ height: `${heightPct}%` }}
-                            transition={{ delay: i * 0.1 + 0.3, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                            className="flex-1 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-lg relative group cursor-pointer hover:from-blue-500 hover:to-cyan-300 transition-all min-h-[4px]"
-                          >
-                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] font-bold text-txt opacity-0 group-hover:opacity-100 transition bg-surface px-1.5 py-0.5 rounded shadow">
-                              {activity.value}
-                            </div>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                    <div className="flex justify-between mt-3 text-[10px] text-txt-dim font-medium">
-                      {stats.data?.weeklyActivity.map((activity) => (
-                        <span key={activity.day}>{activity.day}</span>
-                      ))}
-                    </div>
-                  </div>
+                {/* ── Charts Row ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-                  {/* Template Popularity */}
-                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                    <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.overview') || 'Template Usage'}</h3>
-                    <div className="space-y-4">
-                      {stats.data?.templateUsage.map((t, i) => (
-                        <div key={t.name}>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[12px] font-medium text-txt">{t.name}</span>
-                            <span className="text-[11px] font-bold text-txt-muted">{t.pct}%</span>
-                          </div>
-                          <div className="h-2 bg-surface2 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${t.pct}%` }}
-                              transition={{ delay: i * 0.1 + 0.4, duration: 0.8 }}
-                              className={`h-full rounded-full bg-gradient-to-r ${t.color}`}
+                  {/* Monthly Trends — Area Chart */}
+                  <div className="lg:col-span-3 bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="text-[15px] font-bold text-txt">{t('dashboard.viewsOverTime') || 'Monthly Trends'}</h3>
+                      <div className="flex items-center gap-4 text-[10px] font-medium">
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500" />Downloads</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" />Activity</span>
+                      </div>
+                    </div>
+                    <div className="relative h-44">
+                      <svg viewBox="0 0 500 160" className="w-full h-full" preserveAspectRatio="none">
+                        {/* Grid lines */}
+                        {[0, 40, 80, 120].map(y => (
+                          <line key={y} x1="0" y1={y} x2="500" y2={y} stroke="currentColor" className="text-border" strokeWidth="0.5" strokeDasharray="4 4" />
+                        ))}
+                        {/* Downloads area */}
+                        <defs>
+                          <linearGradient id="dlGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                          </linearGradient>
+                          <linearGradient id="actGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                        {trends.length > 0 && (
+                          <>
+                            {/* Activity area fill */}
+                            <path
+                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.activity / maxTrend) * 130}`).join(' L ')} L 500 140 L 0 140 Z`}
+                              fill="url(#actGrad)"
                             />
-                          </div>
+                            {/* Activity line */}
+                            <path
+                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.activity / maxTrend) * 130}`).join(' L ')}`}
+                              fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                            />
+                            {/* Downloads area fill */}
+                            <path
+                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.downloads / maxTrend) * 130}`).join(' L ')} L 500 140 L 0 140 Z`}
+                              fill="url(#dlGrad)"
+                            />
+                            {/* Downloads line */}
+                            <path
+                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.downloads / maxTrend) * 130}`).join(' L ')}`}
+                              fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                            />
+                            {/* Dots */}
+                            {trends.map((t, i) => (
+                              <g key={i}>
+                                <circle cx={(i / (trends.length - 1 || 1)) * 500} cy={140 - (t.downloads / maxTrend) * 130} r="4" fill="#3b82f6" stroke="var(--color-surface, #fff)" strokeWidth="2" />
+                                <circle cx={(i / (trends.length - 1 || 1)) * 500} cy={140 - (t.activity / maxTrend) * 130} r="3" fill="#10b981" stroke="var(--color-surface, #fff)" strokeWidth="1.5" />
+                              </g>
+                            ))}
+                          </>
+                        )}
+                      </svg>
+                    </div>
+                    <div className="flex justify-between mt-2 text-[10px] text-txt-dim font-medium px-1">
+                      {trends.map(t => <span key={t.month}>{t.month}</span>)}
+                    </div>
+                  </div>
+
+                  {/* Template Usage — Donut Chart */}
+                  <div className="lg:col-span-2 bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
+                    <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.overview') || 'Templates'}</h3>
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-28 h-28 shrink-0">
+                        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                          {donutArcs.length > 0 ? donutArcs.map((arc, i) => (
+                            <path
+                              key={i}
+                              d={arcPath(arc.start, arc.end - 0.005, 38, 50, 50)}
+                              fill="none"
+                              stroke={arc.color}
+                              strokeWidth="12"
+                              strokeLinecap="round"
+                            />
+                          )) : (
+                            <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" className="text-surface2" strokeWidth="12" />
+                          )}
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-lg font-bold text-txt">{totalTpl}</span>
+                          <span className="text-[9px] text-txt-dim uppercase tracking-wider">CVs</span>
                         </div>
-                      )) || <div className="text-sm text-txt-dim">No templates used yet.</div>}
+                      </div>
+                      <div className="flex-1 space-y-2.5 min-w-0">
+                        {tUsage.slice(0, 5).map((tmpl) => (
+                          <div key={tmpl.name} className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: tmpl.color }} />
+                            <span className="text-[11px] text-txt truncate flex-1">{tmpl.name}</span>
+                            <span className="text-[10px] font-bold text-txt-muted tabular-nums">{tmpl.pct}%</span>
+                          </div>
+                        ))}
+                        {tUsage.length === 0 && <p className="text-[11px] text-txt-dim">No CVs yet</p>}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Recent Activity */}
+                {/* ── Weekly Activity Bar Chart ── */}
                 <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.comingSoon') || 'Recent Activity'}</h3>
-                  <div className="space-y-3">
-                    {stats.data?.recentActivity.map((item, i) => {
-                      let Icon = PlusIcon;
-                      let color = 'text-emerald-500 bg-emerald-500/10';
-                      if (item.type === 'downloaded') { Icon = ArrowDownTrayIcon; color = 'text-blue-500 bg-blue-500/10'; }
-                      else if (item.type === 'edited') { Icon = PencilSquareIcon; color = 'text-amber-500 bg-amber-500/10'; }
-                      else if (item.type === 'shared') { Icon = ShareIcon; color = 'text-purple-500 bg-purple-500/10'; }
-                      
+                  <h3 className="text-[15px] font-bold text-txt mb-4">Weekly Activity</h3>
+                  <div className="flex items-end gap-2 h-32">
+                    {sd?.weeklyActivity.map((activity, i) => {
+                      const maxVal = Math.max(...(sd?.weeklyActivity.map(a => a.value) || [1]));
+                      const hPct = maxVal > 0 && activity.value > 0 ? (activity.value / maxVal) * 100 : 0;
                       return (
                         <motion.div
                           key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.05 + 0.2 }}
-                          className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0"
+                          initial={{ height: 0 }}
+                          animate={{ height: `${hPct}%` }}
+                          transition={{ delay: i * 0.08 + 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          className="flex-1 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-lg relative group cursor-pointer hover:from-blue-500 hover:to-cyan-300 transition-all min-h-[4px]"
                         >
-                          <div className={`p-2 rounded-lg ${color}`}>
-                            <Icon className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[12px] text-txt">
-                              <span className="font-semibold">{item.action}</span> <span className="text-txt-muted">{item.cv}</span>
-                            </p>
-                          </div>
-                          <span className="text-[10px] text-txt-dim shrink-0">{item.time}</span>
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-txt opacity-0 group-hover:opacity-100 transition bg-surface px-1.5 py-0.5 rounded shadow">{activity.value}</div>
                         </motion.div>
                       );
-                    }) || <div className="text-sm text-txt-dim">No recent activity.</div>}
+                    })}
+                  </div>
+                  <div className="flex justify-between mt-3 text-[10px] text-txt-dim font-medium">
+                    {sd?.weeklyActivity.map(a => <span key={a.day}>{a.day}</span>)}
+                  </div>
+                </div>
+
+                {/* ── Per-CV Performance Table ── */}
+                {(sd?.cvPerformance?.length || 0) > 0 && (
+                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl overflow-hidden">
+                    <div className="px-6 py-4 border-b border-border/50">
+                      <h3 className="text-[15px] font-bold text-txt">CV Performance</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-[12px]">
+                        <thead>
+                          <tr className="text-txt-dim text-[10px] uppercase tracking-wider border-b border-border/50">
+                            <th className="text-start px-6 py-3 font-semibold">CV</th>
+                            <th className="text-start px-4 py-3 font-semibold hidden sm:table-cell">Template</th>
+                            <th className="text-center px-4 py-3 font-semibold">Downloads</th>
+                            <th className="text-center px-4 py-3 font-semibold hidden md:table-cell">Views</th>
+                            <th className="text-center px-4 py-3 font-semibold hidden lg:table-cell">Completion</th>
+                            <th className="text-end px-6 py-3 font-semibold">Last Active</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sd?.cvPerformance.map((cv, i) => (
+                            <motion.tr
+                              key={cv.id}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: i * 0.03 }}
+                              className="border-b border-border/30 hover:bg-surface2/50 transition-colors cursor-pointer"
+                              onClick={() => router.push(`/builder?id=${cv.id}`)}
+                            >
+                              <td className="px-6 py-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-7 h-9 rounded-sm shrink-0 flex items-center justify-center" style={{ background: cv.previewColor }}>
+                                    <div className="w-3 h-0.5 bg-white/40 rounded-full" />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <p className="font-semibold text-txt truncate max-w-[200px]">{cv.title}</p>
+                                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${cv.status === 'completed' ? 'text-emerald-500 bg-emerald-500/10' : cv.status === 'shared' ? 'text-blue-500 bg-blue-500/10' : 'text-amber-500 bg-amber-500/10'}`}>{cv.status}</span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-txt-muted hidden sm:table-cell">{cv.templateName}</td>
+                              <td className="px-4 py-3 text-center font-bold text-txt">{cv.downloads}</td>
+                              <td className="px-4 py-3 text-center text-txt-muted hidden md:table-cell">{cv.views}</td>
+                              <td className="px-4 py-3 hidden lg:table-cell">
+                                <div className="flex items-center justify-center gap-2">
+                                  <div className="w-16 h-1.5 bg-surface2 rounded-full overflow-hidden">
+                                    <div className={`h-full rounded-full ${cv.completion === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${cv.completion}%` }} />
+                                  </div>
+                                  <span className="text-[10px] text-txt-dim">{cv.completion}%</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-3 text-end text-txt-dim">{cv.lastActive}</td>
+                            </motion.tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Recent Activity Timeline ── */}
+                <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
+                  <h3 className="text-[15px] font-bold text-txt mb-4">Recent Activity</h3>
+                  <div className="space-y-1">
+                    {sd?.recentActivity.map((item, i) => {
+                      let ActIcon = PlusIcon;
+                      let iconCls = 'text-emerald-500 bg-emerald-500/10';
+                      if (item.type === 'downloaded') { ActIcon = ArrowDownTrayIcon; iconCls = 'text-blue-500 bg-blue-500/10'; }
+                      else if (item.type === 'edited') { ActIcon = PencilSquareIcon; iconCls = 'text-amber-500 bg-amber-500/10'; }
+                      else if (item.type === 'shared') { ActIcon = ShareIcon; iconCls = 'text-purple-500 bg-purple-500/10'; }
+                      else if (item.type === 'duplicated') { ActIcon = DocumentDuplicateIcon; iconCls = 'text-cyan-500 bg-cyan-500/10'; }
+                      else if (item.type === 'deleted') { ActIcon = TrashIcon; iconCls = 'text-red-500 bg-red-500/10'; }
+                      return (
+                        <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 + 0.1 }}
+                          className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-surface2/50 transition-colors"
+                        >
+                          <div className={`p-2 rounded-lg shrink-0 ${iconCls}`}><ActIcon className="w-3.5 h-3.5" /></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[12px] text-txt"><span className="font-semibold">{item.action}</span> <span className="text-txt-muted">{item.cv}</span></p>
+                          </div>
+                          <span className="text-[10px] text-txt-dim shrink-0 tabular-nums">{item.time}</span>
+                        </motion.div>
+                      );
+                    }) || <div className="text-sm text-txt-dim py-4 text-center">No recent activity.</div>}
                   </div>
                 </div>
               </motion.div>
-            )}
+            );
+            })()}
 
             {/* ═════════ SETTINGS VIEW ═════════ */}
             {activeView === 'settings' && (

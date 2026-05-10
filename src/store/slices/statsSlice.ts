@@ -19,6 +19,7 @@ interface ActivityData {
 interface TemplateData {
   name: string;
   pct: number;
+  count: number;
   color: string;
 }
 
@@ -29,11 +30,32 @@ interface RecentActivity {
   type: string;
 }
 
+interface MonthlyTrend {
+  month: string;
+  downloads: number;
+  created: number;
+  activity: number;
+}
+
+interface CVPerformance {
+  id: string;
+  title: string;
+  templateName: string;
+  status: string;
+  downloads: number;
+  views: number;
+  completion: number;
+  lastActive: string;
+  previewColor: string;
+}
+
 interface StatsData {
   quickStats: QuickStats;
   weeklyActivity: ActivityData[];
   templateUsage: TemplateData[];
   recentActivity: RecentActivity[];
+  monthlyTrends: MonthlyTrend[];
+  cvPerformance: CVPerformance[];
 }
 
 interface StatsState {
@@ -77,7 +99,13 @@ export const trackDownload = createAsyncThunk(
 const statsSlice = createSlice({
   name: 'stats',
   initialState,
-  reducers: {},
+  reducers: {
+    resetStats: (state) => {
+      state.data = null;
+      state.status = 'idle';
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchDashboardStats.pending, (state) => {
@@ -94,4 +122,5 @@ const statsSlice = createSlice({
   },
 });
 
+export const { resetStats } = statsSlice.actions;
 export default statsSlice.reducer;

@@ -28,6 +28,7 @@ import {
   getRandomStyleConfig,
   hexToRgba,
 } from "../templates/styleConfig";
+import TemplateThumbnail from "@/components/TemplateThumbnail";
 import {
   CogIcon,
   ChartBarIcon,
@@ -1124,21 +1125,22 @@ export default function BuilderPage() {
                 {t("builder.templateDesc") ||
                   "Choose a professional design optimized for your industry."}
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
                 {(shuffledTemplates || templateThumbs).map((tmpl, index) => {
                   const palette = shuffledPalettes ? shuffledPalettes[index % shuffledPalettes.length] : null;
                   const primary = palette ? palette.primary : tmpl.color;
                   const accent = palette ? palette.accent : "#2563EB";
                   const headerBg = palette ? palette.headerBg : tmpl.color;
+                  const isSelected = activeTemplate === tmpl.id;
 
                   return (
                     <motion.div
                       key={tmpl.id}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                      whileTap={{ scale: 0.97 }}
+                      transition={{ duration: 0.35, delay: index * 0.04 }}
+                      whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                      whileTap={{ scale: 0.96 }}
                       onClick={() => {
                         setActiveTemplate(tmpl.id);
                         let newConfig = TEMPLATE_DEFAULTS[tmpl.id as keyof typeof TEMPLATE_DEFAULTS] || TEMPLATE_DEFAULTS[1];
@@ -1161,178 +1163,44 @@ export default function BuilderPage() {
                         }
                         setStyleConfig(newConfig);
                       }}
-                      className={`relative cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-300 group ${
-                        activeTemplate === tmpl.id
-                          ? "border-blue-500 shadow-lg shadow-blue-500/20 ring-4 ring-blue-500/10"
-                          : "border-border hover:border-blue-500/40"
+                      className={`relative cursor-pointer rounded-2xl transition-all duration-400 group ${
+                        isSelected
+                          ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-bg shadow-xl shadow-blue-500/25"
+                          : "ring-1 ring-border hover:ring-blue-500/40 hover:shadow-lg hover:shadow-blue-500/10"
                       }`}
                     >
+                      {/* Glow backdrop */}
+                      <div className={`absolute -inset-px rounded-2xl transition-opacity duration-500 pointer-events-none ${
+                        isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-60'
+                      }`} style={{ background: `linear-gradient(135deg, ${primary}30, ${accent}20)`, filter: 'blur(8px)' }} />
+
+                      {/* Card body */}
+                      <div className="relative rounded-2xl overflow-hidden bg-surface border border-transparent">
                       {/* Thumbnail preview */}
-                      <div className="aspect-[0.707] bg-white relative overflow-hidden">
-                        {tmpl.id === 1 && (
-                          <>
-                            <div
-                              className="h-[30%] w-full"
-                              style={{ background: headerBg }}
-                            />
-                            <div className="p-3 space-y-1.5">
-                              <div className="h-1.5 w-[70%] rounded-full" style={{ background: accent, opacity: 0.6 }} />
-                              <div className="h-1 bg-gray-200 w-full rounded-full" />
-                              <div className="h-1 bg-gray-200 w-[85%] rounded-full" />
-                              <div className="h-1 bg-gray-200 w-[60%] rounded-full" />
-                            </div>
-                          </>
-                        )}
-                        {tmpl.id === 2 && (
-                          <>
-                            <div
-                              className="h-[25%] w-full flex items-end p-2"
-                              style={{ background: headerBg }}
-                            >
-                              <div className="flex gap-1">
-                                <div className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
-                                <div className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
-                              </div>
-                            </div>
-                            <div className="flex p-2 gap-2">
-                              <div className="flex-1 space-y-1.5">
-                                <div className="h-1 w-[90%] rounded-full" style={{ background: accent, opacity: 0.5 }} />
-                                <div className="h-1 bg-gray-200 w-full rounded-full" />
-                                <div className="h-1 bg-gray-200 w-[75%] rounded-full" />
-                              </div>
-                              <div className="flex-1 space-y-1.5">
-                                <div className="h-1 w-[60%] rounded-full" style={{ background: accent, opacity: 0.5 }} />
-                                <div className="h-1 bg-gray-200 w-[85%] rounded-full" />
-                              </div>
-                            </div>
-                          </>
-                        )}
-                        {tmpl.id === 3 && (
-                          <div className="flex h-full">
-                            <div
-                              className="w-[35%] h-full"
-                              style={{ background: headerBg }}
-                            />
-                            <div className="flex-1 p-2 space-y-1.5">
-                              <div className="h-1 bg-gray-200 w-full rounded-full" />
-                              <div className="h-1 bg-gray-200 w-[70%] rounded-full" />
-                              <div className="h-1 bg-gray-200 w-[85%] rounded-full" />
-                            </div>
-                          </div>
-                        )}
-                        {tmpl.id === 4 && (
-                          <>
-                            <div className="h-1 w-full" style={{ background: `linear-gradient(to right, ${primary}, ${accent})` }} />
-                            <div className="p-3 space-y-1.5 text-center">
-                              <div className="h-1.5 bg-gray-200 w-[60%] mx-auto rounded-full" />
-                              <div className="flex justify-center gap-1 pt-1">
-                                <div className="w-6 h-2 rounded" style={{ background: accent, opacity: 0.15 }} />
-                                <div className="w-6 h-2 rounded" style={{ background: accent, opacity: 0.15 }} />
-                                <div className="w-6 h-2 rounded" style={{ background: accent, opacity: 0.15 }} />
-                              </div>
-                              <div className="h-1 bg-gray-200 w-full rounded-full mt-1" />
-                            </div>
-                          </>
-                        )}
-                        {tmpl.id === 5 && (
-                          <div className="h-full w-full" style={{ background: '#0D1117' }}>
-                            <div className="h-[25%] flex items-center p-2 gap-1" style={{ background: `linear-gradient(to bottom right, #161B22, #0D1117)` }}>
-                              <div className="w-4 h-1 rounded" style={{ background: accent, opacity: 0.3 }} />
-                              <div className="w-4 h-1 rounded" style={{ background: accent, opacity: 0.3 }} />
-                            </div>
-                            <div className="p-2 space-y-1.5">
-                              <div className="h-1 w-1/2 rounded-full" style={{ background: accent, opacity: 0.4 }} />
-                              <div className="h-1 bg-[#21262D] w-full rounded-full" />
-                              <div className="h-1 bg-[#21262D] w-[80%] rounded-full" />
-                            </div>
-                          </div>
-                        )}
-                        {tmpl.id === 6 && (
-                          <div className="p-3 space-y-2 h-full flex flex-col justify-center">
-                            <div className="flex justify-between items-end border-b pb-1">
-                              <div className="h-1 w-[60%] rounded-full" style={{ background: primary }} />
-                              <div className="h-1 w-[20%] rounded-full" style={{ background: accent, opacity: 0.5 }} />
-                            </div>
-                            <div className="space-y-1">
-                              <div className="h-0.5 bg-gray-200 w-full" />
-                              <div className="h-0.5 bg-gray-200 w-[85%]" />
-                              <div className="h-0.5 bg-gray-200 w-[95%]" />
-                            </div>
-                          </div>
-                        )}
-                        {tmpl.id === 7 && (
-                          <div className="h-full w-full" style={{ background: `${primary}10` }}>
-                            <div className="h-[25%] p-2 flex items-center justify-center" style={{ background: `linear-gradient(to right, ${primary}, ${accent})` }}>
-                              <div className="h-1 bg-white/80 w-[50%] rounded-full" />
-                            </div>
-                            <div className="p-2 flex gap-1 justify-center mt-1">
-                              <div className="w-8 h-2 rounded-full" style={{ background: accent, opacity: 0.2 }} />
-                              <div className="w-6 h-2 rounded-full" style={{ background: accent, opacity: 0.2 }} />
-                            </div>
-                            <div className="p-2 space-y-1 mt-1 text-center">
-                              <div className="h-0.5 bg-gray-200 w-[80%] mx-auto rounded-full" />
-                              <div className="h-0.5 bg-gray-200 w-[60%] mx-auto rounded-full" />
-                            </div>
-                          </div>
-                        )}
-                        {tmpl.id === 8 && (
-                          <div className="h-full w-full" style={{ background: primary }}>
-                            <div className="h-[25%] p-2 border-b border-slate-700" style={{ background: headerBg }}>
-                              <div className="h-1 w-[40%] rounded-full mt-1" style={{ background: accent }} />
-                            </div>
-                            <div className="flex p-2 gap-2">
-                              <div className="flex-[0.4] border-r border-slate-700 p-1 space-y-1 h-12" style={{ background: headerBg }}>
-                                <div className="h-0.5 bg-slate-600 w-full rounded" />
-                                <div className="h-0.5 bg-slate-600 w-[70%] rounded" />
-                              </div>
-                              <div className="flex-1 space-y-1">
-                                <div className="h-1 w-[40%] rounded" style={{ background: accent, opacity: 0.8 }} />
-                                <div className="h-1 bg-slate-600 w-[90%] rounded" />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        {tmpl.id === 9 && (
-                          <div className="h-full w-full bg-white relative">
-                            <div className="absolute top-2 w-full flex justify-center">
-                              <div className="h-8 w-1/2 rounded-b p-1 flex justify-center items-end" style={{ background: headerBg }}>
-                                <div className="h-1 bg-white/80 w-[60%] rounded-full mb-1" />
-                              </div>
-                            </div>
-                            <div className="p-2 mt-10 space-y-1.5 text-center">
-                              <div className="h-1 w-[30%] mx-auto rounded" style={{ background: primary }} />
-                              <div className="h-0.5 bg-gray-200 w-full rounded" />
-                              <div className="h-0.5 bg-gray-200 w-[80%] mx-auto rounded" />
-                            </div>
-                          </div>
-                        )}
-                        {tmpl.id === 10 && (
-                          <div className="h-full w-full border-t-[6px] bg-white" style={{ borderColor: primary }}>
-                            <div className="p-2 flex gap-1 mt-1">
-                              <div className="w-1.5 h-1.5 rounded-full" style={{ background: accent, opacity: 0.4 }} />
-                              <div className="h-1.5 bg-gray-200 w-[50%] rounded" />
-                            </div>
-                            <div className="p-2 space-y-1.5">
-                              <div className="h-1 bg-gray-200 border-l pl-1 w-full" style={{ borderColor: primary }} />
-                              <div className="h-1 bg-gray-200 border-l pl-1 w-[70%]" style={{ borderColor: primary }} />
-                            </div>
-                          </div>
-                        )}
+                      <div className="aspect-[0.707] relative overflow-hidden">
+                        <TemplateThumbnail templateId={tmpl.id} primary={primary} accent={accent} headerBg={headerBg} />
                         {/* Selected checkmark */}
-                        {activeTemplate === tmpl.id && (
+                        {isSelected && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="absolute top-2 end-2 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shadow-lg"
+                            className="absolute top-2.5 end-2.5 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/40"
                           >
                             <CheckIcon className="w-3.5 h-3.5 text-white" />
                           </motion.div>
                         )}
                       </div>
-                      <div className="p-3 bg-surface2 text-center">
-                        <span className="text-xs font-bold text-txt">
+
+                      {/* Label footer */}
+                      <div className={`px-3 py-2.5 text-center transition-colors duration-300 ${
+                        isSelected ? 'bg-blue-500/5' : 'bg-surface2/50 group-hover:bg-surface2'
+                      }`}>
+                        <span className={`text-[11px] font-bold tracking-wide transition-colors duration-300 ${
+                          isSelected ? 'text-blue-500' : 'text-txt-muted group-hover:text-txt'
+                        }`}>
                           {tmpl.name}
                         </span>
+                      </div>
                       </div>
                     </motion.div>
                   );
