@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { CVClassique } from "../templates/CVClassique";
-import { CVCadre } from "../templates/CVCadre";
 import { CVIngenieur } from "../templates/CVIngenieur";
 import { CVTech } from "../templates/CVTech";
 import { CVMedical } from "../templates/CVMedical";
@@ -11,7 +10,6 @@ import { styleToCSSVars } from "../templates/styleConfig";
 const TEMPLATES: Record<number, any> = {
   1: CVClassique,
   2: CVIngenieur,
-  3: CVCadre,
   4: CVMedical,
   5: CVTech,
 };

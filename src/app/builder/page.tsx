@@ -14,7 +14,6 @@ import {
 import {
   CVClassique,
   CVIngenieur,
-  CVCadre,
   CVMedical,
   CVTech,
 } from "../templates";
@@ -60,6 +59,8 @@ import {
   ArrowPathIcon,
   BellIcon,
   CloudArrowUpIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -173,11 +174,13 @@ function Select({
   value,
   onChange,
   options,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: { id: string; label: string }[];
+  placeholder?: string;
 }) {
   return (
     <div className="space-y-1.5">
@@ -189,7 +192,7 @@ function Select({
         onChange={(e) => onChange(e.target.value)}
         className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
       >
-        <option value="">Slectionnez le type...</option>
+        <option value="">{placeholder || "Select..."}</option>
         {options.map((o) => (
           <option key={o.id} value={o.id}>
             {o.label}
@@ -275,7 +278,7 @@ function BuilderPageContent() {
     const _templateThumbs = [
       { id: 1, name: "Classique Pro", color: "#1B3A6B", style: "elegant" },
       { id: 2, name: "Ingenieur", color: "#2C3E50", style: "technical" },
-      { id: 3, name: "Cadre Moderne", color: "#1A1A2E", style: "executive" },
+
       { id: 4, name: "Medical", color: "#2563EB", style: "medical" },
       { id: 5, name: "Tech & IT", color: "#0D1117", style: "tech" },
       { id: 6, name: "Minimaliste", color: "#f3f4f6", style: "minimalist" },
@@ -812,6 +815,8 @@ function BuilderPageContent() {
           etablissement: "",
           ville: "",
           annee: "",
+          dateDebut: "",
+          dateFin: "",
           mention: "",
         },
       ],
@@ -851,6 +856,24 @@ function BuilderPageContent() {
       ...prev,
       experiences: prev.experiences.filter((_, i) => i !== idx),
     }));
+  };
+  const moveExperience = (idx: number, direction: 'up' | 'down') => {
+    setFormData((prev) => {
+      const arr = [...prev.experiences];
+      const target = direction === 'up' ? idx - 1 : idx + 1;
+      if (target < 0 || target >= arr.length) return prev;
+      [arr[idx], arr[target]] = [arr[target], arr[idx]];
+      return { ...prev, experiences: arr };
+    });
+  };
+  const moveFormation = (idx: number, direction: 'up' | 'down') => {
+    setFormData((prev) => {
+      const arr = [...prev.formations];
+      const target = direction === 'up' ? idx - 1 : idx + 1;
+      if (target < 0 || target >= arr.length) return prev;
+      [arr[idx], arr[target]] = [arr[target], arr[idx]];
+      return { ...prev, formations: arr };
+    });
   };
   const addSkill = () => {
     const trimmed = newSkill.trim();
@@ -894,7 +917,7 @@ function BuilderPageContent() {
   const addLangue = () => {
     setFormData((prev) => ({
       ...prev,
-      langues: [...prev.langues, { langue: "", niveau: "Intermediaire" }],
+      langues: [...prev.langues, { langue: "", niveau: "Intermediaire", certification: "" }],
     }));
   };
   const removeLangue = (idx: number) => {
@@ -990,8 +1013,7 @@ function BuilderPageContent() {
         return <CVClassique data={formData} config={styleConfig} />;
       case 2:
         return <CVIngenieur data={formData} config={styleConfig} />;
-      case 3:
-        return <CVCadre data={formData} config={styleConfig} />;
+
       case 4:
         return <CVMedical data={formData} config={styleConfig} />;
       case 5:
@@ -1008,8 +1030,6 @@ function BuilderPageContent() {
       style={{
         ...cssVars,
         minHeight: "1123px",
-        display: "flex",
-        flexDirection: "column",
       }}
       className="cv-page-wrapper"
     >
@@ -1071,8 +1091,6 @@ function BuilderPageContent() {
                   ...cssVars,
                   width: A4_WIDTH,
                   minHeight: A4_HEIGHT,
-                  display: "flex",
-                  flexDirection: "column",
                   position: "absolute",
                   top: -contentOffset,
                   left: 0,
@@ -1100,7 +1118,7 @@ function BuilderPageContent() {
   const templateThumbs = [
     { id: 1, name: "Classique Pro", color: "#1B3A6B", style: "elegant" },
     { id: 2, name: "Ingenieur", color: "#2C3E50", style: "technical" },
-    { id: 3, name: "Cadre Moderne", color: "#1A1A2E", style: "executive" },
+
     { id: 4, name: "Medical", color: "#2563EB", style: "medical" },
     { id: 5, name: "Tech & IT", color: "#0D1117", style: "tech" },
     { id: 6, name: "Minimaliste", color: "#f3f4f6", style: "minimalist" },
@@ -1151,23 +1169,34 @@ function BuilderPageContent() {
                       whileTap={{ scale: 0.96 }}
                       onClick={() => {
                         setActiveTemplate(tmpl.id);
-                        let newConfig = TEMPLATE_DEFAULTS[tmpl.id as keyof typeof TEMPLATE_DEFAULTS] || TEMPLATE_DEFAULTS[1];
+                        const templateDefaults = TEMPLATE_DEFAULTS[tmpl.id as keyof typeof TEMPLATE_DEFAULTS] || TEMPLATE_DEFAULTS[1];
+                        let newConfig = { ...templateDefaults };
                         if (palette) {
                           newConfig = applyPalette(newConfig, palette);
                           const tempRandom = getRandomStyleConfig(newConfig);
+                          const isSidebarTemplate = false;
                           newConfig = { 
                             ...tempRandom, 
                             primaryColor: palette.primary, 
                             accentColor: palette.accent, 
                             headerBg: palette.headerBg, 
                             headerText: palette.headerText, 
-                            sidebarBg: palette.primary, 
+                            sidebarBg: isSidebarTemplate ? palette.headerBg : palette.primary,
                             skillBg: hexToRgba(palette.accent, 0.1), 
                             skillText: palette.accent, 
-                            sidebarText: palette.headerText 
+                            sidebarText: isSidebarTemplate ? palette.headerText : palette.headerText,
+                            // Preserve template layout structure
+                            layoutCols: templateDefaults.layoutCols,
+                            mainOrder: templateDefaults.mainOrder,
+                            sideOrder: templateDefaults.sideOrder,
                           };
                         } else {
-                          newConfig = getRandomStyleConfig(newConfig);
+                          newConfig = {
+                            ...getRandomStyleConfig(newConfig),
+                            layoutCols: templateDefaults.layoutCols,
+                            mainOrder: templateDefaults.mainOrder,
+                            sideOrder: templateDefaults.sideOrder,
+                          };
                         }
                         setStyleConfig(newConfig);
                       }}
@@ -1479,12 +1508,12 @@ function BuilderPageContent() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label={t("builder.fullName").split(" ")[0] || "First Name"}
+                label={t("builder.firstName") || "First Name"}
                 value={formData.prenom}
                 onChange={(v) => updateField("prenom", v)}
               />
               <Input
-                label={t("builder.fullName").split(" ")[1] || "Last Name"}
+                label={t("builder.lastName") || "Last Name"}
                 value={formData.nom}
                 onChange={(v) => updateField("nom", v)}
               />
@@ -1599,12 +1628,30 @@ function BuilderPageContent() {
                   transition={{ delay: idx * 0.05 }}
                   className="bg-surface border border-border rounded-2xl p-5 relative group hover:border-blue-500/20 transition-all duration-300"
                 >
-                  <button
-                    onClick={() => removeExperience(idx)}
-                    className="absolute top-4 end-4 w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
-                  >
-                    <TrashIcon className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="absolute top-4 end-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <button
+                      onClick={() => moveExperience(idx, 'up')}
+                      disabled={idx === 0}
+                      className="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-blue-500 hover:border-blue-500 hover:bg-blue-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Move up"
+                    >
+                      <ChevronUpIcon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveExperience(idx, 'down')}
+                      disabled={idx === formData.experiences.length - 1}
+                      className="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-blue-500 hover:border-blue-500 hover:bg-blue-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Move down"
+                    >
+                      <ChevronDownIcon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => removeExperience(idx)}
+                      className="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 hover:bg-red-500/10 transition-all"
+                    >
+                      <TrashIcon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <div className="space-y-4">
                     <Input
                       label={t("builder.position")}
@@ -1628,11 +1675,13 @@ function BuilderPageContent() {
                         label={t("builder.startDate")}
                         value={exp.dateDebut}
                         onChange={(v) => updateExperience(idx, "dateDebut", v)}
+                        type="month"
                       />
                       <Input
                         label={t("builder.endDate")}
                         value={exp.dateFin}
                         onChange={(v) => updateExperience(idx, "dateFin", v)}
+                        type="month"
                       />
                     </div>
                     <TextArea
@@ -1651,7 +1700,7 @@ function BuilderPageContent() {
                             className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-4 items-end bg-surface2/30 p-4 rounded-xl border border-border/50"
                           >
                             <Input
-                              label={"Lien URL"}
+                              label={t("builder.linkUrl") || "Link URL"}
                               value={link.url}
                               onChange={(v) => {
                                 const newLinks = [...(exp.links || [])];
@@ -1660,7 +1709,7 @@ function BuilderPageContent() {
                               }}
                             />
                             <Input
-                              label={"Label du lien"}
+                              label={t("builder.linkLabel") || "Link Label"}
                               value={link.label}
                               onChange={(v) => {
                                 const newLinks = [...(exp.links || [])];
@@ -1676,7 +1725,7 @@ function BuilderPageContent() {
                                 updateExperience(idx, "links", newLinks);
                               }}
                               className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all mb-0.5"
-                              title="Supprimer ce lien"
+                              title={t("builder.deleteLink") || "Delete this link"}
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>
@@ -1742,23 +1791,51 @@ function BuilderPageContent() {
                   transition={{ delay: idx * 0.05 }}
                   className="bg-surface border border-border rounded-2xl p-5 relative group hover:border-blue-500/20 transition-all duration-300"
                 >
-                  <button
-                    onClick={() => removeFormation(idx)}
-                    className="absolute top-4 end-4 w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
-                  >
-                    <TrashIcon className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="absolute top-4 end-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <button
+                      onClick={() => moveFormation(idx, 'up')}
+                      disabled={idx === 0}
+                      className="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-blue-500 hover:border-blue-500 hover:bg-blue-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Move up"
+                    >
+                      <ChevronUpIcon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => moveFormation(idx, 'down')}
+                      disabled={idx === formData.formations.length - 1}
+                      className="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-blue-500 hover:border-blue-500 hover:bg-blue-500/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      title="Move down"
+                    >
+                      <ChevronDownIcon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => removeFormation(idx)}
+                      className="w-7 h-7 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 hover:bg-red-500/10 transition-all"
+                    >
+                      <TrashIcon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <Input
                         label={t("builder.degree") || "Degree"}
                         value={f.diplome}
                         onChange={(v) => updateFormation(idx, "diplome", v)}
                       />
                       <Input
-                        label={t("builder.annee") || "Annee"}
-                        value={f.annee}
-                        onChange={(v) => updateFormation(idx, "annee", v)}
+                        label={t("builder.startDate") || "Start Date"}
+                        value={f.dateDebut || ""}
+                        onChange={(v) => updateFormation(idx, "dateDebut", v)}
+                        type="month"
+                      />
+                      <Input
+                        label={t("builder.endDate") || "End Date"}
+                        value={f.dateFin || f.annee || ""}
+                        onChange={(v) => {
+                          updateFormation(idx, "dateFin", v);
+                          updateFormation(idx, "annee", v);
+                        }}
+                        type="month"
                       />
                     </div>
                     <Input
@@ -1768,12 +1845,13 @@ function BuilderPageContent() {
                     />
                     <Select
                       label={
-                        t("builder.typeEtablissement") || "Type d'tablissement"
+                        t("builder.typeEtablissement") || "Institution Type"
                       }
                       value={f.type_etablissement || ""}
                       onChange={(v) =>
                         updateFormation(idx, "type_etablissement", v)
                       }
+                      placeholder={t("builder.selectType") || "Select type..."}
                       options={[
                         {
                           id: "lycee",
@@ -1800,6 +1878,13 @@ function BuilderPageContent() {
                         },
                       ]}
                     />
+                    <p className="text-[10px] text-txt-dim -mt-2 italic">
+                      {language === "fr"
+                        ? "Filtre les suggestions d'établissements ci-dessous"
+                        : language === "ar"
+                          ? "يُصفّي اقتراحات المؤسسات أدناه"
+                          : "Filters school suggestions below"}
+                    </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Input
                         label={t("builder.school")}
@@ -1965,44 +2050,54 @@ function BuilderPageContent() {
               </div>
               <div className="space-y-3">
                 {formData.langues.map((l, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
+                  <div key={idx} className="bg-surface2/30 rounded-xl p-3 space-y-2 border border-border/50">
+                    <div className="flex items-center gap-3">
+                      <input
+                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500"
+                        value={l.langue}
+                        onChange={(e) =>
+                          updateLangue(idx, "langue", e.target.value)
+                        }
+                        placeholder={t("builder.langName")}
+                      />
+                      <select
+                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                        value={l.niveau}
+                        onChange={(e) =>
+                          updateLangue(idx, "niveau", e.target.value)
+                        }
+                      >
+                        <option value="Natif">
+                          {t("builder.level_Natif") || "Natif"}
+                        </option>
+                        <option value="Courant">
+                          {t("builder.level_Courant") || "Courant"}
+                        </option>
+                        <option value="Intermediaire">
+                          {t("builder.level_Intermediaire") || "Intermediaire"}
+                        </option>
+                        <option value="Technique">
+                          {t("builder.level_Technique") || "Technique"}
+                        </option>
+                        <option value="Debutant">
+                          {t("builder.level_Debutant") || "Debutant"}
+                        </option>
+                      </select>
+                      <button
+                        onClick={() => removeLangue(idx)}
+                        className="shrink-0 w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 transition-all"
+                      >
+                        <TrashIcon className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                     <input
-                      className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500"
-                      value={l.langue}
+                      className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 text-xs text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
+                      value={l.certification || ""}
                       onChange={(e) =>
-                        updateLangue(idx, "langue", e.target.value)
+                        updateLangue(idx, "certification", e.target.value)
                       }
-                      placeholder={t("builder.langName")}
+                      placeholder={language === "fr" ? "Certification (ex: DELF B2, TOEFL 95...)" : language === "ar" ? "الشهادة (مثال: DELF B2, TOEFL 95...)" : "Certification (e.g. DELF B2, TOEFL 95...)"}
                     />
-                    <select
-                      className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
-                      value={l.niveau}
-                      onChange={(e) =>
-                        updateLangue(idx, "niveau", e.target.value)
-                      }
-                    >
-                      <option value="Natif">
-                        {t("builder.level_Natif") || "Natif"}
-                      </option>
-                      <option value="Courant">
-                        {t("builder.level_Courant") || "Courant"}
-                      </option>
-                      <option value="Intermediaire">
-                        {t("builder.level_Intermediaire") || "Intermediaire"}
-                      </option>
-                      <option value="Technique">
-                        {t("builder.level_Technique") || "Technique"}
-                      </option>
-                      <option value="Debutant">
-                        {t("builder.level_Debutant") || "Debutant"}
-                      </option>
-                    </select>
-                    <button
-                      onClick={() => removeLangue(idx)}
-                      className="shrink-0 w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 transition-all"
-                    >
-                      <TrashIcon className="w-3.5 h-3.5" />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -2110,7 +2205,7 @@ function BuilderPageContent() {
                         setStyleConfig((p) =>
                           p.primaryColor === val
                             ? p
-                            : { ...p, primaryColor: val },
+                            : { ...p, primaryColor: val, headerBg: val, sidebarBg: val },
                         );
                       }}
                     />
@@ -2133,7 +2228,7 @@ function BuilderPageContent() {
                         setStyleConfig((p) =>
                           p.accentColor === val
                             ? p
-                            : { ...p, accentColor: val },
+                            : { ...p, accentColor: val, skillBg: hexToRgba(val, 0.1), skillText: val },
                         );
                       }}
                     />
@@ -2151,12 +2246,14 @@ function BuilderPageContent() {
                       type="color"
                       className="w-8 h-8 rounded cursor-pointer border-0 p-0"
                       value={styleConfig.bodyText}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const val = e.target.value;
                         setStyleConfig((p) => ({
                           ...p,
-                          bodyText: e.target.value,
-                        }))
-                      }
+                          bodyText: val,
+                          mutedText: val + 'aa',
+                        }));
+                      }}
                     />
                     <span className="text-xs font-mono">
                       {styleConfig.bodyText}
@@ -2399,7 +2496,7 @@ function BuilderPageContent() {
                       className="flex items-center gap-3 p-3 bg-surface border border-border rounded-xl cursor-grab active:cursor-grabbing hover:border-blue-500/30 transition-colors"
                     >
                       <svg
-                        className="w-4 h-4 text-txt-muted"
+                        className="w-4 h-4 text-txt-muted shrink-0"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -2411,9 +2508,25 @@ function BuilderPageContent() {
                           d="M4 8h16M4 16h16"
                         />
                       </svg>
-                      <span className="font-medium text-sm text-txt capitalize">
+                      <span className="font-medium text-sm text-txt capitalize flex-1">
                         {t(`builder.${section}`) || section}
                       </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setStyleConfig(p => { const arr = [...(p.mainOrder || [])]; if (index <= 0) return p; [arr[index], arr[index-1]] = [arr[index-1], arr[index]]; return { ...p, mainOrder: arr }; }); }}
+                          disabled={index === 0}
+                          className="w-6 h-6 rounded-md bg-surface2 flex items-center justify-center text-txt-muted hover:text-blue-500 transition-all disabled:opacity-30"
+                        >
+                          <ChevronUpIcon className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setStyleConfig(p => { const arr = [...(p.mainOrder || [])]; if (index >= arr.length - 1) return p; [arr[index], arr[index+1]] = [arr[index+1], arr[index]]; return { ...p, mainOrder: arr }; }); }}
+                          disabled={index === (styleConfig.mainOrder || []).length - 1}
+                          className="w-6 h-6 rounded-md bg-surface2 flex items-center justify-center text-txt-muted hover:text-blue-500 transition-all disabled:opacity-30"
+                        >
+                          <ChevronDownIcon className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -2483,7 +2596,7 @@ function BuilderPageContent() {
                       className="flex items-center gap-3 p-3 bg-surface border border-border rounded-xl cursor-grab active:cursor-grabbing hover:border-blue-500/30 transition-colors"
                     >
                       <svg
-                        className="w-4 h-4 text-txt-muted"
+                        className="w-4 h-4 text-txt-muted shrink-0"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -2495,9 +2608,25 @@ function BuilderPageContent() {
                           d="M4 8h16M4 16h16"
                         />
                       </svg>
-                      <span className="font-medium text-sm text-txt capitalize">
+                      <span className="font-medium text-sm text-txt capitalize flex-1">
                         {t(`builder.${section}`) || section}
                       </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setStyleConfig(p => { const arr = [...(p.sideOrder || [])]; if (index <= 0) return p; [arr[index], arr[index-1]] = [arr[index-1], arr[index]]; return { ...p, sideOrder: arr }; }); }}
+                          disabled={index === 0}
+                          className="w-6 h-6 rounded-md bg-surface2 flex items-center justify-center text-txt-muted hover:text-blue-500 transition-all disabled:opacity-30"
+                        >
+                          <ChevronUpIcon className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setStyleConfig(p => { const arr = [...(p.sideOrder || [])]; if (index >= arr.length - 1) return p; [arr[index], arr[index+1]] = [arr[index+1], arr[index]]; return { ...p, sideOrder: arr }; }); }}
+                          disabled={index === (styleConfig.sideOrder || []).length - 1}
+                          className="w-6 h-6 rounded-md bg-surface2 flex items-center justify-center text-txt-muted hover:text-blue-500 transition-all disabled:opacity-30"
+                        >
+                          <ChevronDownIcon className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -2573,8 +2702,8 @@ function BuilderPageContent() {
               </div>
 
               {/* Desktop preview — paginated A4 sheets */}
-              <div className="hidden lg:flex flex-col items-center gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar">
-                <div className="flex flex-col items-center gap-6" dir={dir}>
+              <div className={`hidden lg:flex flex-col ${previewZoom > 0.8 ? 'items-start' : 'items-center'} gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar`}>
+                <div className={`flex flex-col ${previewZoom > 0.8 ? 'items-start mx-auto' : 'items-center'} gap-6`} dir={dir}>
                   {renderPaginatedSheets(previewZoom)}
                 </div>
               </div>
@@ -2587,6 +2716,7 @@ function BuilderPageContent() {
                     style={{
                       margin: "0 auto",
                       width: Math.round(A4_WIDTH * 0.45),
+                      maxWidth: "100%",
                     }}
                     dir={dir}
                   >
@@ -2790,7 +2920,7 @@ function BuilderPageContent() {
                 <button
                   key={step.id}
                   onClick={() => goTo(idx)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-base font-bold transition-all duration-300 ${
                     isActive
                       ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm"
                       : isCompleted
@@ -2808,9 +2938,9 @@ function BuilderPageContent() {
                     }`}
                   >
                     {isCompleted ? (
-                      <CheckIcon className="w-3 h-3" />
+                      <CheckIcon className="w-3.5 h-3.5" />
                     ) : (
-                      <StepIcon className="w-3 h-3" />
+                      <StepIcon className="w-3.5 h-3.5" />
                     )}
                   </div>
                   <span className="hidden lg:inline">{stepLabel(step.id)}</span>
@@ -3025,8 +3155,8 @@ function BuilderPageContent() {
                 </button>
               </div>
               <div className="flex-1 overflow-auto p-4">
-                <div className="flex flex-col items-center gap-4" dir={dir}>
-                  {renderPaginatedSheets(0.55)}
+                <div className="flex flex-col items-center gap-4 max-w-full overflow-x-auto" dir={dir}>
+                  {renderPaginatedSheets(0.5)}
                 </div>
               </div>
               <div className="p-4 border-t border-border">

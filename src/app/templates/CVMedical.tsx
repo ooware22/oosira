@@ -38,7 +38,7 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
             <div className="cv-section-title">{t('builder.education')}</div>
             {data.formations.map((f, i) => (
               <div className="cv-formation-item" key={`form-${i}`}>
-                <div className="year">{f.annee}</div>
+                <div className="year">{f.dateDebut && f.dateFin ? `${f.dateDebut} – ${f.dateFin}` : f.annee}</div>
                 <div className="diploma">{f.diplome} - {f.specialite}</div>
                 <div className="school">{f.etablissement}, {f.ville}</div>
                 {f.links?.map((link, lIdx) => (

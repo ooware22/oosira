@@ -135,37 +135,6 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
     </div>
   );
 
-  /* ─── 3 · Cadre Moderne (left sidebar) ─── */
-  if (templateId === 3) return (
-    <div className="h-full w-full bg-white flex">
-      <div className="w-[36%] h-full px-2 py-3 flex flex-col items-center gap-2" style={{ background: headerBg }}>
-        <Avatar bg={`${accent}80`} size={24} text="#fff" />
-        <div className="w-full space-y-[3px]">
-          <div className="rounded-full mx-auto" style={{ height: 2, width: '70%', background: '#fff', opacity: 0.7 }} />
-          <div className="rounded-full mx-auto" style={{ height: 1.5, width: '50%', background: '#fff', opacity: 0.4 }} />
-        </div>
-        <div className="w-full mt-1 space-y-[3px]">
-          <div className="rounded-full" style={{ height: 1.5, width: '60%', background: accent, opacity: 0.6 }} />
-          <SkillBar color="#ffffff" pct={80} />
-          <SkillBar color="#ffffff" pct={65} />
-          <SkillBar color="#ffffff" pct={90} />
-        </div>
-        <div className="w-full mt-auto space-y-[3px]">
-          <div className="rounded-full" style={{ height: 1.5, width: '55%', background: accent, opacity: 0.6 }} />
-          <SkillDots color="#fff" filled={4} />
-          <SkillDots color="#fff" filled={3} />
-        </div>
-      </div>
-      <div className="flex-1 p-2.5 space-y-1">
-        <SectionLabel color={accent} width="50%" />
-        <Lines color={gray} count={3} widths={['100%', '85%', '60%']} />
-        <SectionLabel color={accent} width="45%" />
-        <Lines color={gray} count={3} widths={['95%', '75%', '50%']} />
-        <SectionLabel color={accent} width="40%" />
-        <Lines color={gray} count={2} widths={['80%', '65%']} />
-      </div>
-    </div>
-  );
 
   /* ─── 4 · Medical ─── */
   if (templateId === 4) return (

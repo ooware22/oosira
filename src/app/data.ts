@@ -9,6 +9,8 @@ export interface Formation {
   etablissement: string;
   ville: string;
   annee: string;
+  dateDebut?: string;
+  dateFin?: string;
   mention: string;
   type_etablissement?: string;
   links?: CustomLink[];
@@ -27,6 +29,7 @@ export interface Experience {
 export interface Langue {
   langue: string;
   niveau: string;
+  certification?: string;
 }
 
 export interface Candidate {
@@ -52,7 +55,6 @@ export interface Candidate {
 export const TEMPLATE_NAMES = [
   'Classique Pro',
   'Ingenieur',
-  'Cadre Moderne',
   'Medical',
   'Tech & IT',
 ];

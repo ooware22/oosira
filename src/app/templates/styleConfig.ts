@@ -328,32 +328,6 @@ export const TEMPLATE_DEFAULTS: Record<number, CVStyleConfig> = {
     mainOrder: ["experiences", "formations"],
     sideOrder: ["competences", "langues", "logiciels"],
   },
-  3: {
-    // Cadre
-    primaryColor: "#1A1A2E",
-    accentColor: "#2563EB",
-    headerBg: "#1A1A2E",
-    headerText: "#ffffff",
-    bodyBg: "#ffffff",
-    bodyText: "#1a1a1a",
-    mutedText: "#555555",
-    borderColor: "#e5e7eb",
-    skillBg: "rgba(37,99,235,0.15)",
-    skillText: "#e2e8f0",
-    sidebarBg: "#1A1A2E",
-    sidebarText: "#ffffff",
-    headingFont: "'Raleway', sans-serif",
-    bodyFont: "'Raleway', sans-serif",
-    fontSize: "default",
-    borderRadius: "small",
-    sectionDivider: "solid",
-    skillStyle: "tag",
-    headerLayout: "default",
-    spacing: "default",
-    layoutCols: "1fr 1fr",
-    mainOrder: ["experiences", "formations"],
-    sideOrder: ["competences", "langues", "logiciels"],
-  },
   4: {
     // Medical
     primaryColor: "#2563EB",
@@ -650,7 +624,6 @@ export function getRandomStyleConfig(baseConfig: CVStyleConfig): CVStyleConfig {
     "pill",
     "tag",
     "outline",
-    "bar",
   ];
   const headerLayouts: CVStyleConfig["headerLayout"][] = [
     "default",

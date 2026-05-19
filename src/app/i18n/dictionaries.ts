@@ -101,6 +101,8 @@ export const dictionaries = {
       addLink: "Add a Link (Project, Certificate...)",
       remove: "Remove",
       fullName: "Full Name",
+      firstName: "First Name",
+      lastName: "Last Name",
       jobTitle: "Job Title",
       email: "Email",
       phone: "Phone",
@@ -192,7 +194,11 @@ export const dictionaries = {
       goToDashboard: "My Dashboard",
       cvTitleLabel: "CV Name / Title",
       cvTitlePlaceholder: "e.g. Frontend Dev - Tech Corp",
-      reminderLabel: "Update Reminder Date"
+      reminderLabel: "Update Reminder Date",
+      selectType: "Select type...",
+      linkUrl: "Link URL",
+      linkLabel: "Link Label",
+      deleteLink: "Delete this link"
     },
     dashboard: {
       draft: "Draft",
@@ -417,6 +423,8 @@ export const dictionaries = {
       addLink: "Ajouter un lien (Projet, Certificat...)",
       remove: "Retirer",
       fullName: "Nom Complet",
+      firstName: "Prénom",
+      lastName: "Nom",
       jobTitle: "Titre du poste",
       email: "Email",
       phone: "Téléphone",
@@ -508,7 +516,11 @@ export const dictionaries = {
       goToDashboard: "Mon tableau de bord",
       cvTitleLabel: "Nom / Titre du CV",
       cvTitlePlaceholder: "ex. Développeur Frontend - Tech Corp",
-      reminderLabel: "Date de rappel de mise à jour"
+      reminderLabel: "Date de rappel de mise à jour",
+      selectType: "Sélectionnez le type...",
+      linkUrl: "Lien URL",
+      linkLabel: "Label du lien",
+      deleteLink: "Supprimer ce lien"
     },
     dashboard: {
       draft: "Brouillon",
@@ -732,6 +744,8 @@ export const dictionaries = {
       addLink: "إضافة رابط (مشروع، شهادة...)",
       remove: "إزالة",
       fullName: "الاسم الكامل",
+      firstName: "الاسم",
+      lastName: "اللقب",
       jobTitle: "المسمى الوظيفي",
       email: "البريد الإلكتروني",
       phone: "رقم الهاتف",
@@ -823,7 +837,11 @@ export const dictionaries = {
       goToDashboard: "لوحة التحكم",
       cvTitleLabel: "اسم / عنوان السيرة الذاتية",
       cvTitlePlaceholder: "مثال: مطور واجهات - شركة التقنية",
-      reminderLabel: "تاريخ التذكير بالتحديث"
+      reminderLabel: "تاريخ التذكير بالتحديث",
+      selectType: "اختر النوع...",
+      linkUrl: "رابط URL",
+      linkLabel: "عنوان الرابط",
+      deleteLink: "حذف هذا الرابط"
     },
     dashboard: {
       draft: "مسودة",

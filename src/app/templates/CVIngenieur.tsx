@@ -40,7 +40,7 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             <div className="cv-section-title">{t('builder.education')}</div>
             {data.formations.map((f, i) => (
               <div className="cv-formation-item" key={i}>
-                <div className="year">{f.annee}</div>
+                <div className="year">{f.dateDebut && f.dateFin ? `${f.dateDebut} – ${f.dateFin}` : f.annee}</div>
                 <div className="diploma">{f.diplome} - {f.specialite}</div>
                 <div className="school">{f.etablissement}, {f.ville}</div>
                 {f.mention && <div className="mention-badge">{f.mention}</div>}
@@ -58,12 +58,11 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
         return (
           <div key="competences" className="cv-section-col" style={{ marginBottom: 14 }}>
             <div className="cv-section-title">{t('builder.skills')}</div>
-            {data.competences.map((s, i) => (
-              <div className="cv-skill-bar" key={i}>
-                <div className="bar-label">{s}</div>
-                <div className="bar-track"><div className="bar-fill" style={{ width: `${75 + Math.round(Math.sin(i * 2.1) * 20)}%` }} /></div>
-              </div>
-            ))}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              {data.competences.map((s, i) => (
+                <span className="skill-tag" key={i}>{s}</span>
+              ))}
+            </div>
           </div>
         );
       case 'langues':
@@ -84,12 +83,11 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
         return (
           <div key="logiciels" className="cv-section-col" style={{ marginBottom: 14 }}>
             <div className="cv-section-title">{t('builder.software')}</div>
-            {data.logiciels.map((s, i) => (
-              <div className="cv-skill-bar" key={i}>
-                <div className="bar-label">{s}</div>
-                <div className="bar-track"><div className="bar-fill" style={{ width: `${70 + Math.round(Math.cos(i * 1.8) * 22)}%` }} /></div>
-              </div>
-            ))}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              {data.logiciels.map((s, i) => (
+                <span className="skill-tag" key={i}>{s}</span>
+              ))}
+            </div>
           </div>
         );
       default: return null;
