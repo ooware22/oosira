@@ -14,6 +14,8 @@ import {
 
 type AdminView = 'overview' | 'users' | 'pricing';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [activeView, setActiveView] = useState<AdminView>('overview');
@@ -49,14 +51,14 @@ export default function AdminDashboardPage() {
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/subscriptions/plans/');
+      const res = await fetch(`${API_BASE}/subscriptions/plans/`);
       if (res.ok) setPlans(await res.json());
     } catch (e) { console.error(e); }
   };
 
   const fetchStats = async (token: string) => {
     try {
-      const res = await fetch('http://localhost:8000/api/admin/stats/', {
+      const res = await fetch(`${API_BASE}/admin/stats/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setStats(await res.json());
@@ -66,7 +68,7 @@ export default function AdminDashboardPage() {
   const fetchUsers = async (token: string, q = '') => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/users/?q=${q}`, {
+      const res = await fetch(`${API_BASE}/admin/users/?q=${q}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) setUsers(await res.json());
@@ -90,7 +92,7 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     if (!editingUser) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/users/${editingUser.id}/`, {
+      const res = await fetch(`${API_BASE}/admin/users/${editingUser.id}/`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${getToken()}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan: editingUser.plan, isActive: editingUser.isActive, isStaff: editingUser.isStaff })
@@ -102,7 +104,7 @@ export default function AdminDashboardPage() {
   const handleDeleteUser = async (userId: string) => {
     if (!window.confirm('Deactivate this user?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/users/${userId}/`, {
+      const res = await fetch(`${API_BASE}/admin/users/${userId}/`, {
         method: 'DELETE', headers: { Authorization: `Bearer ${getToken()}` }
       });
       if (res.ok) { fetchUsers(getToken(), search); fetchStats(getToken()); }
@@ -116,8 +118,8 @@ export default function AdminDashboardPage() {
     try {
       const isNew = !editingPlan.id;
       const url = isNew 
-        ? 'http://localhost:8000/api/admin/subscriptions/plans/' 
-        : `http://localhost:8000/api/admin/subscriptions/plans/${editingPlan.id}/`;
+        ? `${API_BASE}/admin/subscriptions/plans/` 
+        : `${API_BASE}/admin/subscriptions/plans/${editingPlan.id}/`;
       const method = isNew ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
@@ -132,7 +134,7 @@ export default function AdminDashboardPage() {
   const handleDeletePlan = async (planId: string) => {
     if (!window.confirm('Are you sure you want to delete this plan?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/admin/subscriptions/plans/${planId}/`, {
+      const res = await fetch(`${API_BASE}/admin/subscriptions/plans/${planId}/`, {
         method: 'DELETE', headers: { Authorization: `Bearer ${getToken()}` }
       });
       if (res.ok) { fetchPlans(); }

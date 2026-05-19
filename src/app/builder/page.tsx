@@ -468,103 +468,149 @@ function BuilderPageContent() {
         return endYear || startYear || cleanInline(end || start);
       };
 
-      const rawTechnical = safeArray<string>(cvData?.skills?.technical);
-      const rawSoft = safeArray<string>(cvData?.skills?.soft);
-      const rawSoftware = safeArray<string>(cvData?.skills?.software);
-      const allRawSkills = splitSkills([...rawTechnical, ...rawSoft]);
+      // Detect response format: French flat keys (from regex/Gemini) vs English nested (legacy)
+      const isFrenchFormat = !!(cvData?.prenom !== undefined || cvData?.nom !== undefined || cvData?.formations || cvData?.competences);
 
-      // Keep only short competency-like tokens; move long noisy lines to a rescue experience block.
-      const cleanCompetences = allRawSkills.filter(
-        (s) => s.length <= 40 && !/^\d{2,}/.test(s),
-      );
-      const misclassifiedLongText = allRawSkills.filter((s) => s.length > 40);
+      let mapped: Candidate;
 
-      let mappedExperiences = safeArray<any>(cvData?.experience).map(
-        (e: any) => ({
-          poste: cleanInline(e?.job_title || e?.title),
-          entreprise: cleanInline(e?.company),
-          secteur: cleanInline(e?.company_description || e?.contract_type),
-          dateDebut: cleanInline(e?.start_date || e?.start),
-          dateFin: cleanInline(
-            e?.is_current ? "En cours" : e?.end_date || e?.end,
-          ),
-          description: cleanMultiline(
-            e?.description || safeArray<string>(e?.achievements).join(". "),
-          ),
-        }),
-      );
+      if (isFrenchFormat) {
+        // ── French flat format from backend CVStructurer ──
+        mapped = {
+          id: -2,
+          prenom: cleanInline(cvData?.prenom),
+          nom: cleanInline(cvData?.nom),
+          titre: cleanInline(cvData?.titre),
+          email: cleanInline(cvData?.email),
+          telephone: cleanInline(cvData?.telephone),
+          ville: cleanInline(cvData?.ville),
+          linkedin: cleanInline(cvData?.linkedin),
+          accroche: cleanMultiline(cvData?.accroche),
+          formations: safeArray<any>(cvData?.formations).map((f: any) => ({
+            diplome: cleanInline(f?.diplome),
+            specialite: cleanInline(f?.specialite),
+            etablissement: cleanInline(f?.etablissement),
+            ville: cleanInline(f?.ville),
+            annee: cleanInline(f?.annee),
+            mention: cleanInline(f?.mention),
+          })),
+          experiences: safeArray<any>(cvData?.experiences).map((e: any) => ({
+            poste: cleanInline(e?.poste),
+            entreprise: cleanInline(e?.entreprise),
+            secteur: cleanInline(e?.secteur),
+            dateDebut: cleanInline(e?.dateDebut),
+            dateFin: cleanInline(e?.dateFin),
+            description: cleanMultiline(e?.description),
+          })).filter((e) => e.poste || e.entreprise || e.description),
+          competences: splitSkills(safeArray<string>(cvData?.competences)),
+          langues: safeArray<any>(cvData?.langues).map((l: any) => ({
+            langue: cleanInline(l?.langue),
+            niveau: cleanInline(l?.niveau) || "Intermédiaire",
+          })),
+          logiciels: dedupe(safeArray<string>(cvData?.logiciels)),
+          iconName: "document",
+          cardColor: "#3B82F6",
+          recommendedTemplate: activeTemplate,
+        };
+      } else {
+        // ── Legacy English nested format (old OCR service) ──
+        const rawTechnical = safeArray<string>(cvData?.skills?.technical);
+        const rawSoft = safeArray<string>(cvData?.skills?.soft);
+        const rawSoftware = safeArray<string>(cvData?.skills?.software);
+        const allRawSkills = splitSkills([...rawTechnical, ...rawSoft]);
 
-      // If OCR misses date blocks, still keep useful text in one normalized fallback item.
-      if (misclassifiedLongText.length > 0) {
-        mappedExperiences.push({
-          poste: "Expriences ( trier)",
-          entreprise: "Import OCR",
-          secteur: "",
-          dateDebut: "",
-          dateFin: "",
-          description: cleanMultiline(misclassifiedLongText.join(". ")),
-        });
-      }
-
-      const fullName = cleanInline(cvData?.personal_info?.full_name);
-      const firstName = cleanInline(cvData?.personal_info?.first_name);
-      const lastName = cleanInline(cvData?.personal_info?.last_name);
-      const nameParts = fullName ? fullName.split(" ") : [];
-      const prenom = firstName || nameParts[0] || "";
-      const nom =
-        lastName || (nameParts.length > 1 ? nameParts.slice(1).join(" ") : "");
-
-      const rawSummary = cleanMultiline(cvData?.summary);
-      const summaryLooksNoisy =
-        rawSummary.length > 450 ||
-        /(experience|experiences|skills|competences|formation|education)/i.test(
-          rawSummary.slice(160),
+        // Keep only short competency-like tokens; move long noisy lines to a rescue experience block.
+        const cleanCompetences = allRawSkills.filter(
+          (s) => s.length <= 40 && !/^\d{2,}/.test(s),
         );
-      const accroche = summaryLooksNoisy
-        ? rawSummary
-            .split(/(?<=[.!?])\s+/)
-            .slice(0, 2)
-            .join(" ")
-            .slice(0, 380)
-        : rawSummary.slice(0, 600);
+        const misclassifiedLongText = allRawSkills.filter((s) => s.length > 40);
 
-      const mapped: Candidate = {
-        id: -2,
-        prenom,
-        nom,
-        titre: cleanInline(cvData?.professional_title),
-        email: cleanInline(cvData?.personal_info?.email),
-        telephone: cleanInline(cvData?.personal_info?.phone),
-        ville: cleanInline(cvData?.personal_info?.city),
-        linkedin: cleanInline(cvData?.personal_info?.linkedin),
-        accroche,
-        formations: safeArray<any>(cvData?.education).map((e: any) => ({
-          diplome: cleanInline(e?.degree || e?.title),
-          specialite: cleanInline(e?.field_of_study),
-          etablissement: cleanInline(e?.institution || e?.company),
-          ville: cleanInline(e?.location),
-          annee: pickYear(cleanInline(e?.start_date), cleanInline(e?.end_date)),
-          mention: cleanInline(e?.grade),
-        })),
-        experiences: mappedExperiences.filter(
-          (e) => e.poste || e.entreprise || e.description,
-        ),
-        competences: cleanCompetences,
-        langues: safeArray<any>(cvData?.skills?.languages).map((l: any) => ({
-          langue: cleanInline(l?.language || l?.langue),
-          niveau: cleanInline(l?.level || l?.niveau) || "Intermdiaire",
-        })),
-        logiciels: dedupe(
-          rawSoftware.map((s: string) =>
-            String(s || "")
-              .split("(")[0]
-              .trim(),
+        let mappedExperiences = safeArray<any>(cvData?.experience).map(
+          (e: any) => ({
+            poste: cleanInline(e?.job_title || e?.title),
+            entreprise: cleanInline(e?.company),
+            secteur: cleanInline(e?.company_description || e?.contract_type),
+            dateDebut: cleanInline(e?.start_date || e?.start),
+            dateFin: cleanInline(
+              e?.is_current ? "En cours" : e?.end_date || e?.end,
+            ),
+            description: cleanMultiline(
+              e?.description || safeArray<string>(e?.achievements).join(". "),
+            ),
+          }),
+        );
+
+        // If OCR misses date blocks, still keep useful text in one normalized fallback item.
+        if (misclassifiedLongText.length > 0) {
+          mappedExperiences.push({
+            poste: "Expériences (à trier)",
+            entreprise: "Import OCR",
+            secteur: "",
+            dateDebut: "",
+            dateFin: "",
+            description: cleanMultiline(misclassifiedLongText.join(". ")),
+          });
+        }
+
+        const fullName = cleanInline(cvData?.personal_info?.full_name);
+        const firstName = cleanInline(cvData?.personal_info?.first_name);
+        const lastName = cleanInline(cvData?.personal_info?.last_name);
+        const nameParts = fullName ? fullName.split(" ") : [];
+        const prenom = firstName || nameParts[0] || "";
+        const nom =
+          lastName || (nameParts.length > 1 ? nameParts.slice(1).join(" ") : "");
+
+        const rawSummary = cleanMultiline(cvData?.summary);
+        const summaryLooksNoisy =
+          rawSummary.length > 450 ||
+          /(experience|experiences|skills|competences|formation|education)/i.test(
+            rawSummary.slice(160),
+          );
+        const accroche = summaryLooksNoisy
+          ? rawSummary
+              .split(/(?<=[.!?])\s+/)
+              .slice(0, 2)
+              .join(" ")
+              .slice(0, 380)
+          : rawSummary.slice(0, 600);
+
+        mapped = {
+          id: -2,
+          prenom,
+          nom,
+          titre: cleanInline(cvData?.professional_title),
+          email: cleanInline(cvData?.personal_info?.email),
+          telephone: cleanInline(cvData?.personal_info?.phone),
+          ville: cleanInline(cvData?.personal_info?.city),
+          linkedin: cleanInline(cvData?.personal_info?.linkedin),
+          accroche,
+          formations: safeArray<any>(cvData?.education).map((e: any) => ({
+            diplome: cleanInline(e?.degree || e?.title),
+            specialite: cleanInline(e?.field_of_study),
+            etablissement: cleanInline(e?.institution || e?.company),
+            ville: cleanInline(e?.location),
+            annee: pickYear(cleanInline(e?.start_date), cleanInline(e?.end_date)),
+            mention: cleanInline(e?.grade),
+          })),
+          experiences: mappedExperiences.filter(
+            (e) => e.poste || e.entreprise || e.description,
           ),
-        ),
-        iconName: "document",
-        cardColor: "#3B82F6",
-        recommendedTemplate: activeTemplate,
-      };
+          competences: cleanCompetences,
+          langues: safeArray<any>(cvData?.skills?.languages).map((l: any) => ({
+            langue: cleanInline(l?.language || l?.langue),
+            niveau: cleanInline(l?.level || l?.niveau) || "Intermédiaire",
+          })),
+          logiciels: dedupe(
+            rawSoftware.map((s: string) =>
+              String(s || "")
+                .split("(")[0]
+                .trim(),
+            ),
+          ),
+          iconName: "document",
+          cardColor: "#3B82F6",
+          recommendedTemplate: activeTemplate,
+        };
+      }
 
       setFormData(mapped);
       setActiveCandidate(-2); // Custom flag for imported OCR CV
@@ -572,7 +618,7 @@ function BuilderPageContent() {
       // Automatically proceed to next step to show mapped info
       if (currentStep === 0) setStep([1, 1]);
 
-      // OCR trial was consumed \u2013 refresh subscription status
+      // OCR trial was consumed – refresh subscription status
       invalidateSubscriptionCache();
       refreshSubscription();
     } catch (err: any) {
