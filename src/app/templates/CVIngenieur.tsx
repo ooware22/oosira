@@ -73,7 +73,21 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             {data.langues.map((l, i) => (
               <div className="cv-lang-item" key={i}>
                 <span>{l.langue}</span>
-                <span className="cv-lang-level">{t(`builder.level_${l.niveau}`)}</span>
+                <span className="cv-lang-level">
+                  {t(`builder.level_${l.niveau}`)}
+                  {l.certification && (
+                    <>
+                      {' — '}
+                      {l.certificationLink ? (
+                        <a href={l.certificationLink.startsWith('http') ? l.certificationLink : `https://${l.certificationLink}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ fontWeight: 500 }}>
+                          {l.certification}
+                        </a>
+                      ) : (
+                        <span style={{ fontStyle: 'italic', opacity: 0.85 }}>{l.certification}</span>
+                      )}
+                    </>
+                  )}
+                </span>
               </div>
             ))}
           </div>

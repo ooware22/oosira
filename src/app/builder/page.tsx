@@ -76,6 +76,8 @@ import {
   useSubscription,
   invalidateSubscriptionCache,
 } from "@/app/hooks/useSubscription";
+import AutocompleteInput from "@/components/AutocompleteInput";
+import { SUGGESTIONS } from "@/data/cvSuggestions";
 
 /* -- Constants -- */
 const CANDIDATE_ICONS: Record<
@@ -154,7 +156,7 @@ function Input({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+      <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
         {label}
       </label>
       <input
@@ -163,7 +165,7 @@ function Input({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         list={list}
-        className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+        className="w-full bg-surface border border-border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
       />
     </div>
   );
@@ -184,13 +186,13 @@ function Select({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+      <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+        className="w-full bg-surface border border-border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
       >
         <option value="">{placeholder || "Select..."}</option>
         {options.map((o) => (
@@ -218,7 +220,7 @@ function TextArea({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+      <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
         {label}
       </label>
       <textarea
@@ -226,7 +228,7 @@ function TextArea({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full bg-surface border border-border rounded-xl px-4 py-3 text-sm text-txt outline-none resize-y transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim font-body"
+        className="w-full bg-surface border border-border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none resize-y transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim font-body"
       />
     </div>
   );
@@ -361,6 +363,9 @@ function BuilderPageContent() {
   });
   const previewRef = useRef<HTMLDivElement>(null);
   const [previewZoom, setPreviewZoom] = useState(0.75);
+  const [sidePreviewZoom, setSidePreviewZoom] = useState(0.52);
+  const [sidebarWidth, setSidebarWidth] = useState(440);
+  const isDraggingRef = useRef(false);
   const cvMeasureRef = useRef<HTMLDivElement>(null);
   const [totalPages, setTotalPages] = useState(1);
   const A4_WIDTH = 794; // px at 96dpi
@@ -1053,6 +1058,30 @@ function BuilderPageContent() {
     }
   };
 
+  // Draggable sidebar resize
+  const startDragSidebar = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    const startX = e.clientX;
+    const startW = sidebarWidth;
+    const onMove = (ev: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const delta = startX - ev.clientX; // dragging left = bigger sidebar
+      setSidebarWidth(Math.max(300, Math.min(700, startW + delta)));
+    };
+    const onUp = () => {
+      isDraggingRef.current = false;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }, [sidebarWidth]);
+
   const getCVContent = () => {
     switch (activeTemplate) {
       case 1:
@@ -1193,7 +1222,7 @@ function BuilderPageContent() {
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">
                 {t("builder.template")}
               </h2>
-              <p className="text-txt-muted text-sm mb-6">
+              <p className="text-txt-muted text-sm lg:text-lg mb-6">
                 {t("builder.templateDesc") ||
                   "Choose a professional design optimized for your industry."}
               </p>
@@ -1293,10 +1322,10 @@ function BuilderPageContent() {
 
             {/* Pre-filled candidates */}
             <div>
-              <h3 className="text-lg font-bold text-txt mb-1">
+              <h3 className="text-lg lg:text-2xl font-bold text-txt mb-1">
                 {t("builder.theme") || "Quick Start"}
               </h3>
-              <p className="text-txt-muted text-sm mb-4">
+              <p className="text-txt-muted text-sm lg:text-lg mb-4">
                 {t("builder.quickStartDesc") ||
                   "Start with a pre-filled profile or begin from scratch."}
               </p>
@@ -1547,7 +1576,7 @@ function BuilderPageContent() {
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">
                 {t("builder.personal_info")}
               </h2>
-              <p className="text-txt-muted text-sm">
+              <p className="text-txt-muted text-sm lg:text-lg">
                 {t("builder.personalInfoDesc") ||
                   "Let employers know how to reach you."}
               </p>
@@ -1564,11 +1593,12 @@ function BuilderPageContent() {
                 onChange={(v) => updateField("nom", v)}
               />
             </div>
-            <Input
+            <AutocompleteInput
               label={t("builder.jobTitle")}
               value={formData.titre}
               onChange={(v) => updateField("titre", v)}
-              placeholder="e.g. Senior Software Engineer"
+              placeholder="e.g. Ingénieur Logiciel"
+              suggestions={SUGGESTIONS.titres}
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
@@ -1585,10 +1615,11 @@ function BuilderPageContent() {
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
+              <AutocompleteInput
                 label={t("builder.location")}
                 value={formData.ville}
                 onChange={(v) => updateField("ville", v)}
+                suggestions={SUGGESTIONS.villes}
               />
               <Input
                 label={t("builder.linkedin")}
@@ -1629,7 +1660,7 @@ function BuilderPageContent() {
               rows={6}
             />
             <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
-              <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+              <p className="text-xs lg:text-base text-blue-600 dark:text-blue-400 font-medium">
                 {t("builder.summaryTip") ||
                   "?? Tip: Keep it between 2-4 sentences. Highlight your biggest achievements and career direction."}
               </p>
@@ -1659,7 +1690,7 @@ function BuilderPageContent() {
               </div>
               <button
                 onClick={addExperience}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold transition-all hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs lg:text-base font-bold transition-all hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20"
               >
                 <PlusIcon className="w-4 h-4" />
                 {t("builder.add")}
@@ -1674,7 +1705,7 @@ function BuilderPageContent() {
                   transition={{ delay: idx * 0.05 }}
                   className="bg-surface border border-border rounded-2xl p-5 relative group hover:border-blue-500/20 transition-all duration-300"
                 >
-                  <div className="absolute top-4 end-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="absolute top-4 end-4 flex items-center gap-1 z-10 opacity-60 group-hover:opacity-100 transition-all">
                     <button
                       onClick={() => moveExperience(idx, 'up')}
                       disabled={idx === 0}
@@ -1699,21 +1730,24 @@ function BuilderPageContent() {
                     </button>
                   </div>
                   <div className="space-y-4">
-                    <Input
+                    <AutocompleteInput
                       label={t("builder.position")}
                       value={exp.poste}
                       onChange={(v) => updateExperience(idx, "poste", v)}
+                      suggestions={SUGGESTIONS.titres}
                     />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input
+                      <AutocompleteInput
                         label={t("builder.company") || "Company"}
                         value={exp.entreprise}
                         onChange={(v) => updateExperience(idx, "entreprise", v)}
+                        suggestions={SUGGESTIONS.entreprises}
                       />
-                      <Input
+                      <AutocompleteInput
                         label={t("builder.secteur") || "Secteur"}
                         value={exp.secteur}
                         onChange={(v) => updateExperience(idx, "secteur", v)}
+                        suggestions={SUGGESTIONS.secteurs}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -1723,12 +1757,44 @@ function BuilderPageContent() {
                         onChange={(v) => updateExperience(idx, "dateDebut", v)}
                         type="month"
                       />
-                      <Input
-                        label={t("builder.endDate")}
-                        value={exp.dateFin}
-                        onChange={(v) => updateExperience(idx, "dateFin", v)}
-                        type="month"
-                      />
+                      <div className="space-y-1.5">
+                        {exp.dateFin === "Present" || exp.dateFin === "En cours" ? (
+                          <div>
+                            <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider mb-1.5">
+                              {t("builder.endDate")}
+                            </label>
+                            <div className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 font-semibold text-center">
+                              {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
+                            </div>
+                          </div>
+                        ) : (
+                          <Input
+                            label={t("builder.endDate")}
+                            value={exp.dateFin}
+                            onChange={(v) => updateExperience(idx, "dateFin", v)}
+                            type="month"
+                          />
+                        )}
+                        <label className="flex items-center gap-2 cursor-pointer select-none pt-1">
+                          <input
+                            type="checkbox"
+                            checked={exp.dateFin === "Present" || exp.dateFin === "En cours"}
+                            onChange={(e) =>
+                              updateExperience(
+                                idx,
+                                "dateFin",
+                                e.target.checked
+                                  ? language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"
+                                  : "",
+                              )
+                            }
+                            className="w-4 h-4 rounded border-border text-emerald-500 focus:ring-emerald-500/30 accent-emerald-500"
+                          />
+                          <span className="text-xs font-medium text-txt-muted">
+                            {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
+                          </span>
+                        </label>
+                      </div>
                     </div>
                     <TextArea
                       label={t("builder.description")}
@@ -1837,7 +1903,7 @@ function BuilderPageContent() {
                   transition={{ delay: idx * 0.05 }}
                   className="bg-surface border border-border rounded-2xl p-5 relative group hover:border-blue-500/20 transition-all duration-300"
                 >
-                  <div className="absolute top-4 end-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="absolute top-4 end-4 flex items-center gap-1 z-10 opacity-60 group-hover:opacity-100 transition-all">
                     <button
                       onClick={() => moveFormation(idx, 'up')}
                       disabled={idx === 0}
@@ -1863,10 +1929,11 @@ function BuilderPageContent() {
                   </div>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <Input
+                      <AutocompleteInput
                         label={t("builder.degree") || "Degree"}
                         value={f.diplome}
                         onChange={(v) => updateFormation(idx, "diplome", v)}
+                        suggestions={SUGGESTIONS.diplomes}
                       />
                       <Input
                         label={t("builder.startDate") || "Start Date"}
@@ -1874,20 +1941,51 @@ function BuilderPageContent() {
                         onChange={(v) => updateFormation(idx, "dateDebut", v)}
                         type="month"
                       />
-                      <Input
-                        label={t("builder.endDate") || "End Date"}
-                        value={f.dateFin || f.annee || ""}
-                        onChange={(v) => {
-                          updateFormation(idx, "dateFin", v);
-                          updateFormation(idx, "annee", v);
-                        }}
-                        type="month"
-                      />
+                      <div className="space-y-1.5">
+                        {(f.dateFin === "Present" || f.dateFin === "En cours") ? (
+                          <div>
+                            <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider mb-1.5">
+                              {t("builder.endDate") || "End Date"}
+                            </label>
+                            <div className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 font-semibold text-center">
+                              {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
+                            </div>
+                          </div>
+                        ) : (
+                          <Input
+                            label={t("builder.endDate") || "End Date"}
+                            value={f.dateFin || f.annee || ""}
+                            onChange={(v) => {
+                              updateFormation(idx, "dateFin", v);
+                              updateFormation(idx, "annee", v);
+                            }}
+                            type="month"
+                          />
+                        )}
+                        <label className="flex items-center gap-2 cursor-pointer select-none pt-1">
+                          <input
+                            type="checkbox"
+                            checked={f.dateFin === "Present" || f.dateFin === "En cours"}
+                            onChange={(e) => {
+                              const val = e.target.checked
+                                ? language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"
+                                : "";
+                              updateFormation(idx, "dateFin", val);
+                              updateFormation(idx, "annee", val);
+                            }}
+                            className="w-4 h-4 rounded border-border text-emerald-500 focus:ring-emerald-500/30 accent-emerald-500"
+                          />
+                          <span className="text-xs font-medium text-txt-muted">
+                            {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
+                          </span>
+                        </label>
+                      </div>
                     </div>
-                    <Input
+                    <AutocompleteInput
                       label={t("builder.specialite") || "Specialite"}
                       value={f.specialite}
                       onChange={(v) => updateFormation(idx, "specialite", v)}
+                      suggestions={SUGGESTIONS.specialites}
                     />
                     <Select
                       label={
@@ -1940,16 +2038,18 @@ function BuilderPageContent() {
                         }
                         list={`ecoles-list-${f.type_etablissement || "all"}`}
                       />
-                      <Input
+                      <AutocompleteInput
                         label={t("builder.location")}
                         value={f.ville}
                         onChange={(v) => updateFormation(idx, "ville", v)}
+                        suggestions={SUGGESTIONS.villes}
                       />
                     </div>
-                    <Input
+                    <AutocompleteInput
                       label={t("builder.mention") || "Mention"}
                       value={f.mention}
                       onChange={(v) => updateFormation(idx, "mention", v)}
+                      suggestions={SUGGESTIONS.mentions}
                     />
 
                     {/* Multiple URLs Toggle */}
@@ -2037,12 +2137,12 @@ function BuilderPageContent() {
 
             {/* Skills */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="text-base font-bold text-txt">
+              <h3 className="text-base lg:text-xl font-bold text-txt">
                 {t("builder.skills")}
               </h3>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 bg-surface2 border border-border rounded-xl px-4 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  className="flex-1 bg-surface2 border border-border rounded-xl px-4 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
                   placeholder={t("builder.skillName") || "Skill"}
                   value={newSkill}
                   onChange={(e) => setNewSkill(e.target.value)}
@@ -2052,6 +2152,8 @@ function BuilderPageContent() {
                       addSkill();
                     }
                   }}
+                  list="skills-suggestions"
+                  autoComplete="off"
                 />
                 <button
                   onClick={addSkill}
@@ -2066,7 +2168,7 @@ function BuilderPageContent() {
                     key={i}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs lg:text-base font-bold"
                   >
                     {s}
                     <button
@@ -2088,7 +2190,7 @@ function BuilderPageContent() {
                 </h3>
                 <button
                   onClick={addLangue}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold transition-all hover:bg-blue-600 hover:text-white"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs lg:text-base font-bold transition-all hover:bg-blue-600 hover:text-white"
                 >
                   <PlusIcon className="w-3.5 h-3.5" />
                   {t("builder.add")}
@@ -2099,15 +2201,17 @@ function BuilderPageContent() {
                   <div key={idx} className="bg-surface2/30 rounded-xl p-3 space-y-2 border border-border/50">
                     <div className="flex items-center gap-3">
                       <input
-                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500"
+                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500"
                         value={l.langue}
                         onChange={(e) =>
                           updateLangue(idx, "langue", e.target.value)
                         }
                         placeholder={t("builder.langName")}
+                        list="langues-suggestions"
+                        autoComplete="off"
                       />
                       <select
-                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                         value={l.niveau}
                         onChange={(e) =>
                           updateLangue(idx, "niveau", e.target.value)
@@ -2137,13 +2241,26 @@ function BuilderPageContent() {
                       </button>
                     </div>
                     <input
-                      className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 text-xs text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
+                      className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 lg:py-3 text-xs lg:text-base text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
                       value={l.certification || ""}
                       onChange={(e) =>
                         updateLangue(idx, "certification", e.target.value)
                       }
                       placeholder={language === "fr" ? "Certification (ex: DELF B2, TOEFL 95...)" : language === "ar" ? "الشهادة (مثال: DELF B2, TOEFL 95...)" : "Certification (e.g. DELF B2, TOEFL 95...)"}
                     />
+                    {l.certification && (
+                      <div className="flex items-center gap-2">
+                        <LinkIcon className="w-3.5 h-3.5 text-txt-muted shrink-0" />
+                        <input
+                          className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 lg:py-3 text-xs lg:text-base text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
+                          value={l.certificationLink || ""}
+                          onChange={(e) =>
+                            updateLangue(idx, "certificationLink", e.target.value)
+                          }
+                          placeholder={language === "fr" ? "Lien vers le certificat (URL)" : "Certificate link (URL)"}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -2156,7 +2273,7 @@ function BuilderPageContent() {
               </h3>
               <div className="flex gap-2">
                 <input
-                  className="flex-1 bg-surface2 border border-border rounded-xl px-4 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  className="flex-1 bg-surface2 border border-border rounded-xl px-4 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
                   placeholder="..."
                   value={newLogiciel}
                   onChange={(e) => setNewLogiciel(e.target.value)}
@@ -2166,6 +2283,8 @@ function BuilderPageContent() {
                       addLogiciel();
                     }
                   }}
+                  list="logiciels-suggestions"
+                  autoComplete="off"
                 />
                 <button
                   onClick={addLogiciel}
@@ -2178,7 +2297,7 @@ function BuilderPageContent() {
                 {formData.logiciels.map((s, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 rounded-full text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 rounded-full text-xs lg:text-base font-bold"
                   >
                     {s}
                     <button
@@ -2191,6 +2310,23 @@ function BuilderPageContent() {
                 ))}
               </div>
             </div>
+
+            {/* Hidden datalists for inline inputs */}
+            <datalist id="skills-suggestions">
+              {Array.from(new Set(SUGGESTIONS.competences)).map((s, i) => (
+                <option key={i} value={s} />
+              ))}
+            </datalist>
+            <datalist id="logiciels-suggestions">
+              {Array.from(new Set(SUGGESTIONS.logiciels)).map((s, i) => (
+                <option key={i} value={s} />
+              ))}
+            </datalist>
+            <datalist id="langues-suggestions">
+              {Array.from(new Set(SUGGESTIONS.langues)).map((s, i) => (
+                <option key={i} value={s} />
+              ))}
+            </datalist>
           </motion.div>
         );
 
@@ -2208,7 +2344,7 @@ function BuilderPageContent() {
               <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">
                 {t("builder.design") || "Design & Aesthetics"}
               </h2>
-              <p className="text-txt-muted text-sm">
+              <p className="text-txt-muted text-sm lg:text-lg">
                 {t("builder.designDesc") ||
                   "Fine-tune the typography, colors, and layout of your CV."}
               </p>
@@ -2238,7 +2374,7 @@ function BuilderPageContent() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border">
                 <div className="space-y-1.5 flex flex-col">
-                  <label className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.primaryColor") || "Primary Color"}
                   </label>
                   <div className="flex items-center gap-2">
@@ -2255,7 +2391,7 @@ function BuilderPageContent() {
                         );
                       }}
                     />
-                    <span className="text-xs font-mono">
+                    <span className="text-xs lg:text-base font-mono">
                       {styleConfig.primaryColor}
                     </span>
                   </div>
@@ -2278,7 +2414,7 @@ function BuilderPageContent() {
                         );
                       }}
                     />
-                    <span className="text-xs font-mono">
+                    <span className="text-xs lg:text-sm font-mono">
                       {styleConfig.accentColor}
                     </span>
                   </div>
@@ -2301,7 +2437,7 @@ function BuilderPageContent() {
                         }));
                       }}
                     />
-                    <span className="text-xs font-mono">
+                    <span className="text-xs lg:text-sm font-mono">
                       {styleConfig.bodyText}
                     </span>
                   </div>
@@ -2322,7 +2458,7 @@ function BuilderPageContent() {
                         }))
                       }
                     />
-                    <span className="text-xs font-mono">
+                    <span className="text-xs lg:text-sm font-mono">
                       {styleConfig.bodyBg}
                     </span>
                   </div>
@@ -2337,11 +2473,11 @@ function BuilderPageContent() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.headingFont") || "Heading Font"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.headingFont}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2358,11 +2494,11 @@ function BuilderPageContent() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.bodyFont") || "Body Font"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.bodyFont}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2383,16 +2519,16 @@ function BuilderPageContent() {
 
             {/* Layout Options */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="text-base font-bold text-txt">
+              <h3 className="text-base lg:text-xl font-bold text-txt">
                 {t("builder.structure") || "Structure & Layout"}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.columns") || "Columns"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.layoutCols}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2411,11 +2547,11 @@ function BuilderPageContent() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.fontSize") || "Font Size"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.fontSize}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2436,11 +2572,11 @@ function BuilderPageContent() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.spacing") || "Spacing"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.spacing}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2715,70 +2851,9 @@ function BuilderPageContent() {
               </button>
             </div>
 
-            <div className="flex flex-col gap-6">
-              {/* Zoom Controls + Page Info */}
-              <div className="flex items-center justify-center gap-4 bg-surface/50 backdrop-blur-md py-2 px-4 rounded-full border border-border w-fit mx-auto">
-                <button
-                  onClick={() =>
-                    setPreviewZoom(
-                      Math.max(0.3, +(previewZoom - 0.1).toFixed(1)),
-                    )
-                  }
-                  className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
-                >
-                  <MinusIcon className="w-4 h-4" />
-                </button>
-                <span className="text-xs font-bold text-txt tabular-nums w-12 text-center">
-                  {Math.round(previewZoom * 100)}%
-                </span>
-                <button
-                  onClick={() =>
-                    setPreviewZoom(
-                      Math.min(1.2, +(previewZoom + 0.1).toFixed(1)),
-                    )
-                  }
-                  className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
-                >
-                  <PlusIcon className="w-4 h-4" />
-                </button>
-                <div className="w-px h-4 bg-border" />
-                <span className="text-[10px] font-bold text-txt-muted uppercase tracking-wider">
-                  {totalPages} {totalPages === 1 ? "page" : "pages"}
-                </span>
-              </div>
-
-              {/* Desktop preview — paginated A4 sheets */}
-              <div className={`hidden lg:flex flex-col ${previewZoom > 0.8 ? 'items-start' : 'items-center'} gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar`}>
-                <div className={`flex flex-col ${previewZoom > 0.8 ? 'items-start mx-auto' : 'items-center'} gap-6`} dir={dir}>
-                  {renderPaginatedSheets(previewZoom)}
-                </div>
-              </div>
-
-              {/* Mobile preview — paginated A4 sheets */}
-              <div className="lg:hidden">
-                <div className="overflow-x-auto pb-4 -mx-4 px-4 bg-surface2/30 rounded-2xl py-6">
-                  <div
-                    className="flex flex-col items-center gap-4"
-                    style={{
-                      margin: "0 auto",
-                      width: Math.round(A4_WIDTH * 0.45),
-                      maxWidth: "100%",
-                    }}
-                    dir={dir}
-                  >
-                    {renderPaginatedSheets(0.45)}
-                  </div>
-                </div>
-                <p className="text-center text-xs text-txt-dim mt-2">
-                  {t("builder.scrollText") ||
-                    "↔ Scroll horizontally to view full CV ↔"}
-                </p>
-              </div>
-            </div>
-
-            {/* Save CV — conditional on auth */}
+            {/* Save CV / Login prompt — right after download button */}
             {isAuthenticated ? (
-              <div className="mt-10 rounded-2xl border border-border/60 bg-surface overflow-hidden mb-6">
+              <div className="rounded-2xl border border-border/60 bg-surface overflow-hidden">
                 {/* Status bar */}
                 <div
                   className={`px-6 py-4 flex items-center gap-3 ${savedCvId ? "bg-emerald-50 dark:bg-emerald-500/10 border-b border-emerald-100 dark:border-emerald-500/20" : "bg-blue-50 dark:bg-blue-500/10 border-b border-blue-100 dark:border-blue-500/20"}`}
@@ -2881,7 +2956,7 @@ function BuilderPageContent() {
                 </div>
               </div>
             ) : (
-              <div className="mt-8 bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start mb-6">
+              <div className="bg-blue-500/5 border border-blue-500/20 rounded-3xl p-6 sm:p-8 flex flex-col xl:flex-row items-center justify-between gap-6 text-center xl:text-start">
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-txt mb-1">
                     {t("builder.saveCVTitle") ||
@@ -2908,6 +2983,67 @@ function BuilderPageContent() {
                 </div>
               </div>
             )}
+
+            <div className="flex flex-col gap-6">
+              {/* Zoom Controls + Page Info */}
+              <div className="flex items-center justify-center gap-4 bg-surface/50 backdrop-blur-md py-2 px-4 rounded-full border border-border w-fit mx-auto">
+                <button
+                  onClick={() =>
+                    setPreviewZoom(
+                      Math.max(0.3, +(previewZoom - 0.1).toFixed(1)),
+                    )
+                  }
+                  className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
+                >
+                  <MinusIcon className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-bold text-txt tabular-nums w-12 text-center">
+                  {Math.round(previewZoom * 100)}%
+                </span>
+                <button
+                  onClick={() =>
+                    setPreviewZoom(
+                      Math.min(1.2, +(previewZoom + 0.1).toFixed(1)),
+                    )
+                  }
+                  className="p-1.5 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                </button>
+                <div className="w-px h-4 bg-border" />
+                <span className="text-[10px] font-bold text-txt-muted uppercase tracking-wider">
+                  {totalPages} {totalPages === 1 ? "page" : "pages"}
+                </span>
+              </div>
+
+              {/* Desktop preview — paginated A4 sheets */}
+              <div className={`hidden lg:flex flex-col ${previewZoom > 0.8 ? 'items-start' : 'items-center'} gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar`}>
+                <div className={`flex flex-col ${previewZoom > 0.8 ? 'items-start mx-auto' : 'items-center'} gap-6`} dir={dir}>
+                  {renderPaginatedSheets(previewZoom)}
+                </div>
+              </div>
+
+              {/* Mobile preview — paginated A4 sheets */}
+              <div className="lg:hidden">
+                <div className="overflow-x-auto pb-4 -mx-4 px-4 bg-surface2/30 rounded-2xl py-6">
+                  <div
+                    className="flex flex-col items-center gap-4"
+                    style={{
+                      margin: "0 auto",
+                      width: Math.round(A4_WIDTH * 0.45),
+                      maxWidth: "100%",
+                    }}
+                    dir={dir}
+                  >
+                    {renderPaginatedSheets(0.45)}
+                  </div>
+                </div>
+                <p className="text-center text-xs text-txt-dim mt-2">
+                  {t("builder.scrollText") ||
+                    "↔ Scroll horizontally to view full CV ↔"}
+                </p>
+              </div>
+            </div>
           </motion.div>
         );
     }
@@ -3149,7 +3285,19 @@ function BuilderPageContent() {
 
           {/* -- Desktop Live Preview Sidebar -- */}
           {currentStep < 7 && (
-            <div className="hidden xl:flex flex-col w-[440px] 2xl:w-[500px] border-s border-border bg-surface2 overflow-hidden shrink-0">
+            <>
+              {/* Drag handle */}
+              <div
+                onMouseDown={startDragSidebar}
+                className="hidden xl:flex items-center justify-center w-2 cursor-col-resize hover:bg-blue-500/20 active:bg-blue-500/30 transition-colors group"
+                title="Drag to resize"
+              >
+                <div className="w-0.5 h-8 rounded-full bg-border group-hover:bg-blue-500 transition-colors" />
+              </div>
+              <div
+                className="hidden xl:flex flex-col border-s border-border bg-surface2 shrink-0"
+                style={{ width: sidebarWidth }}
+              >
               <div className="py-3 px-4 border-b border-border bg-surface flex items-center justify-between">
                 <span className="text-[10px] font-bold text-txt-muted uppercase tracking-widest">
                   {t("builder.preview")} {TEMPLATE_NAMES[activeTemplate - 1]}
@@ -3161,12 +3309,43 @@ function BuilderPageContent() {
                   {t("builder.fullScreen") || "Full Screen →"}
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto preview-scrollbar p-4 flex flex-col items-center gap-4">
-                <div className="flex flex-col items-center gap-4" dir={dir}>
-                  {renderPaginatedSheets(0.52)}
+              {/* Zoom controls */}
+              <div className="flex items-center justify-center gap-3 py-2 px-3 border-b border-border bg-surface/50">
+                <button
+                  onClick={() =>
+                    setSidePreviewZoom(
+                      Math.max(0.3, +(sidePreviewZoom - 0.05).toFixed(2)),
+                    )
+                  }
+                  className="p-1 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
+                >
+                  <MinusIcon className="w-3.5 h-3.5" />
+                </button>
+                <span className="text-[10px] font-bold text-txt tabular-nums w-10 text-center">
+                  {Math.round(sidePreviewZoom * 100)}%
+                </span>
+                <button
+                  onClick={() =>
+                    setSidePreviewZoom(
+                      Math.min(1.2, +(sidePreviewZoom + 0.05).toFixed(2)),
+                    )
+                  }
+                  className="p-1 hover:bg-surface2 rounded-full transition-colors text-txt-muted hover:text-txt"
+                >
+                  <PlusIcon className="w-3.5 h-3.5" />
+                </button>
+                <div className="w-px h-3 bg-border" />
+                <span className="text-[9px] font-bold text-txt-muted uppercase tracking-wider">
+                  {totalPages} {totalPages === 1 ? "page" : "pages"}
+                </span>
+              </div>
+              <div className="flex-1 overflow-auto preview-scrollbar p-4">
+                <div className="flex flex-col items-start gap-4 min-w-fit" dir={dir}>
+                  {renderPaginatedSheets(sidePreviewZoom)}
                 </div>
               </div>
-            </div>
+              </div>
+            </>
           )}
         </div>
 

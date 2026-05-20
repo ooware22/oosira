@@ -68,7 +68,21 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
             {data.langues.map((l, i) => (
               <div className="cv-lang-item" key={`lang-${i}`}>
                 <span>{l.langue}</span>
-                <span className="cv-lang-level">{t(`builder.level_${l.niveau}`)}</span>
+                <span className="cv-lang-level">
+                  {t(`builder.level_${l.niveau}`)}
+                  {l.certification && (
+                    <>
+                      {' — '}
+                      {l.certificationLink ? (
+                        <a href={l.certificationLink.startsWith('http') ? l.certificationLink : `https://${l.certificationLink}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ fontWeight: 500 }}>
+                          {l.certification}
+                        </a>
+                      ) : (
+                        <span style={{ fontStyle: 'italic', opacity: 0.85 }}>{l.certification}</span>
+                      )}
+                    </>
+                  )}
+                </span>
               </div>
             ))}
           </div>

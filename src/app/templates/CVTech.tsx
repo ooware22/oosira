@@ -80,7 +80,21 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
             <div className="cv-section-title">{t('builder.languages')}</div>
             {data.langues.map((l, i) => (
               <div className="cv-lang-bar" key={`lang-${i}`}>
-                <div className="bar-label">{l.langue} - {t(`builder.level_${l.niveau}`)}</div>
+                <div className="bar-label">
+                  {l.langue} - {t(`builder.level_${l.niveau}`)}
+                  {l.certification && (
+                    <>
+                      {' — '}
+                      {l.certificationLink ? (
+                        <a href={l.certificationLink.startsWith('http') ? l.certificationLink : `https://${l.certificationLink}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ fontWeight: 500 }}>
+                          {l.certification}
+                        </a>
+                      ) : (
+                        <span style={{ fontStyle: 'italic', opacity: 0.85 }}>{l.certification}</span>
+                      )}
+                    </>
+                  )}
+                </div>
                 <div className="bar-track"><div className="bar-fill" style={{ width: `${langBarWidth(l.niveau)}%` }} /></div>
               </div>
             ))}

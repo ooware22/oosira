@@ -30,6 +30,7 @@ export interface Langue {
   langue: string;
   niveau: string;
   certification?: string;
+  certificationLink?: string;
 }
 
 export interface Candidate {
