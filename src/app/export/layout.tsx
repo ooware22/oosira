@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '../cv-templates.css';
 
 export const metadata: Metadata = {
   title: 'Exporter mon CV',

@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { jsPDF } from "jspdf";
 import {
   candidates,
   Candidate,

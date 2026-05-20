@@ -51,6 +51,14 @@ const nextConfig: NextConfig = {
 
   // ─── Powered By ───────────────────────────────────────
   poweredByHeader: false,
+
+  // ─── Performance Optimizations ────────────────────────
+  experimental: {
+    optimizePackageImports: [
+      '@heroicons/react',
+      'framer-motion',
+    ],
+  },
 };
 
 export default nextConfig;
