@@ -1,12 +1,10 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Outfit, Kalam, Pacifico, Cairo } from 'next/font/google';
+import { Inter, Outfit, Cairo } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', display: 'swap' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', display: 'swap' });
-const kalam = Kalam({ weight: ['300', '400', '700'], subsets: ['latin'], variable: '--font-kalam', display: 'swap' });
-const pacifico = Pacifico({ weight: ['400'], subsets: ['latin'], variable: '--font-pacifico', display: 'swap' });
 
 const SITE_URL = 'https://oosira.com';
 const SITE_NAME = 'Oosira';
@@ -157,7 +155,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" suppressHydrationWarning className={`${inter.variable} ${outfit.variable} ${cairo.variable} ${kalam.variable} ${pacifico.variable}`}>
+    <html lang="fr" suppressHydrationWarning className={`${inter.variable} ${outfit.variable} ${cairo.variable}`}>
       <head>
         <script
           type="application/ld+json"
