@@ -354,8 +354,8 @@ function BuilderPageContent() {
   });
   const previewRef = useRef<HTMLDivElement>(null);
   const [previewZoom, setPreviewZoom] = useState(0.75);
-  const [sidePreviewZoom, setSidePreviewZoom] = useState(0.52);
-  const [sidebarWidth, setSidebarWidth] = useState(440);
+  const [sidePreviewZoom, setSidePreviewZoom] = useState(0.9);
+  const [sidebarWidth, setSidebarWidth] = useState(typeof window !== 'undefined' ? Math.floor(window.innerWidth / 2) : 600);
   const isDraggingRef = useRef(false);
   const cvMeasureRef = useRef<HTMLDivElement>(null);
   const [totalPages, setTotalPages] = useState(1);
@@ -1058,7 +1058,7 @@ function BuilderPageContent() {
     const onMove = (ev: MouseEvent) => {
       if (!isDraggingRef.current) return;
       const delta = startX - ev.clientX; // dragging left = bigger sidebar
-      setSidebarWidth(Math.max(300, Math.min(700, startW + delta)));
+      setSidebarWidth(Math.max(300, Math.min(Math.floor(window.innerWidth * 0.6), startW + delta)));
     };
     const onUp = () => {
       isDraggingRef.current = false;
@@ -3242,7 +3242,7 @@ function BuilderPageContent() {
 
             {/* Step content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-              <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <AnimatePresence mode="wait" custom={direction}>
                   <motion.div
                     key={currentStep}
@@ -3261,7 +3261,7 @@ function BuilderPageContent() {
 
             {/* Bottom navigation */}
             <div className="shrink-0 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4">
-              <div className="max-w-3xl mx-auto flex items-center justify-between">
+              <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <button
                   onClick={prev}
                   disabled={currentStep === 0}
@@ -3371,7 +3371,7 @@ function BuilderPageContent() {
                 </span>
               </div>
               <div className="flex-1 overflow-auto preview-scrollbar p-4">
-                <div className="flex flex-col items-start gap-4 min-w-fit" dir={dir}>
+                <div className="flex flex-col items-center gap-4 min-w-fit" dir={dir}>
                   {renderPaginatedSheets(sidePreviewZoom)}
                 </div>
               </div>
