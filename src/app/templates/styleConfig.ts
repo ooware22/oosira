@@ -22,7 +22,7 @@ export interface CVStyleConfig {
   // ── Typography ──
   headingFont: string; // Font for names and section titles
   bodyFont: string; // Font for body text
-  fontSize: "compact" | "default" | "large";
+  fontSize: "tiny" | "compact" | "default" | "large" | "xlarge" | "xxl" | "jumbo";
 
   // ── Layout & Shape ──
   borderRadius: "none" | "small" | "medium" | "rounded";
@@ -32,7 +32,7 @@ export interface CVStyleConfig {
   layoutCols: "1" | "1.4fr 1fr" | "1fr 1fr"; // Grid template columns
 
   // ── Spacing ──
-  spacing: "tight" | "default" | "relaxed";
+  spacing: "extra-tight" | "tight" | "default" | "relaxed" | "airy" | "ultra" | "maximum";
 
   // ── Ordering ──
   mainOrder: string[]; // e.g. ['experiences', 'formations']
@@ -328,6 +328,32 @@ export const TEMPLATE_DEFAULTS: Record<number, CVStyleConfig> = {
     mainOrder: ["experiences", "formations"],
     sideOrder: ["competences", "langues", "logiciels"],
   },
+  3: {
+    // Executif
+    primaryColor: "#1e293b",
+    accentColor: "#3b82f6",
+    headerBg: "#ffffff",
+    headerText: "#1e293b",
+    bodyBg: "#ffffff",
+    bodyText: "#1e293b",
+    mutedText: "#64748b",
+    borderColor: "#e2e8f0",
+    skillBg: "rgba(59,130,246,0.1)",
+    skillText: "#3b82f6",
+    sidebarBg: "#1e293b",
+    sidebarText: "#e2e8f0",
+    headingFont: "'DM Sans', sans-serif",
+    bodyFont: "'DM Sans', sans-serif",
+    fontSize: "default",
+    borderRadius: "small",
+    sectionDivider: "solid",
+    skillStyle: "tag",
+    headerLayout: "default",
+    spacing: "default",
+    layoutCols: "1fr 1fr",
+    mainOrder: ["experiences", "formations"],
+    sideOrder: ["competences", "langues", "logiciels"],
+  },
   4: {
     // Medical
     primaryColor: "#2563EB",
@@ -380,148 +406,6 @@ export const TEMPLATE_DEFAULTS: Record<number, CVStyleConfig> = {
     mainOrder: ["experiences", "formations"],
     sideOrder: ["competences", "langues", "logiciels"],
   },
-  6: {
-    // Minimaliste
-    primaryColor: "#111827",
-    accentColor: "#4b5563",
-    headerBg: "#ffffff",
-    headerText: "#111827",
-    bodyBg: "#ffffff",
-    bodyText: "#374151",
-    mutedText: "#6b7280",
-    borderColor: "#e5e7eb",
-    skillBg: "#f3f4f6",
-    skillText: "#374151",
-    sidebarBg: "#ffffff",
-    sidebarText: "#374151",
-    headingFont: "'Inter', sans-serif",
-    bodyFont: "'Inter', sans-serif",
-    fontSize: "compact",
-    borderRadius: "none",
-    sectionDivider: "solid",
-    skillStyle: "outline",
-    headerLayout: "minimal",
-    spacing: "relaxed",
-    layoutCols: "1",
-    mainOrder: [
-      "experiences",
-      "formations",
-      "competences",
-      "langues",
-      "logiciels",
-    ],
-    sideOrder: [],
-  },
-  7: {
-    // Créatif
-    primaryColor: "#db2777",
-    accentColor: "#ec4899",
-    headerBg: "#fdf2f8",
-    headerText: "#9d174d",
-    bodyBg: "#ffffff",
-    bodyText: "#1f2937",
-    mutedText: "#4b5563",
-    borderColor: "#fce7f3",
-    skillBg: "#fdf2f8",
-    skillText: "#db2777",
-    sidebarBg: "#fdf2f8",
-    sidebarText: "#831843",
-    headingFont: "'Outfit', sans-serif",
-    bodyFont: "'Outfit', sans-serif",
-    fontSize: "large",
-    borderRadius: "rounded",
-    sectionDivider: "gradient",
-    skillStyle: "pill",
-    headerLayout: "centered",
-    spacing: "relaxed",
-    layoutCols: "1fr 1fr",
-    mainOrder: ["experiences", "formations"],
-    sideOrder: ["competences", "langues", "logiciels"],
-  },
-  8: {
-    // Exécutif (Dark)
-    primaryColor: "#0f172a",
-    accentColor: "#fbbf24",
-    headerBg: "#0f172a",
-    headerText: "#f8fafc",
-    bodyBg: "#1e293b",
-    bodyText: "#cbd5e1",
-    mutedText: "#94a3b8",
-    borderColor: "#334155",
-    skillBg: "#334155",
-    skillText: "#fbbf24",
-    sidebarBg: "#0f172a",
-    sidebarText: "#f8fafc",
-    headingFont: "'Playfair Display', serif",
-    bodyFont: "'DM Sans', sans-serif",
-    fontSize: "default",
-    borderRadius: "small",
-    sectionDivider: "solid",
-    skillStyle: "bar",
-    headerLayout: "default",
-    spacing: "default",
-    layoutCols: "1.4fr 1fr",
-    mainOrder: ["experiences", "formations"],
-    sideOrder: ["competences", "langues", "logiciels"],
-  },
-  9: {
-    // Universitaire
-    primaryColor: "#4c1d95",
-    accentColor: "#7c3aed",
-    headerBg: "#4c1d95",
-    headerText: "#ffffff",
-    bodyBg: "#ffffff",
-    bodyText: "#1e1e1e",
-    mutedText: "#525252",
-    borderColor: "#ede9fe",
-    skillBg: "#ede9fe",
-    skillText: "#5b21b6",
-    sidebarBg: "#4c1d95",
-    sidebarText: "#ffffff",
-    headingFont: "'Merriweather', serif",
-    bodyFont: "'Merriweather', serif",
-    fontSize: "default",
-    borderRadius: "small",
-    sectionDivider: "solid",
-    skillStyle: "tag",
-    headerLayout: "centered",
-    spacing: "relaxed",
-    layoutCols: "1",
-    mainOrder: [
-      "formations",
-      "experiences",
-      "competences",
-      "langues",
-      "logiciels",
-    ],
-    sideOrder: [],
-  },
-  10: {
-    // Tech & Code
-    primaryColor: "#14b8a6",
-    accentColor: "#0d9488",
-    headerBg: "#14b8a6",
-    headerText: "#ffffff",
-    bodyBg: "#ffffff",
-    bodyText: "#1f2937",
-    mutedText: "#4b5563",
-    borderColor: "#e5e7eb",
-    skillBg: "#ccfbf1",
-    skillText: "#0f766e",
-    sidebarBg: "#f0fdfa",
-    sidebarText: "#115e59",
-    headingFont: "'JetBrains Mono', monospace",
-    bodyFont: "'Inter', sans-serif",
-    fontSize: "compact",
-    borderRadius: "rounded",
-    sectionDivider: "dots",
-    skillStyle: "tag",
-    headerLayout: "minimal",
-    spacing: "tight",
-    layoutCols: "1.4fr 1fr",
-    mainOrder: ["experiences", "formations"],
-    sideOrder: ["competences", "langues", "logiciels"],
-  },
 };
 
 // ── Helper: convert hex to rgba ──
@@ -540,8 +424,8 @@ export function styleToCSSVars(config: CVStyleConfig): Record<string, string> {
     medium: "6px",
     rounded: "12px",
   };
-  const fontSizeMap = { compact: "11px", default: "12px", large: "13px" };
-  const spacingMap = { tight: "14px", default: "18px", relaxed: "24px" };
+  const fontSizeMap: Record<string, string> = { tiny: "9.5px", compact: "11px", default: "12px", large: "13px", xlarge: "14px", xxl: "15.5px", jumbo: "17px" };
+  const spacingMap: Record<string, string> = { "extra-tight": "10px", tight: "14px", default: "18px", relaxed: "24px", airy: "30px", ultra: "36px", maximum: "44px" };
   const layoutColMap = {
     "1": "1fr",
     "1fr 1fr": "1fr 1fr",

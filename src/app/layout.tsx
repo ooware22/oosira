@@ -8,7 +8,7 @@ const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', di
 
 const SITE_URL = 'https://oosira.com';
 const SITE_NAME = 'Oosira';
-const SITE_DESCRIPTION = 'Créez votre CV professionnel en Algérie gratuitement avec Oosira. Le meilleur créateur de CV en ligne pour les algériens — modèles élégants, export PDF haute qualité, importation OCR et prévisualisation en temps réel. CV DZ gratuit et sans inscription.';
+const SITE_DESCRIPTION = 'Créez votre CV professionnel en Algérie gratuitement avec Oosira. Le meilleur créateur de CV en ligne pour les algériens, modèles élégants, export PDF haute qualité, importation OCR et prévisualisation en temps réel. CV DZ gratuit et sans inscription.';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
 
   // ─── Core ─────────────────────────────────────────────
   title: {
-    default: 'Oosira — Créateur de CV Gratuit en Algérie | CV DZ Professionnel',
-    template: '%s | Oosira — CV Algérie',
+    default: 'Oosira, Créateur de CV Gratuit en Algérie, CV DZ Professionnel',
+    template: '%s, Oosira CV Algérie',
   },
   description: SITE_DESCRIPTION,
   keywords: [
@@ -78,14 +78,14 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US', 'ar_DZ'],
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: 'Oosira — Créateur de CV Professionnel Gratuit en Algérie | CV DZ',
+    title: 'Oosira, Créateur de CV Professionnel Gratuit en Algérie, CV DZ',
     description: SITE_DESCRIPTION,
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Oosira — Créez votre CV professionnel en quelques minutes',
+        alt: 'Oosira Créez votre CV professionnel en quelques minutes',
         type: 'image/png',
       },
     ],
@@ -94,7 +94,7 @@ export const metadata: Metadata = {
   // ─── Twitter Card ─────────────────────────────────────
   twitter: {
     card: 'summary_large_image',
-    title: 'Oosira — Créateur de CV Gratuit en Algérie | CV DZ',
+    title: 'Oosira, Créateur de CV Gratuit en Algérie, CV DZ',
     description: SITE_DESCRIPTION,
     images: ['/og-image.png'],
     creator: '@oosira',

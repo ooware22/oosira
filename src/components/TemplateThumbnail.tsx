@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Premium CV Template Thumbnails
@@ -13,7 +13,7 @@ interface ThumbnailProps {
   headerBg: string;
 }
 
-/* ── Shared micro-elements ── */
+/* â”€â”€ Shared micro-elements â”€â”€ */
 const Lines = ({ color = '#e5e7eb', count = 3, widths }: { color?: string; count?: number; widths?: string[] }) => (
   <div className="space-y-[3px]">
     {Array.from({ length: count }).map((_, i) => (
@@ -66,7 +66,7 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
   const gray = '#d1d5db';
   const grayDark = '#9ca3af';
 
-  /* ─── 1 · Classique Pro ─── */
+  /* â”€â”€â”€ 1 Â· Classique Pro â”€â”€â”€ */
   if (templateId === 1) return (
     <div className="h-full w-full bg-white flex flex-col">
       <div className="px-3 pt-3 pb-2" style={{ background: headerBg }}>
@@ -99,7 +99,7 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
     </div>
   );
 
-  /* ─── 2 · Ingenieur ─── */
+  /* â”€â”€â”€ 2 Â· Ingenieur â”€â”€â”€ */
   if (templateId === 2) return (
     <div className="h-full w-full bg-white flex flex-col">
       <div className="px-3 py-2 flex items-end justify-between" style={{ background: headerBg }}>
@@ -136,7 +136,47 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
   );
 
 
-  /* ─── 4 · Medical ─── */
+  /* â”€â”€â”€ 3 Â· Executif (sidebar) â”€â”€â”€ */
+  if (templateId === 3) return (
+    <div className="h-full w-full bg-white flex">
+      {/* Dark sidebar */}
+      <div className="w-[32%] flex flex-col gap-[6px] p-2" style={{ background: headerBg || primary }}>
+        <div className="mx-auto rounded-full flex items-center justify-center" style={{ width: 18, height: 18, background: accent, border: '1.5px solid rgba(255,255,255,0.2)' }}>
+          <div className="rounded-full" style={{ width: 5, height: 5, background: '#fff', opacity: 0.7 }} />
+        </div>
+        <div className="space-y-[2px]">
+          {[16, 14, 18, 12].map((w, i) => (
+            <div key={i} className="flex items-center gap-[2px]">
+              <div className="rounded-full" style={{ width: 2.5, height: 2.5, background: '#fff', opacity: 0.3 }} />
+              <div className="rounded-sm" style={{ height: 1.5, width: w, background: '#fff', opacity: 0.25 }} />
+            </div>
+          ))}
+        </div>
+        <div className="rounded-sm" style={{ height: 2, width: '50%', background: accent, opacity: 0.7 }} />
+        <div className="flex flex-wrap gap-[2px]">
+          {[14, 12, 16, 10, 13].map((w, i) => (
+            <div key={i} className="rounded-sm" style={{ height: 4, width: w, background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.12)' }} />
+          ))}
+        </div>
+        <div className="rounded-sm" style={{ height: 2, width: '45%', background: accent, opacity: 0.7 }} />
+        <SkillDots color="#fff" filled={4} />
+        <SkillDots color="#fff" filled={3} />
+      </div>
+      {/* Main content */}
+      <div className="flex-1 p-2.5 space-y-1">
+        <div className="rounded-sm" style={{ height: 4.5, width: '70%', background: primary, opacity: 0.9 }} />
+        <div className="rounded-sm" style={{ height: 2, width: '50%', background: accent, opacity: 0.6 }} />
+        <Lines color={gray} count={2} widths={['100%', '75%']} />
+        <div className="h-[2px] mt-1" style={{ background: accent, opacity: 0.3 }} />
+        <SectionLabel color={primary} width="40%" />
+        <Lines color={gray} count={3} widths={['100%', '85%', '55%']} />
+        <SectionLabel color={primary} width="45%" />
+        <Lines color={gray} count={2} widths={['90%', '70%']} />
+      </div>
+    </div>
+  );
+
+  /* â”€â”€â”€ 4 Â· Medical â”€â”€â”€ */
   if (templateId === 4) return (
     <div className="h-full w-full bg-white flex flex-col">
       <div className="h-[3px]" style={{ background: `linear-gradient(to right, ${primary}, ${accent})` }} />
@@ -161,7 +201,7 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
     </div>
   );
 
-  /* ─── 5 · Tech & IT (dark) ─── */
+  /* â”€â”€â”€ 5 Â· Tech & IT (dark) â”€â”€â”€ */
   if (templateId === 5) return (
     <div className="h-full w-full flex flex-col" style={{ background: '#0D1117' }}>
       <div className="px-3 py-2 flex items-center gap-2" style={{ background: '#161B22' }}>
@@ -194,156 +234,6 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
     </div>
   );
 
-  /* ─── 6 · Minimaliste ─── */
-  if (templateId === 6) return (
-    <div className="h-full w-full bg-white p-3 flex flex-col">
-      <div className="flex items-end justify-between border-b pb-1.5 mb-1" style={{ borderColor: `${primary}30` }}>
-        <div>
-          <div className="rounded-sm" style={{ height: 4, width: 50, background: primary, opacity: 0.9 }} />
-          <div className="rounded-sm mt-[2px]" style={{ height: 2, width: 35, background: grayDark, opacity: 0.5 }} />
-        </div>
-        <div className="space-y-[2px] text-right">
-          <div className="rounded-sm ms-auto" style={{ height: 1.5, width: 25, background: grayDark, opacity: 0.3 }} />
-          <div className="rounded-sm ms-auto" style={{ height: 1.5, width: 30, background: grayDark, opacity: 0.3 }} />
-        </div>
-      </div>
-      <div className="flex-1 space-y-1">
-        <SectionLabel color={primary} width="25%" />
-        <Lines color={gray} count={3} widths={['100%', '90%', '70%']} />
-        <SectionLabel color={primary} width="30%" />
-        <Lines color={gray} count={3} widths={['95%', '85%', '60%']} />
-        <SectionLabel color={primary} width="20%" />
-        <div className="flex gap-[4px] flex-wrap">
-          {[18, 22, 16, 20].map((w, i) => (
-            <div key={i} className="rounded-sm" style={{ height: 5, width: w, background: `${accent}12`, border: `0.5px solid ${accent}25` }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ─── 7 · Créatif ─── */
-  if (templateId === 7) return (
-    <div className="h-full w-full flex flex-col" style={{ background: `${primary}08` }}>
-      <div className="px-3 py-2 flex items-center gap-2" style={{ background: `linear-gradient(135deg, ${primary}, ${accent})` }}>
-        <Avatar bg="rgba(255,255,255,0.25)" size={18} text="#fff" />
-        <div>
-          <div className="rounded-sm" style={{ height: 3, width: 40, background: '#fff', opacity: 0.9 }} />
-          <div className="rounded-sm mt-[2px]" style={{ height: 1.5, width: 30, background: '#fff', opacity: 0.5 }} />
-        </div>
-      </div>
-      <div className="flex justify-center gap-[4px] py-1.5 border-b" style={{ borderColor: `${accent}20` }}>
-        {[20, 18, 22, 16].map((w, i) => (
-          <div key={i} className="rounded-full" style={{ height: 5, width: w, background: `${accent}15` }} />
-        ))}
-      </div>
-      <div className="flex-1 p-2.5 flex gap-2">
-        <div className="flex-1 space-y-1">
-          <SectionLabel color={accent} width="35%" />
-          <Lines color={gray} count={3} widths={['100%', '80%', '55%']} />
-          <SectionLabel color={accent} width="40%" />
-          <Lines color={gray} count={2} widths={['90%', '65%']} />
-        </div>
-        <div className="w-[30%] space-y-1">
-          <SectionLabel color={accent} width="55%" />
-          <SkillDots color={accent} filled={4} />
-          <SkillDots color={accent} filled={3} />
-          <SkillDots color={accent} filled={5} />
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ─── 8 · Exécutif Dark ─── */
-  if (templateId === 8) return (
-    <div className="h-full w-full flex flex-col" style={{ background: primary }}>
-      <div className="px-3 py-2 border-b" style={{ background: headerBg, borderColor: '#334155' }}>
-        <div className="flex items-center gap-2">
-          <Avatar bg={`${accent}50`} size={18} text="#fff" />
-          <div>
-            <div className="rounded-sm" style={{ height: 3.5, width: 40, background: '#fff', opacity: 0.85 }} />
-            <div className="rounded-sm mt-[2px]" style={{ height: 2, width: 30, background: accent, opacity: 0.6 }} />
-          </div>
-        </div>
-      </div>
-      <div className="flex-1 flex">
-        <div className="w-[38%] p-2 border-e space-y-1" style={{ background: headerBg, borderColor: '#334155' }}>
-          <SectionLabel color={accent} width="55%" />
-          <Lines color="#475569" count={2} widths={['85%', '65%']} />
-          <SectionLabel color={accent} width="50%" />
-          <SkillBar color={accent} pct={85} />
-          <SkillBar color={accent} pct={65} />
-          <SkillBar color={accent} pct={75} />
-          <SectionLabel color={accent} width="45%" />
-          <SkillDots color={accent} filled={4} />
-          <SkillDots color={accent} filled={3} />
-        </div>
-        <div className="flex-1 p-2 space-y-1">
-          <SectionLabel color={accent} width="40%" />
-          <Lines color="#475569" count={3} widths={['100%', '85%', '60%']} />
-          <SectionLabel color={accent} width="45%" />
-          <Lines color="#475569" count={2} widths={['90%', '70%']} />
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ─── 9 · Universitaire ─── */
-  if (templateId === 9) return (
-    <div className="h-full w-full bg-white flex flex-col relative">
-      <div className="flex justify-center pt-2">
-        <div className="rounded-b-md px-2 py-1 flex flex-col items-center" style={{ background: headerBg }}>
-          <div className="rounded-full" style={{ width: 10, height: 10, background: '#fff', opacity: 0.3 }} />
-          <div className="rounded-sm mt-[2px]" style={{ height: 2, width: 30, background: '#fff', opacity: 0.8 }} />
-        </div>
-      </div>
-      <div className="text-center mt-1.5 px-2">
-        <div className="rounded-sm mx-auto" style={{ height: 2, width: '45%', background: primary, opacity: 0.7 }} />
-        <div className="rounded-sm mx-auto mt-[3px]" style={{ height: 1.5, width: '30%', background: grayDark, opacity: 0.4 }} />
-      </div>
-      <div className="flex-1 px-3 pt-2 pb-2 space-y-1">
-        <SectionLabel color={primary} width="35%" />
-        <Lines color={gray} count={3} widths={['100%', '85%', '55%']} />
-        <SectionLabel color={primary} width="40%" />
-        <Lines color={gray} count={2} widths={['90%', '70%']} />
-        <SectionLabel color={primary} width="30%" />
-        <div className="flex gap-[3px]">
-          {[16, 20, 14].map((w, i) => (
-            <div key={i} className="rounded-sm" style={{ height: 5, width: w, background: `${primary}12`, border: `0.5px solid ${primary}25` }} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ─── 10 · Startup ─── */
-  if (templateId === 10) return (
-    <div className="h-full w-full bg-white flex flex-col border-t-[4px]" style={{ borderColor: primary }}>
-      <div className="px-3 pt-2 pb-1 flex items-center gap-2">
-        <Avatar bg={`${primary}20`} size={18} text={primary} />
-        <div>
-          <div className="rounded-sm" style={{ height: 3.5, width: 40, background: primary, opacity: 0.85 }} />
-          <div className="rounded-sm mt-[2px]" style={{ height: 1.5, width: 30, background: grayDark, opacity: 0.5 }} />
-        </div>
-      </div>
-      <div className="flex-1 px-3 pb-2 space-y-1">
-        <SectionLabel color={primary} width="30%" />
-        <div className="border-s-2 ps-1.5" style={{ borderColor: `${primary}40` }}>
-          <Lines color={gray} count={3} widths={['100%', '85%', '55%']} />
-        </div>
-        <SectionLabel color={primary} width="35%" />
-        <div className="border-s-2 ps-1.5" style={{ borderColor: `${primary}40` }}>
-          <Lines color={gray} count={2} widths={['90%', '70%']} />
-        </div>
-        <SectionLabel color={primary} width="25%" />
-        <div className="flex gap-[4px] flex-wrap">
-          {[85, 60, 75].map((p, i) => (
-            <SkillBar key={i} color={accent} pct={p} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
 
   /* Fallback */
   return (
@@ -352,3 +242,4 @@ export default function TemplateThumbnail({ templateId, primary, accent, headerB
     </div>
   );
 }
+

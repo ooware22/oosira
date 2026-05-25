@@ -9,6 +9,8 @@ interface AutocompleteInputProps {
   placeholder?: string;
   type?: string;
   maxResults?: number;
+  /** When true, show all suggestions on focus even when input is empty */
+  showAllOnFocus?: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ export default function AutocompleteInput({
   placeholder,
   type = "text",
   maxResults = 8,
+  showAllOnFocus = false,
 }: AutocompleteInputProps) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -36,7 +39,11 @@ export default function AutocompleteInput({
   // Fuzzy filter: match if all words of query appear in suggestion
   const filtered = useMemo(() => {
     const q = normalize(value.trim());
-    if (!q || q.length < 2) return [];
+    // When showAllOnFocus is enabled and input is empty, show all suggestions
+    if (!q) {
+      return showAllOnFocus ? suggestions.slice(0, maxResults) : [];
+    }
+    if (q.length < 2 && !showAllOnFocus) return [];
     const words = q.split(/\s+/);
     return suggestions
       .filter((s) => {
@@ -44,7 +51,7 @@ export default function AutocompleteInput({
         return words.every((w) => lower.includes(w));
       })
       .slice(0, maxResults);
-  }, [value, suggestions, maxResults]);
+  }, [value, suggestions, maxResults, showAllOnFocus]);
 
   // Close on outside click
   useEffect(() => {
@@ -115,7 +122,13 @@ export default function AutocompleteInput({
           setOpen(true);
           setActiveIdx(-1);
         }}
-        onFocus={() => value.trim().length >= 2 && setOpen(true)}
+        onFocus={() => {
+          if (showAllOnFocus && suggestions.length > 0) {
+            setOpen(true);
+          } else if (value.trim().length >= 2) {
+            setOpen(true);
+          }
+        }}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoComplete="off"

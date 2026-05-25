@@ -13,6 +13,7 @@ import {
 import {
   CVClassique,
   CVIngenieur,
+  CVExecutif,
   CVMedical,
   CVTech,
 } from "../templates";
@@ -76,7 +77,8 @@ import {
   invalidateSubscriptionCache,
 } from "@/app/hooks/useSubscription";
 import AutocompleteInput from "@/components/AutocompleteInput";
-import { SUGGESTIONS } from "@/data/cvSuggestions";
+import PinchZoomPreview from "@/components/PinchZoomPreview";
+import { SUGGESTIONS, getCertificationsForLanguage } from "@/data/cvSuggestions";
 
 /* -- Constants -- */
 const CANDIDATE_ICONS: Record<
@@ -279,19 +281,9 @@ function BuilderPageContent() {
     const _templateThumbs = [
       { id: 1, name: "Classique Pro", color: "#1B3A6B", style: "elegant" },
       { id: 2, name: "Ingenieur", color: "#2C3E50", style: "technical" },
-
+      { id: 3, name: "Executif", color: "#1e293b", style: "executive" },
       { id: 4, name: "Medical", color: "#2563EB", style: "medical" },
       { id: 5, name: "Tech & IT", color: "#0D1117", style: "tech" },
-      { id: 6, name: "Minimaliste", color: "#f3f4f6", style: "minimalist" },
-      { id: 7, name: "Créatif", color: "#ec4899", style: "creative" },
-      {
-        id: 8,
-        name: "Exécutif Dark",
-        color: "#0f172a",
-        style: "executive-dark",
-      },
-      { id: 9, name: "Universitaire", color: "#7e22ce", style: "academic" },
-      { id: 10, name: "Startup", color: "#14b8a6", style: "startup" },
     ];
     setShuffledTemplates([..._templateThumbs].sort(() => Math.random() - 0.5));
     setShuffledPalettes([...COLOR_PALETTES].sort(() => Math.random() - 0.5));
@@ -737,7 +729,7 @@ function BuilderPageContent() {
       const cvPayload = {
         title: cvTitle.trim() || defaultTitle,
         jobTitle: formData.titre || "",
-        templateName: TEMPLATE_NAMES[activeTemplate - 1] || "Classique Pro",
+        templateName: TEMPLATE_NAMES[activeTemplate] || "Classique Pro",
         templateId: activeTemplate,
         previewColor:
           styleConfig.sidebarBg || styleConfig.accentColor || "#0D1117",
@@ -967,7 +959,7 @@ function BuilderPageContent() {
   const addLangue = () => {
     setFormData((prev) => ({
       ...prev,
-      langues: [...prev.langues, { langue: "", niveau: "Intermediaire", certification: "" }],
+      langues: [...prev.langues, { langue: "", niveau: "Intermediaire", certification: "", score: "" }],
     }));
   };
   const removeLangue = (idx: number) => {
@@ -1087,6 +1079,8 @@ function BuilderPageContent() {
         return <CVClassique data={formData} config={styleConfig} />;
       case 2:
         return <CVIngenieur data={formData} config={styleConfig} />;
+      case 3:
+        return <CVExecutif data={formData} config={styleConfig} />;
 
       case 4:
         return <CVMedical data={formData} config={styleConfig} />;
@@ -1104,6 +1098,7 @@ function BuilderPageContent() {
       style={{
         ...cssVars,
         minHeight: "1123px",
+        height: "1123px",
       }}
       className="cv-page-wrapper"
     >
@@ -1165,6 +1160,7 @@ function BuilderPageContent() {
                   ...cssVars,
                   width: A4_WIDTH,
                   minHeight: A4_HEIGHT,
+                  height: A4_HEIGHT,
                   position: "absolute",
                   top: -contentOffset,
                   left: 0,
@@ -1192,14 +1188,9 @@ function BuilderPageContent() {
   const templateThumbs = [
     { id: 1, name: "Classique Pro", color: "#1B3A6B", style: "elegant" },
     { id: 2, name: "Ingenieur", color: "#2C3E50", style: "technical" },
-
+    { id: 3, name: "Executif", color: "#1e293b", style: "executive" },
     { id: 4, name: "Medical", color: "#2563EB", style: "medical" },
     { id: 5, name: "Tech & IT", color: "#0D1117", style: "tech" },
-    { id: 6, name: "Minimaliste", color: "#f3f4f6", style: "minimalist" },
-    { id: 7, name: "Cratif", color: "#ec4899", style: "creative" },
-    { id: 8, name: "Excutif Dark", color: "#0f172a", style: "executive-dark" },
-    { id: 9, name: "Universitaire", color: "#7e22ce", style: "academic" },
-    { id: 10, name: "Startup", color: "#14b8a6", style: "startup" },
   ];
 
   /* -- Step content renderer -- */
@@ -2239,25 +2230,39 @@ function BuilderPageContent() {
                         <TrashIcon className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                    <input
-                      className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 lg:py-3 text-xs lg:text-base text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
+                    <AutocompleteInput
+                      label={language === "fr" ? "Certification" : language === "ar" ? "الشهادة" : "Certification"}
                       value={l.certification || ""}
-                      onChange={(e) =>
-                        updateLangue(idx, "certification", e.target.value)
+                      onChange={(v) =>
+                        updateLangue(idx, "certification", v)
                       }
-                      placeholder={language === "fr" ? "Certification (ex: DELF B2, TOEFL 95...)" : language === "ar" ? "الشهادة (مثال: DELF B2, TOEFL 95...)" : "Certification (e.g. DELF B2, TOEFL 95...)"}
+                      suggestions={getCertificationsForLanguage(l.langue)}
+                      placeholder={language === "fr" ? "Ex: DELF B2, TOEFL 95..." : language === "ar" ? "مثال: DELF B2, TOEFL 95..." : "e.g. DELF B2, TOEFL 95..."}
+                      showAllOnFocus
                     />
                     {l.certification && (
-                      <div className="flex items-center gap-2">
-                        <LinkIcon className="w-3.5 h-3.5 text-txt-muted shrink-0" />
-                        <input
-                          className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 lg:py-3 text-xs lg:text-base text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
-                          value={l.certificationLink || ""}
-                          onChange={(e) =>
-                            updateLangue(idx, "certificationLink", e.target.value)
-                          }
-                          placeholder={language === "fr" ? "Lien vers le certificat (URL)" : "Certificate link (URL)"}
-                        />
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2 lg:py-3 text-xs lg:text-base text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
+                            value={l.score || ""}
+                            onChange={(e) =>
+                              updateLangue(idx, "score", e.target.value)
+                            }
+                            placeholder={language === "fr" ? "Score (ex: 7.5, B2, 95/120...)" : language === "ar" ? "النتيجة (مثال: 7.5, B2...)" : "Score (e.g. 7.5, B2, 95/120...)"}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <LinkIcon className="w-3.5 h-3.5 text-txt-muted shrink-0" />
+                          <input
+                            className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 lg:py-3 text-xs lg:text-base text-txt outline-none transition-all focus:border-blue-500 placeholder:text-txt-dim"
+                            value={l.certificationLink || ""}
+                            onChange={(e) =>
+                              updateLangue(idx, "certificationLink", e.target.value)
+                            }
+                            placeholder={language === "fr" ? "Lien vers le certificat (URL)" : "Certificate link (URL)"}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -2373,7 +2378,7 @@ function BuilderPageContent() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-border">
                 <div className="space-y-1.5 flex flex-col">
-                  <label className="text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.primaryColor") || "Primary Color"}
                   </label>
                   <div className="flex items-center gap-2">
@@ -2390,7 +2395,7 @@ function BuilderPageContent() {
                         );
                       }}
                     />
-                    <span className="text-xs lg:text-base font-mono">
+                    <span className="text-xs lg:text-sm font-mono">
                       {styleConfig.primaryColor}
                     </span>
                   </div>
@@ -2472,11 +2477,11 @@ function BuilderPageContent() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.headingFont") || "Heading Font"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.headingFont}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2493,11 +2498,11 @@ function BuilderPageContent() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.bodyFont") || "Body Font"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.bodyFont}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2518,17 +2523,19 @@ function BuilderPageContent() {
 
             {/* Layout Options */}
             <div className="bg-surface border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="text-base lg:text-xl font-bold text-txt">
+              <h3 className="text-base font-bold text-txt">
                 {t("builder.structure") || "Structure & Layout"}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.columns") || "Columns"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.layoutCols}
+                    disabled={activeTemplate === 3}
+                    style={activeTemplate === 3 ? { opacity: 0.45, cursor: 'not-allowed' } : {}}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
                         ...p,
@@ -2546,11 +2553,11 @@ function BuilderPageContent() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.fontSize") || "Font Size"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.fontSize}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2559,6 +2566,9 @@ function BuilderPageContent() {
                       }))
                     }
                   >
+                    <option value="tiny">
+                      {t("builder.fsTiny") || "Tiny"} (9.5px)
+                    </option>
                     <option value="compact">
                       {t("builder.fsCompact") || "Compact"} (11px)
                     </option>
@@ -2568,14 +2578,23 @@ function BuilderPageContent() {
                     <option value="large">
                       {t("builder.fsLarge") || "Large"} (13px)
                     </option>
+                    <option value="xlarge">
+                      {t("builder.fsXlarge") || "X-Large"} (14px)
+                    </option>
+                    <option value="xxl">
+                      {t("builder.fsXxl") || "XXL"} (15.5px)
+                    </option>
+                    <option value="jumbo">
+                      {t("builder.fsJumbo") || "Jumbo"} (17px)
+                    </option>
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+                  <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">
                     {t("builder.spacing") || "Spacing"}
                   </label>
                   <select
-                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                    className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 text-sm text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
                     value={styleConfig.spacing}
                     onChange={(e) =>
                       setStyleConfig((p) => ({
@@ -2584,6 +2603,9 @@ function BuilderPageContent() {
                       }))
                     }
                   >
+                    <option value="extra-tight">
+                      {t("builder.extraTight") || "Extra Tight"}
+                    </option>
                     <option value="tight">
                       {t("builder.tight") || "Tight"}
                     </option>
@@ -2592,6 +2614,15 @@ function BuilderPageContent() {
                     </option>
                     <option value="relaxed">
                       {t("builder.relaxed") || "Relaxed"}
+                    </option>
+                    <option value="airy">
+                      {t("builder.airy") || "Airy"}
+                    </option>
+                    <option value="ultra">
+                      {t("builder.ultra") || "Ultra"}
+                    </option>
+                    <option value="maximum">
+                      {t("builder.maximum") || "Maximum"}
                     </option>
                   </select>
                 </div>
@@ -2985,7 +3016,7 @@ function BuilderPageContent() {
 
             <div className="flex flex-col gap-6">
               {/* Zoom Controls + Page Info */}
-              <div className="flex items-center justify-center gap-4 bg-surface/50 backdrop-blur-md py-2 px-4 rounded-full border border-border w-fit mx-auto">
+              <div className="hidden lg:flex items-center justify-center gap-4 bg-surface/50 backdrop-blur-md py-2 px-4 rounded-full border border-border w-fit mx-auto">
                 <button
                   onClick={() =>
                     setPreviewZoom(
@@ -3022,24 +3053,25 @@ function BuilderPageContent() {
                 </div>
               </div>
 
-              {/* Mobile preview — paginated A4 sheets */}
+              {/* Mobile preview — pinch-to-zoom A4 sheets */}
               <div className="lg:hidden">
-                <div className="overflow-x-auto pb-4 -mx-4 px-4 bg-surface2/30 rounded-2xl py-6">
-                  <div
-                    className="flex flex-col items-center gap-4"
-                    style={{
-                      margin: "0 auto",
-                      width: Math.round(A4_WIDTH * 0.45),
-                      maxWidth: "100%",
-                    }}
-                    dir={dir}
-                  >
-                    {renderPaginatedSheets(0.45)}
-                  </div>
+                <div className="bg-surface2/30 rounded-2xl border border-border overflow-hidden" style={{ height: "55vh" }}>
+                  <PinchZoomPreview minScale={0.3} maxScale={2.5} initialScale={0.48}>
+                    <div
+                      className="flex flex-col items-center gap-4"
+                      style={{
+                        margin: "0 auto",
+                        width: Math.round(A4_WIDTH * 0.48),
+                        maxWidth: "100%",
+                      }}
+                      dir={dir}
+                    >
+                      {renderPaginatedSheets(0.48)}
+                    </div>
+                  </PinchZoomPreview>
                 </div>
                 <p className="text-center text-xs text-txt-dim mt-2">
-                  {t("builder.scrollText") ||
-                    "↔ Scroll horizontally to view full CV ↔"}
+                  🤏 {language === "fr" ? "Pincez pour zoomer, double-tap pour réinitialiser" : language === "ar" ? "اضغط بإصبعين للتكبير، انقر مرتين للإعادة" : "Pinch to zoom, double-tap to reset"}
                 </p>
               </div>
             </div>
@@ -3150,7 +3182,7 @@ function BuilderPageContent() {
             <LanguageToggle />
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-full text-[11px] font-bold">
               <Squares2X2Icon className="w-3.5 h-3.5" />
-              {TEMPLATE_NAMES[activeTemplate - 1]}
+              {TEMPLATE_NAMES[activeTemplate]}
             </div>
           </div>
         </header>
@@ -3299,7 +3331,7 @@ function BuilderPageContent() {
               >
               <div className="py-3 px-4 border-b border-border bg-surface flex items-center justify-between">
                 <span className="text-[10px] font-bold text-txt-muted uppercase tracking-widest">
-                  {t("builder.preview")} {TEMPLATE_NAMES[activeTemplate - 1]}
+                  {t("builder.preview")} {TEMPLATE_NAMES[activeTemplate]}
                 </span>
                 <button
                   onClick={() => goTo(7)}
@@ -3378,11 +3410,16 @@ function BuilderPageContent() {
                   <XMarkIcon className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex-1 overflow-auto p-4">
-                <div className="flex flex-col items-center gap-4 max-w-full overflow-x-auto" dir={dir}>
-                  {renderPaginatedSheets(0.5)}
-                </div>
+              <div className="flex-1 overflow-hidden">
+                <PinchZoomPreview minScale={0.3} maxScale={2.5} initialScale={0.5}>
+                  <div className="flex flex-col items-center gap-4 max-w-full" dir={dir}>
+                    {renderPaginatedSheets(0.5)}
+                  </div>
+                </PinchZoomPreview>
               </div>
+              <p className="text-center text-xs text-txt-dim py-2">
+                🤏 {language === "fr" ? "Pincez pour zoomer, double-tap pour réinitialiser" : language === "ar" ? "اضغط بإصبعين للتكبير، انقر مرتين للإعادة" : "Pinch to zoom, double-tap to reset"}
+              </p>
               <div className="p-4 border-t border-border">
                 <button
                   onClick={handlePrint}

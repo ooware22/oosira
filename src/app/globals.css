@@ -106,6 +106,7 @@
 /* A4 = 210mm × 297mm. At 96dpi ≈ 794px × 1123px */
 .cv-page {
   width: 794px;
+  height: 1123px;
   min-height: 1123px;
   background: var(--cv-body-bg, #fff);
   color: var(--cv-body-text, #1a1a1a);

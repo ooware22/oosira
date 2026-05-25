@@ -413,3 +413,226 @@ export type SuggestionField = keyof typeof SUGGESTIONS;
 export function getSuggestions(field: SuggestionField): readonly string[] {
   return SUGGESTIONS[field] || [];
 }
+
+// ═══════════════════════════════════════════════════════════════
+// Language → Certification Suggestions
+// Maps language names to their relevant proficiency certifications
+// ═══════════════════════════════════════════════════════════════
+
+export const CERTIFICATION_BY_LANGUAGE: Record<string, readonly string[]> = {
+  // ── French ──
+  "Français": [
+    "TCF (Test de Connaissance du Français)",
+    "TCF TP", "TCF SO", "TCF ANF", "TCF Canada", "TCF Québec", "TCF IRN",
+    "DELF A1", "DELF A2", "DELF B1", "DELF B2",
+    "DALF C1", "DALF C2",
+    "TEF (Test d'Évaluation de Français)",
+    "TEF Canada", "TEF Québec", "TEFAQ",
+    "DFP (Diplôme de Français Professionnel)",
+    "DFP Affaires B2", "DFP Affaires C1",
+    "Ev@lang",
+  ],
+  "French": [
+    "TCF (Test de Connaissance du Français)",
+    "TCF TP", "TCF SO", "TCF ANF", "TCF Canada", "TCF Québec", "TCF IRN",
+    "DELF A1", "DELF A2", "DELF B1", "DELF B2",
+    "DALF C1", "DALF C2",
+    "TEF (Test d'Évaluation de Français)",
+    "TEF Canada", "TEF Québec", "TEFAQ",
+    "DFP (Diplôme de Français Professionnel)",
+    "DFP Affaires B2", "DFP Affaires C1",
+    "Ev@lang",
+  ],
+
+  // ── English ──
+  "Anglais": [
+    "IELTS Academic", "IELTS General Training",
+    "TOEFL iBT", "TOEFL ITP", "TOEFL Essentials",
+    "TOEIC Listening & Reading", "TOEIC Speaking & Writing",
+    "Cambridge A2 Key (KET)", "Cambridge B1 Preliminary (PET)",
+    "Cambridge B2 First (FCE)", "Cambridge C1 Advanced (CAE)",
+    "Cambridge C2 Proficiency (CPE)",
+    "Duolingo English Test (DET)",
+    "PTE Academic", "PTE General",
+    "OET (Occupational English Test)",
+    "CELPIP General", "CELPIP General LS",
+    "Trinity ISE I", "Trinity ISE II", "Trinity ISE III", "Trinity ISE IV",
+    "EF SET",
+    "Aptis",
+    "British Council EnglishScore",
+    "LanguageCert B2", "LanguageCert C1", "LanguageCert C2",
+  ],
+  "English": [
+    "IELTS Academic", "IELTS General Training",
+    "TOEFL iBT", "TOEFL ITP", "TOEFL Essentials",
+    "TOEIC Listening & Reading", "TOEIC Speaking & Writing",
+    "Cambridge A2 Key (KET)", "Cambridge B1 Preliminary (PET)",
+    "Cambridge B2 First (FCE)", "Cambridge C1 Advanced (CAE)",
+    "Cambridge C2 Proficiency (CPE)",
+    "Duolingo English Test (DET)",
+    "PTE Academic", "PTE General",
+    "OET (Occupational English Test)",
+    "CELPIP General", "CELPIP General LS",
+    "Trinity ISE I", "Trinity ISE II", "Trinity ISE III", "Trinity ISE IV",
+    "EF SET",
+    "Aptis",
+    "British Council EnglishScore",
+    "LanguageCert B2", "LanguageCert C1", "LanguageCert C2",
+  ],
+
+  // ── Arabic ──
+  "Arabe": [
+    "ALPT (Arabic Language Proficiency Test)",
+    "CIMA (Certificat International de Maîtrise en Arabe)",
+    "AAPPL Arabic", "ACTFL OPI Arabic",
+    "TOAFL",
+  ],
+  "Arabic": [
+    "ALPT (Arabic Language Proficiency Test)",
+    "CIMA (Certificat International de Maîtrise en Arabe)",
+    "AAPPL Arabic", "ACTFL OPI Arabic",
+    "TOAFL",
+  ],
+  "Arabe Classique": [
+    "ALPT (Arabic Language Proficiency Test)",
+    "CIMA (Certificat International de Maîtrise en Arabe)",
+    "ACTFL OPI Arabic",
+  ],
+  "Classical Arabic": [
+    "ALPT (Arabic Language Proficiency Test)",
+    "CIMA (Certificat International de Maîtrise en Arabe)",
+    "ACTFL OPI Arabic",
+  ],
+
+  // ── Spanish ──
+  "Espagnol": [
+    "DELE A1", "DELE A2", "DELE B1", "DELE B2", "DELE C1", "DELE C2",
+    "SIELE",
+    "CCSE",
+    "CELU",
+    "DIE (Diplôme International d'Espagnol)",
+  ],
+  "Spanish": [
+    "DELE A1", "DELE A2", "DELE B1", "DELE B2", "DELE C1", "DELE C2",
+    "SIELE",
+    "CCSE",
+    "CELU",
+  ],
+
+  // ── German ──
+  "Allemand": [
+    "Goethe-Zertifikat A1", "Goethe-Zertifikat A2", "Goethe-Zertifikat B1",
+    "Goethe-Zertifikat B2", "Goethe-Zertifikat C1", "Goethe-Zertifikat C2 (GDS)",
+    "TestDaF", "DSH",
+    "telc Deutsch A1", "telc Deutsch A2", "telc Deutsch B1", "telc Deutsch B2", "telc Deutsch C1",
+    "ÖSD A1", "ÖSD A2", "ÖSD B1", "ÖSD B2", "ÖSD C1", "ÖSD C2",
+    "DSD I", "DSD II",
+  ],
+  "German": [
+    "Goethe-Zertifikat A1", "Goethe-Zertifikat A2", "Goethe-Zertifikat B1",
+    "Goethe-Zertifikat B2", "Goethe-Zertifikat C1", "Goethe-Zertifikat C2 (GDS)",
+    "TestDaF", "DSH",
+    "telc Deutsch A1", "telc Deutsch A2", "telc Deutsch B1", "telc Deutsch B2", "telc Deutsch C1",
+    "ÖSD A1", "ÖSD A2", "ÖSD B1", "ÖSD B2", "ÖSD C1", "ÖSD C2",
+    "DSD I", "DSD II",
+  ],
+
+  // ── Italian ──
+  "Italien": [
+    "CILS A1", "CILS A2", "CILS B1", "CILS B2", "CILS C1", "CILS C2",
+    "CELI 1", "CELI 2", "CELI 3", "CELI 4", "CELI 5",
+    "PLIDA A1", "PLIDA A2", "PLIDA B1", "PLIDA B2", "PLIDA C1", "PLIDA C2",
+    "IT (Certificato di Italiano come Lingua Straniera)",
+  ],
+  "Italian": [
+    "CILS A1", "CILS A2", "CILS B1", "CILS B2", "CILS C1", "CILS C2",
+    "CELI 1", "CELI 2", "CELI 3", "CELI 4", "CELI 5",
+    "PLIDA A1", "PLIDA A2", "PLIDA B1", "PLIDA B2", "PLIDA C1", "PLIDA C2",
+  ],
+
+  // ── Portuguese ──
+  "Portugais": [
+    "CAPLE CIPLE", "CAPLE DEPLE", "CAPLE DIPLE", "CAPLE DAPLE", "CAPLE DUPLE",
+    "Celpe-Bras",
+  ],
+  "Portuguese": [
+    "CAPLE CIPLE", "CAPLE DEPLE", "CAPLE DIPLE", "CAPLE DAPLE", "CAPLE DUPLE",
+    "Celpe-Bras",
+  ],
+
+  // ── Chinese ──
+  "Chinois (Mandarin)": [
+    "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6",
+    "HSKK Beginner", "HSKK Intermediate", "HSKK Advanced",
+    "BCT (Business Chinese Test)",
+    "YCT 1", "YCT 2", "YCT 3", "YCT 4",
+  ],
+  "Chinese (Mandarin)": [
+    "HSK 1", "HSK 2", "HSK 3", "HSK 4", "HSK 5", "HSK 6",
+    "HSKK Beginner", "HSKK Intermediate", "HSKK Advanced",
+    "BCT (Business Chinese Test)",
+    "YCT 1", "YCT 2", "YCT 3", "YCT 4",
+  ],
+
+  // ── Japanese ──
+  "Japonais": [
+    "JLPT N5", "JLPT N4", "JLPT N3", "JLPT N2", "JLPT N1",
+    "J-TEST", "NAT-TEST", "BJT (Business Japanese Proficiency Test)",
+  ],
+  "Japanese": [
+    "JLPT N5", "JLPT N4", "JLPT N3", "JLPT N2", "JLPT N1",
+    "J-TEST", "NAT-TEST", "BJT (Business Japanese Proficiency Test)",
+  ],
+
+  // ── Korean ──
+  "Coréen": [
+    "TOPIK I (Level 1-2)", "TOPIK II (Level 3-6)",
+    "KLAT", "KBS Korean Language Test",
+  ],
+  "Korean": [
+    "TOPIK I (Level 1-2)", "TOPIK II (Level 3-6)",
+    "KLAT", "KBS Korean Language Test",
+  ],
+
+  // ── Russian ──
+  "Russe": [
+    "ТРКИ / TORFL TEL", "ТРКИ / TORFL TBL", "ТРКИ / TORFL 1", "ТРКИ / TORFL 2", "ТРКИ / TORFL 3", "ТРКИ / TORFL 4",
+  ],
+  "Russian": [
+    "ТРКИ / TORFL TEL", "ТРКИ / TORFL TBL", "ТРКИ / TORFL 1", "ТРКИ / TORFL 2", "ТРКИ / TORFL 3", "ТРКИ / TORFL 4",
+  ],
+
+  // ── Turkish ──
+  "Turc": [
+    "TYS (Türkçe Yeterlik Sınavı)",
+    "TÖMER A1", "TÖMER A2", "TÖMER B1", "TÖMER B2", "TÖMER C1",
+  ],
+  "Turkish": [
+    "TYS (Türkçe Yeterlik Sınavı)",
+    "TÖMER A1", "TÖMER A2", "TÖMER B1", "TÖMER B2", "TÖMER C1",
+  ],
+
+  // ── Berber / Amazigh ──
+  "Amazigh": ["CNPLET Certification Tamazight"],
+  "Tamazight": ["CNPLET Certification Tamazight"],
+  "Kabyle": ["CNPLET Certification Tamazight"],
+  "Berber": ["CNPLET Certification Tamazight"],
+};
+
+/**
+ * Get certification suggestions for a given language name.
+ * Falls back to an empty array if no certifications are mapped.
+ */
+export function getCertificationsForLanguage(languageName: string): readonly string[] {
+  if (!languageName) return [];
+  // Exact match first
+  if (CERTIFICATION_BY_LANGUAGE[languageName]) {
+    return CERTIFICATION_BY_LANGUAGE[languageName];
+  }
+  // Case-insensitive + trimmed fallback
+  const normalized = languageName.trim().toLowerCase();
+  for (const [key, certs] of Object.entries(CERTIFICATION_BY_LANGUAGE)) {
+    if (key.toLowerCase() === normalized) return certs;
+  }
+  return [];
+}

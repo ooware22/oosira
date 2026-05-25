@@ -1,6 +1,7 @@
 'use client';
 import { Candidate } from '../data';
 import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon, ProjectLinkIcon } from './ContactIcons';
+import { fmtDate } from './dateFormat';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { CVStyleConfig } from './styleConfig';
 
@@ -18,7 +19,7 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
             <div className="cv-section-title">{t('builder.experiences')}</div>
             {data.experiences.map((exp, i) => (
               <div className="cv-exp-item" key={`exp-${i}`}>
-                <div className="exp-date">{exp.dateDebut} - {exp.dateFin}</div>
+                <div className="exp-date">{fmtDate(exp.dateDebut)} - {fmtDate(exp.dateFin)}</div>
                 <div className="exp-poste">{exp.poste}</div>
                 <div className="exp-company">{exp.entreprise} | {exp.secteur}</div>
                 <div className="exp-desc">{exp.description}</div>
@@ -38,7 +39,7 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
             <div className="cv-section-title">{t('builder.education')}</div>
             {data.formations.map((f, i) => (
               <div className="cv-formation-item" key={`form-${i}`}>
-                <div className="year">{f.dateDebut && f.dateFin ? `${f.dateDebut} – ${f.dateFin}` : f.annee}</div>
+                <div className="year">{f.dateDebut && f.dateFin ? `${fmtDate(f.dateDebut)} - ${fmtDate(f.dateFin)}` : f.annee}</div>
                 <div className="diploma">{f.diplome} - {f.specialite}</div>
                 <div className="school">{f.etablissement}, {f.ville}</div>
                 {f.links?.map((link, lIdx) => (
@@ -72,13 +73,13 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
                   {t(`builder.level_${l.niveau}`)}
                   {l.certification && (
                     <>
-                      {' — '}
+                      {', '}
                       {l.certificationLink ? (
                         <a href={l.certificationLink.startsWith('http') ? l.certificationLink : `https://${l.certificationLink}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ fontWeight: 500 }}>
-                          {l.certification}
+                          {l.certification}{l.score ? ` (${l.score})` : ''}
                         </a>
                       ) : (
-                        <span style={{ fontStyle: 'italic', opacity: 0.85 }}>{l.certification}</span>
+                        <span style={{ fontStyle: 'italic', opacity: 0.85 }}>{l.certification}{l.score ? ` (${l.score})` : ''}</span>
                       )}
                     </>
                   )}
