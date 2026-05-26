@@ -95,7 +95,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Oosira, Créateur de CV Gratuit en Algérie, CV DZ',
-    description: SITE_DESCRIPTION,
+     description: SITE_DESCRIPTION,
     images: ['/og-image.png'],
     creator: '@oosira',
   },
