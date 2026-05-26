@@ -3262,7 +3262,7 @@ function BuilderPageContent() {
         )}
       </AnimatePresence>
 
-      <div className="flex flex-col h-screen bg-bg text-txt overflow-hidden overflow-x-hidden">
+      <div className="flex flex-col h-screen h-[100dvh] bg-bg text-txt overflow-hidden overflow-x-hidden">
         {/* -- Premium Top Bar -- */}
         <header className="h-16 min-h-[64px] flex items-center justify-between px-4 sm:px-6 bg-surface/80 backdrop-blur-xl border-b border-border z-50 shadow-sm">
           <Link
@@ -3440,7 +3440,7 @@ function BuilderPageContent() {
             </div>
 
             {/* Bottom navigation */}
-            <div className="shrink-0 sticky bottom-0 z-30 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4">
+            <div className="shrink-0 sticky bottom-0 z-30 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:py-4">
               <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <button
                   onClick={prev}

@@ -710,13 +710,13 @@ export default function LandingContent() {
                             <UserIcon className="w-6 h-6 text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-[#002147] dark:text-white text-sm mb-0.5 leading-none">
+                            <h3 className="font-semibold text-[#002147] dark:text-white text-sm mb-1.5 leading-snug">
                               {localT.illustrationCardTitle}
                             </h3>
-                            <p className="text-xs text-gray-500 dark:text-white/40 leading-none truncate">
+                            <p className="text-xs text-gray-500 dark:text-white/40 leading-relaxed truncate">
                               {localT.illustrationCardSubtitle}
                             </p>
-                            <p className="text-[10px] text-gray-400 dark:text-white/30 leading-none mt-1">
+                            <p className="text-[10px] text-gray-400 dark:text-white/30 leading-normal mt-1.5">
                               {localT.illustrationCardLocation}
                             </p>
                           </div>
