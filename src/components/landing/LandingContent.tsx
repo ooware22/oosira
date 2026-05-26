@@ -105,12 +105,13 @@ export default function LandingContent() {
 
           {/* Floating Handwritten Title */}
           <motion.h1 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, y: [0, -10, 0] }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: [0, -6, 0] }}
             transition={{ 
-              opacity: { duration: 0.8 },
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              opacity: { duration: 1, ease: "easeOut" },
+              y: { duration: 6, repeat: Infinity, ease: "easeInOut" }
             }}
+            style={{ willChange: "transform" }}
             className="font-display text-[45px] sm:text-[60px] lg:text-[75px] font-bold text-txt leading-[1.1] mb-12 w-full max-w-none px-4 tracking-tight"
           >
             {t('hero.title1')}{' '}
