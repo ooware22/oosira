@@ -43,7 +43,7 @@ export default function ExportPage() {
 
   return (
     <div 
-      className="w-[210mm] min-h-[297mm] bg-white m-0 p-0 overflow-hidden box-border"
+      className="w-[210mm] min-h-[297mm] bg-white m-0 p-0 box-border"
       style={cssVars as any}
     >
       <TemplateComponent data={data.cv} config={data.config} />
