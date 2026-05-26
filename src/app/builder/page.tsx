@@ -3420,6 +3420,60 @@ function BuilderPageContent() {
               />
             </div>
 
+            {/* Mobile Navigation (Fixed to Top on Mobile, right below progress bar) */}
+            <div className="lg:hidden shrink-0 border-b border-border bg-surface px-4 py-2.5 z-30 shadow-sm">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={prev}
+                  disabled={currentStep === 0}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold transition-all disabled:opacity-30 disabled:cursor-not-allowed text-txt hover:bg-surface2 active:scale-95"
+                >
+                  <ArrowLeftIcon className="w-3.5 h-3.5 rtl:rotate-180" />
+                  <span>{t("builder.back")}</span>
+                </button>
+
+                <div className="flex items-center gap-1 text-[11px] text-txt-muted font-semibold">
+                  <span className="text-blue-600 dark:text-blue-400 font-bold">
+                    {currentStep + 1}
+                  </span>
+                  <span>/</span>
+                  <span>{STEPS.length}</span>
+                </div>
+
+                {currentStep < STEPS.length - 1 ? (
+                  <button
+                    onClick={next}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+                  >
+                    <span>
+                      {currentStep === STEPS.length - 2
+                        ? language === "fr"
+                          ? "Aperçu"
+                          : language === "ar"
+                            ? "معاينة"
+                            : "Preview"
+                        : language === "fr"
+                          ? "Suivant"
+                          : language === "ar"
+                            ? "التالي"
+                            : "Next"}
+                    </span>
+                    <ArrowRightIcon className="w-3.5 h-3.5 rtl:rotate-180" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handlePrint}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+                  >
+                    <ArrowDownTrayIcon className="w-3.5 h-3.5" />
+                    <span>
+                      {t("builder.download")}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Step content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -3440,7 +3494,7 @@ function BuilderPageContent() {
             </div>
 
             {/* Bottom navigation */}
-            <div className="shrink-0 sticky bottom-0 z-30 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:py-4">
+            <div className="hidden lg:block shrink-0 sticky bottom-0 z-30 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] sm:py-4">
               <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <button
                   onClick={prev}
