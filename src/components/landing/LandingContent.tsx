@@ -86,7 +86,7 @@ const LOCAL_TRANSLATIONS: Record<string, any> = {
     // New Hero Content
     badgeText: "First CV Platform in Algeria",
     heroTitle: "Your CV,",
-    heroHighlight: "Your Chance.",
+    heroHighlight: "Your Opportunity.",
     heroSubtitle: "The first CV platform designed for Algeria. Build an ATS-compliant, trilingual CV in minutes.",
     heroCtaPrimary: "Start Building Free",
     heroCtaSecondary: "Explore Features",
