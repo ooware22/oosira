@@ -684,7 +684,7 @@ function DashboardContent() {
     const matchesSearch = d.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           d.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           d.templateName?.toLowerCase().includes(searchQuery.toLowerCase());
-    const normalizedStatus = d.status === 'brouillon' ? 'draft' : d.status;
+    const normalizedStatus = (d.status as string) === 'brouillon' ? 'draft' : d.status;
     const matchesStatus = statusFilter === 'all' || normalizedStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });

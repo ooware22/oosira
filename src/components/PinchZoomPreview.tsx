@@ -39,14 +39,14 @@ export default function PinchZoomPreview({
   });
 
   // Calculate distance between two touch points
-  const getDistance = (t1: Touch, t2: Touch) => {
+  const getDistance = (t1: any, t2: any) => {
     const dx = t1.clientX - t2.clientX;
     const dy = t1.clientY - t2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   };
 
   // Get midpoint of two touches
-  const getMidpoint = (t1: Touch, t2: Touch) => ({
+  const getMidpoint = (t1: any, t2: any) => ({
     x: (t1.clientX + t2.clientX) / 2,
     y: (t1.clientY + t2.clientY) / 2,
   });
