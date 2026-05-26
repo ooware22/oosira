@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { useAuth, DraftCV } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchDashboardStats } from '@/store/slices/statsSlice';
@@ -614,6 +614,18 @@ function DashboardContent() {
   const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'draft'>('all');
   
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   useEffect(() => {
     const stored = localStorage.getItem('oosira_dismissed_notifs');
     if (stored) {
@@ -876,7 +888,7 @@ function DashboardContent() {
         <header className="shrink-0 z-30 bg-bg/80 backdrop-blur-xl border-b border-border px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={() => { setSidebarOpen(true); setNotificationsOpen(false); }}
               className="lg:hidden p-2 rounded-xl hover:bg-surface2 text-txt-muted"
             >
               <Bars3Icon className="w-5 h-5" />
@@ -914,7 +926,7 @@ function DashboardContent() {
               </div>
             )}
 
-            <div className="relative">
+            <div className="relative" ref={notificationsRef}>
               <button 
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
                 className="relative p-2 rounded-xl hover:bg-surface2 text-txt-muted transition-colors"
