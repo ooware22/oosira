@@ -528,7 +528,10 @@ export default function LandingContent() {
                       preserveAspectRatio="none"
                     >
                       <motion.path
-                        d="M2 8C30 4 60 2 100 6C140 10 170 4 198 8"
+                        d={dir === 'rtl' 
+                          ? "M198 8C170 4 140 10 100 6C60 2 30 4 2 8" 
+                          : "M2 8C30 4 60 2 100 6C140 10 170 4 198 8"
+                        }
                         stroke="currentColor"
                         strokeWidth="3"
                         strokeLinecap="round"
