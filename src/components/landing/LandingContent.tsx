@@ -113,7 +113,7 @@ export default function LandingContent() {
             }}
             className="font-display text-[45px] sm:text-[60px] lg:text-[75px] font-bold text-txt leading-[1.1] mb-12 w-full max-w-none px-4 tracking-tight"
           >
-            {t('hero.title1')} <br />
+            {t('hero.title1')}{' '}
             {(() => {
               const title2 = t('hero.title2');
               const lastSpaceIndex = title2.lastIndexOf(' ');

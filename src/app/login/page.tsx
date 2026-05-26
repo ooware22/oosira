@@ -25,6 +25,8 @@ export default function LoginPage() {
     try {
       const success = await login(email, password);
       if (success) {
+        // Check for pending CV from builder (created before login)
+        await savePendingCV();
         router.push('/dashboard');
       } else {
         setError(t('auth.login_error') || 'Invalid email or password.');
@@ -33,6 +35,64 @@ export default function LoginPage() {
       setError(t('auth.login_error') || 'Invalid email or password.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const savePendingCV = async () => {
+    try {
+      const pendingRaw = localStorage.getItem('oosira_pending_cv');
+      if (!pendingRaw) return;
+
+      const pending = JSON.parse(pendingRaw);
+      const { formData, activeTemplate, styleConfig, cvTitle } = pending;
+
+      // Don't save empty CVs
+      if (!formData || (!formData.prenom && !formData.nom && !formData.email)) {
+        localStorage.removeItem('oosira_pending_cv');
+        return;
+      }
+
+      const token = localStorage.getItem('oosira_token');
+      if (!token) return;
+
+      const TEMPLATE_NAMES: Record<number, string> = {
+        0: "Classique",
+        1: "Classique Pro",
+        2: "Moderne",
+        3: "Ingenieur",
+        4: "Elegant",
+        5: "Minimal",
+      };
+
+      const cvPayload = {
+        title: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim() || 'Mon CV',
+        jobTitle: formData.titre || '',
+        templateName: TEMPLATE_NAMES[activeTemplate] || 'Classique Pro',
+        templateId: activeTemplate,
+        previewColor: styleConfig?.sidebarBg || styleConfig?.accentColor || '#0D1117',
+        completionPercent: 50,
+        status: 'draft',
+        reminderDate: null,
+        cvData: formData,
+        styleConfig: styleConfig,
+      };
+
+      const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      const res = await fetch(`${API}/cvs/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(cvPayload),
+      });
+
+      // Only clear pending CV if save was successful
+      if (res.ok) {
+        localStorage.removeItem('oosira_pending_cv');
+      }
+    } catch (err) {
+      console.error('Failed to save pending CV:', err);
     }
   };
 

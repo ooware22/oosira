@@ -185,3 +185,9 @@
   .cv-page { width: 210mm; min-height: 297mm; margin: 0; box-shadow: none; }
   @page { margin: 0; size: A4; }
 }
+
+/* Shimmer animation for gradient bars */
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}

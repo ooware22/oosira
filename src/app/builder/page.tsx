@@ -61,6 +61,8 @@ import {
   CloudArrowUpIcon,
   ChevronUpIcon,
   ChevronDownIcon,
+  PencilSquareIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -309,6 +311,26 @@ function BuilderPageContent() {
         })
         .catch((err) => console.error("Error loading CV:", err));
     } else if (!editId) {
+      // Try to restore pending CV from localStorage (e.g. user went to login/register and came back)
+      const pendingRaw = localStorage.getItem('oosira_pending_cv');
+      if (pendingRaw) {
+        try {
+          const pending = JSON.parse(pendingRaw);
+          if (pending.formData && (pending.formData.prenom || pending.formData.nom || pending.formData.email || pending.formData.experiences?.length)) {
+            setFormData(pending.formData);
+            if (pending.activeTemplate != null) setActiveTemplate(pending.activeTemplate);
+            if (pending.styleConfig) setStyleConfig(pending.styleConfig);
+            if (pending.cvTitle) setCvTitle(pending.cvTitle);
+            // If authenticated, clear localStorage (it was saved to backend during login/register)
+            if (isAuthenticated) {
+              localStorage.removeItem('oosira_pending_cv');
+            }
+            return; // Skip random template since we restored
+          }
+        } catch {
+          localStorage.removeItem('oosira_pending_cv');
+        }
+      }
       // Randomize initial template and style when entering the builder page
       const templateKeys = Object.keys(TEMPLATE_DEFAULTS).map(Number);
       const randomTemplateId =
@@ -317,6 +339,7 @@ function BuilderPageContent() {
       setStyleConfig(getRandomStyleConfig(TEMPLATE_DEFAULTS[randomTemplateId]));
     }
   }, [searchParams, isAuthenticated]);
+
 
   const [cvTitle, setCvTitle] = useState("");
   const [reminderDate, setReminderDate] = useState("");
@@ -387,6 +410,29 @@ function BuilderPageContent() {
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, [formData, activeTemplate, styleConfig]);
+
+  // ── Auto-save to localStorage for unauthenticated users ──
+  useEffect(() => {
+    if (isAuthenticated) return; // Authenticated users save to backend
+    // Debounce: save 1s after last change
+    const timer = setTimeout(() => {
+      const hasContent = formData.prenom || formData.nom || formData.email || formData.experiences?.length || formData.formations?.length;
+      if (hasContent) {
+        const pendingCV = {
+          formData,
+          activeTemplate,
+          styleConfig,
+          cvTitle: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim(),
+          savedAt: new Date().toISOString(),
+        };
+        localStorage.setItem('oosira_pending_cv', JSON.stringify(pendingCV));
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [formData, activeTemplate, styleConfig, cvTitle, isAuthenticated]);
+
+  // ── Guest overlay prompt ──
+  const [showGuestOverlay, setShowGuestOverlay] = useState(!isAuthenticated);
 
   /* OCR State Integration */
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
@@ -2998,18 +3044,40 @@ function BuilderPageContent() {
                   </p>
                 </div>
                 <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 justify-center">
-                  <Link
-                    href="/login"
+                  <button
+                    onClick={() => {
+                      // Save current CV to localStorage before navigating
+                      const pendingCV = {
+                        formData,
+                        activeTemplate,
+                        styleConfig,
+                        cvTitle: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim(),
+                        savedAt: new Date().toISOString(),
+                      };
+                      localStorage.setItem('oosira_pending_cv', JSON.stringify(pendingCV));
+                      router.push('/login');
+                    }}
                     className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl border border-blue-500/20 text-blue-600 dark:text-blue-400 text-sm font-semibold transition-all hover:bg-blue-500/10 hover:border-blue-500/40"
                   >
                     {t("nav.login") || "Log In"}
-                  </Link>
-                  <Link
-                    href="/register"
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Save current CV to localStorage before navigating
+                      const pendingCV = {
+                        formData,
+                        activeTemplate,
+                        styleConfig,
+                        cvTitle: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim(),
+                        savedAt: new Date().toISOString(),
+                      };
+                      localStorage.setItem('oosira_pending_cv', JSON.stringify(pendingCV));
+                      router.push('/register');
+                    }}
                     className="flex-1 sm:flex-none text-center px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold transition-all hover:opacity-90 active:scale-95 shadow-md shadow-blue-500/20"
                   >
                     {t("nav.signup") || "Sign Up"}
-                  </Link>
+                  </button>
                 </div>
               </div>
             )}
@@ -3082,6 +3150,118 @@ function BuilderPageContent() {
 
   return (
     <>
+      {/* ── Guest Sign-Up Overlay ── */}
+      <AnimatePresence>
+        {showGuestOverlay && !isAuthenticated && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-md px-4"
+            onClick={() => setShowGuestOverlay(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 24 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full max-w-xl bg-surface border border-border rounded-3xl shadow-2xl shadow-black/25 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Animated gradient accent */}
+              <div className="h-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 bg-[length:200%_auto] animate-[shimmer_3s_linear_infinite]" />
+
+              <div className="p-7 sm:p-9">
+                {/* Icon */}
+                <div className="flex justify-center mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600/10 to-cyan-500/10 border border-blue-500/15 flex items-center justify-center">
+                    <CloudArrowUpIcon className="w-7 h-7 text-blue-500" />
+                  </div>
+                </div>
+
+                {/* Title & Description */}
+                <h2 className="text-[22px] font-bold text-txt text-center mb-2 tracking-tight">
+                  {t('builder.guestOverlayTitle')}
+                </h2>
+                <p className="text-[13px] text-txt-muted text-center mb-7 leading-relaxed max-w-xs mx-auto">
+                  {t('builder.guestOverlayDesc')}
+                </p>
+
+                {/* Feature grid with Heroicons */}
+                <div className="grid grid-cols-2 gap-2.5 mb-8">
+                  {[
+                    { Icon: CloudArrowUpIcon, text: t('builder.guestFeature1'), color: 'text-blue-500 bg-blue-500/8 border-blue-500/10' },
+                    { Icon: PencilSquareIcon, text: t('builder.guestFeature2'), color: 'text-cyan-500 bg-cyan-500/8 border-cyan-500/10' },
+                    { Icon: SwatchIcon, text: t('builder.guestFeature3'), color: 'text-violet-500 bg-violet-500/8 border-violet-500/10' },
+                    { Icon: ArrowDownTrayIcon, text: t('builder.guestFeature4'), color: 'text-emerald-500 bg-emerald-500/8 border-emerald-500/10' },
+                  ].map((f, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15 + i * 0.06 }}
+                      className={`flex items-center gap-2.5 text-[12px] font-medium rounded-xl px-3.5 py-3 border ${f.color}`}
+                    >
+                      <f.Icon className="w-4 h-4 shrink-0" />
+                      <span className="text-txt-muted">{f.text}</span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      const pendingCV = {
+                        formData,
+                        activeTemplate,
+                        styleConfig,
+                        cvTitle: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim(),
+                        savedAt: new Date().toISOString(),
+                      };
+                      localStorage.setItem('oosira_pending_cv', JSON.stringify(pendingCV));
+                      router.push('/register');
+                    }}
+                    className="group relative flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-white font-semibold text-[14px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 overflow-hidden cursor-pointer"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 z-0" />
+                    <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 transition-all duration-700 z-0 pointer-events-none" />
+                    <span className="relative z-10">{t('nav.signup')}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      const pendingCV = {
+                        formData,
+                        activeTemplate,
+                        styleConfig,
+                        cvTitle: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim(),
+                        savedAt: new Date().toISOString(),
+                      };
+                      localStorage.setItem('oosira_pending_cv', JSON.stringify(pendingCV));
+                      router.push('/login');
+                    }}
+                    className="flex-1 px-5 py-3.5 rounded-xl border border-border text-txt font-semibold text-[14px] transition-all duration-200 hover:bg-surface2 hover:border-blue-500/30 active:scale-[0.98] cursor-pointer"
+                  >
+                    {t('nav.login')}
+                  </button>
+                </div>
+
+                {/* Dismiss link */}
+                <button
+                  onClick={() => setShowGuestOverlay(false)}
+                  className="w-full mt-5 text-[12px] text-txt-dim hover:text-txt-muted transition-colors text-center py-1.5 cursor-pointer group"
+                >
+                  <span className="border-b border-transparent group-hover:border-txt-dim/40 pb-0.5 transition-all">
+                    {t('builder.guestDismiss')}
+                  </span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col h-screen bg-bg text-txt overflow-hidden overflow-x-hidden">
         {/* -- Premium Top Bar -- */}
         <header className="h-16 min-h-[64px] flex items-center justify-between px-4 sm:px-6 bg-surface/80 backdrop-blur-xl border-b border-border z-50 shadow-sm">
@@ -3260,7 +3440,7 @@ function BuilderPageContent() {
             </div>
 
             {/* Bottom navigation */}
-            <div className="shrink-0 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4">
+            <div className="shrink-0 sticky bottom-0 z-30 border-t border-border bg-surface/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4">
               <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <button
                   onClick={prev}

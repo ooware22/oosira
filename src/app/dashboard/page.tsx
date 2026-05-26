@@ -43,7 +43,8 @@ import {
   LockClosedIcon,
   Squares2X2Icon,
   ListBulletIcon,
-  FunnelIcon
+  FunnelIcon,
+  HomeIcon,
 } from '@heroicons/react/24/outline';
 import { useSubscription } from '@/app/hooks/useSubscription';
 
@@ -211,13 +212,14 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay, displayMode = 'gr
   const [menuOpen, setMenuOpen] = useState(false);
   const { t } = useLanguage();
 
-  const statusConfig = {
+  const statusConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string; cls: string }> = {
     draft: { icon: ClockIcon, label: t('dashboard.draft') || 'Draft', cls: 'text-amber-500 bg-amber-500/10' },
+    brouillon: { icon: ClockIcon, label: t('dashboard.draft') || 'Draft', cls: 'text-amber-500 bg-amber-500/10' },
     completed: { icon: CheckCircleIcon, label: t('dashboard.completed') || 'Completed', cls: 'text-emerald-500 bg-emerald-500/10' },
     shared: { icon: ShareIcon, label: t('dashboard.shared') || 'Shared', cls: 'text-blue-500 bg-blue-500/10' },
   };
 
-  const status = statusConfig[draft.status];
+  const status = statusConfig[draft.status] || statusConfig.draft;
   const StatusIcon = status.icon;
 
   const timeAgo = (dateStr: string) => {
@@ -682,7 +684,8 @@ function DashboardContent() {
     const matchesSearch = d.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           d.jobTitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           d.templateName?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || d.status === statusFilter;
+    const normalizedStatus = d.status === 'brouillon' ? 'draft' : d.status;
+    const matchesStatus = statusFilter === 'all' || normalizedStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
   const completedCount = drafts.filter((d) => d.status === "completed").length;
@@ -805,6 +808,17 @@ function DashboardContent() {
 
         {/* Plan Badge & User */}
         <div className="px-4 pb-5 space-y-3">
+          {/* Home link */}
+          <Link
+            href="/"
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium text-txt-muted hover:text-txt hover:bg-surface2 transition-all duration-200"
+          >
+            <HomeIcon className="w-[18px] h-[18px]" />
+            <span>{t('dashboard.home') || 'Home'}</span>
+          </Link>
+
+          <div className="h-px bg-border/60" />
+
           {/* Plan badge */}
           <button onClick={() => { setActiveView('pricing'); setSidebarOpen(false); }} className="w-full text-left block bg-surface2 border border-border rounded-xl p-3.5 hover:border-blue-500/40 transition-colors group">
             <div className="flex items-center gap-2 mb-1.5">
