@@ -60,22 +60,14 @@ export default function LandingContent() {
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="hidden md:flex items-center justify-center w-1/3 gap-6 text-[13px] font-medium text-txt-muted"
+          className="hidden md:flex items-center justify-center w-1/3 gap-8 text-[13px] font-medium text-txt-muted"
         >
-          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            {t('nav.product')}
+          <Link href="#features" className="relative text-txt-muted hover:text-txt transition-colors group">
+            {t('nav.features')}
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
           </Link>
-          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            {t('nav.useCases')}
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
-          </Link>
-          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
+          <Link href="#pricing" className="relative text-txt-muted hover:text-txt transition-colors group">
             {t('nav.pricing')}
-            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
-          </Link>
-          <Link href="#" className="relative text-txt-muted hover:text-txt transition-colors group">
-            {t('nav.resources')}
             <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[2px] bg-gradient-to-r from-blue-500 to-cyan-500 group-hover:w-full transition-all duration-300 rounded-full opacity-0 group-hover:opacity-100"></span>
           </Link>
         </motion.div>
