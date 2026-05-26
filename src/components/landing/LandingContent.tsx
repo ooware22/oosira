@@ -200,7 +200,7 @@ export default function LandingContent() {
             transition={{ delay: 0.1 }}
             className="text-[17px] md:text-[20px] text-txt-muted max-w-4xl mb-12 leading-[1.6] font-light tracking-wide px-4"
           >
-            {t('hero.subtitle1')} <br className="hidden sm:block" /> {t('hero.subtitle2')}
+            {t('hero.subtitle1')} {t('hero.subtitle2')}
           </motion.p>
 
           <motion.div
