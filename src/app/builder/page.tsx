@@ -1786,7 +1786,7 @@ function BuilderPageContent() {
                         suggestions={SUGGESTIONS.secteurs}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Input
                         label={t("builder.startDate")}
                         value={exp.dateDebut}
@@ -2235,45 +2235,47 @@ function BuilderPageContent() {
               <div className="space-y-3">
                 {formData.langues.map((l, idx) => (
                   <div key={idx} className="bg-surface2/30 rounded-xl p-3 space-y-2 border border-border/50">
-                    <div className="flex items-center gap-3">
-                      <input
-                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500"
-                        value={l.langue}
-                        onChange={(e) =>
-                          updateLangue(idx, "langue", e.target.value)
-                        }
-                        placeholder={t("builder.langName")}
-                        list="langues-suggestions"
-                        autoComplete="off"
-                      />
-                      <select
-                        className="flex-1 bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
-                        value={l.niveau}
-                        onChange={(e) =>
-                          updateLangue(idx, "niveau", e.target.value)
-                        }
-                      >
-                        <option value="Natif">
-                          {t("builder.level_Natif") || "Natif"}
-                        </option>
-                        <option value="Courant">
-                          {t("builder.level_Courant") || "Courant"}
-                        </option>
-                        <option value="Intermediaire">
-                          {t("builder.level_Intermediaire") || "Intermediaire"}
-                        </option>
-                        <option value="Technique">
-                          {t("builder.level_Technique") || "Technique"}
-                        </option>
-                        <option value="Debutant">
-                          {t("builder.level_Debutant") || "Debutant"}
-                        </option>
-                      </select>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input
+                          className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500"
+                          value={l.langue}
+                          onChange={(e) =>
+                            updateLangue(idx, "langue", e.target.value)
+                          }
+                          placeholder={t("builder.langName")}
+                          list="langues-suggestions"
+                          autoComplete="off"
+                        />
+                        <select
+                          className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 form-select-arrow appearance-none"
+                          value={l.niveau}
+                          onChange={(e) =>
+                            updateLangue(idx, "niveau", e.target.value)
+                          }
+                        >
+                          <option value="Natif">
+                            {t("builder.level_Natif") || "Natif"}
+                          </option>
+                          <option value="Courant">
+                            {t("builder.level_Courant") || "Courant"}
+                          </option>
+                          <option value="Intermediaire">
+                            {t("builder.level_Intermediaire") || "Intermediaire"}
+                          </option>
+                          <option value="Technique">
+                            {t("builder.level_Technique") || "Technique"}
+                          </option>
+                          <option value="Debutant">
+                            {t("builder.level_Debutant") || "Debutant"}
+                          </option>
+                        </select>
+                      </div>
                       <button
                         onClick={() => removeLangue(idx)}
-                        className="shrink-0 w-8 h-8 rounded-full bg-surface2 border border-border flex items-center justify-center text-txt-muted hover:text-red-500 hover:border-red-500 transition-all"
+                        className="self-end sm:self-auto shrink-0 w-10 h-10 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-500/20"
                       >
-                        <TrashIcon className="w-3.5 h-3.5" />
+                        <TrashIcon className="w-4 h-4" />
                       </button>
                     </div>
                     <AutocompleteInput
@@ -2686,7 +2688,7 @@ function BuilderPageContent() {
                 </span>
               </div>
               <div
-                className={`grid gap-4 ${styleConfig.layoutCols === "1" ? "grid-cols-1" : "grid-cols-2"}`}
+                className={`grid gap-4 ${styleConfig.layoutCols === "1" ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"}`}
               >
                 {/* Main Column */}
                 <div
@@ -2999,7 +3001,7 @@ function BuilderPageContent() {
                   </div>
 
                   {/* Buttons row */}
-                  <div className="flex items-center justify-end gap-3 pt-1">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-end gap-3 pt-1">
                     <Link
                       href="/dashboard"
                       className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-border text-txt text-sm font-semibold transition-all hover:bg-surface2"
@@ -3043,7 +3045,7 @@ function BuilderPageContent() {
                       "Create an account to save your progress, edit later, and unlock more templates."}
                   </p>
                 </div>
-                <div className="flex flex-row items-center gap-3 w-full xl:w-auto shrink-0 justify-center">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto xl:w-auto shrink-0 justify-center">
                   <button
                     onClick={() => {
                       // Save current CV to localStorage before navigating
