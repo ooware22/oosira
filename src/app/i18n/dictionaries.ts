@@ -32,8 +32,8 @@ export const dictionaries = {
     hero: {
       title1: "Your CV,",
       title2: "Your Chance.",
-      subtitle1: "Create a beautiful and professional CV in just a few minutes.",
-      subtitle2: "Enjoy a clean and simple experience that helps you focus on what really matters.",
+      subtitle1: "The first CV platform designed for Algeria. Build a professional CV in minutes.",
+      subtitle2: "A simple, modern experience tailored to the Algerian job market.",
       cta_primary: "Start Building Free",
       cta_secondary: "Explore Features"
     },
@@ -383,8 +383,8 @@ export const dictionaries = {
     hero: {
       title1: "Ton CV,",
       title2: "ta chance.",
-      subtitle1: "Créez un CV magnifique et professionnel en seulement quelques minutes.",
-      subtitle2: "Profitez d'une expérience simple et épurée qui vous aide à vous concentrer sur l'essentiel.",
+      subtitle1: "La première plateforme de CV conçue pour l'Algérie. Créez un CV professionnel en quelques minutes.",
+      subtitle2: "Une expérience simple et moderne, adaptée au marché de l'emploi algérien.",
       cta_primary: "Créer gratuitement",
       cta_secondary: "Découvrir"
     },
@@ -734,8 +734,8 @@ export const dictionaries = {
     hero: {
       title1: "سِيرَتُكَ،",
       title2: "فُرْصَتُكَ.",
-      subtitle1: "أنشئ سيرة ذاتية جميلة واحترافية في بضع دقائق فقط.",
-      subtitle2: "استمتع بتجربة بسيطة ومرنة تساعدك على التركيز على ما يهم حقاً.",
+      subtitle1: "أول منصة سيرة ذاتية مصممة للجزائر. أنشئ سيرة ذاتية احترافية في دقائق.",
+      subtitle2: "تجربة بسيطة وعصرية مصممة خصيصاً لسوق العمل الجزائري.",
       cta_primary: "ابدأ التصميم مجاناً",
       cta_secondary: "استكشف المزايا"
     },
