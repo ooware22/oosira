@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
+import Footer from '@/components/landing/Footer';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 
@@ -231,6 +232,9 @@ export default function LandingContent() {
           </motion.div>
         </section>
       </main>
+
+      {/* ── F-11 · Rich Footer ── */}
+      <Footer />
     </>
   );
 }
