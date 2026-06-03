@@ -27,8 +27,8 @@ const LandingContent = dynamic(
               <span className="text-[32px] font-display font-bold text-txt leading-none ml-1">sira</span>
             </div>
           </div>
-          <div className="hidden md:flex items-center justify-center w-1/3 gap-6 text-[13px] font-medium text-txt-muted">
-            <span>Produit</span><span>Cas d&apos;usage</span><span>Tarifs</span><span>Ressources</span>
+          <div className="hidden md:flex items-center justify-center w-1/3 gap-8 text-[13px] font-medium text-txt-muted">
+            <span>Fonctionnalités</span><span>Tarifs</span>
           </div>
           <div className="flex gap-1.5 sm:gap-4 items-center justify-end sm:w-1/3">
             <div className="w-8 h-8" />

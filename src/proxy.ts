@@ -13,7 +13,7 @@ const PROTECTED_ROUTES = ['/admin', '/dashboard'];
 const AUTH_COOKIE_NAME = 'oosira_session'; // adjust to your actual cookie name
 const LOGIN_URL = '/login';
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── Check if the route requires authentication ──

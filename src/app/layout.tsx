@@ -8,7 +8,7 @@ const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo', di
 
 const SITE_URL = 'https://oosira.com';
 const SITE_NAME = 'Oosira';
-const SITE_DESCRIPTION = 'Créez votre CV professionnel en quelques minutes avec Oosira. Prévisualisation en temps réel, export PDF haute qualité, 5+ modèles élégants et importation OCR intelligente. Gratuit et sans inscription.';
+const SITE_DESCRIPTION = 'Créez votre CV professionnel en Algérie gratuitement avec Oosira. Le meilleur créateur de CV en ligne pour les algériens, modèles élégants, export PDF haute qualité, importation OCR et prévisualisation en temps réel. CV DZ gratuit et sans inscription.';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -25,16 +25,33 @@ export const metadata: Metadata = {
 
   // ─── Core ─────────────────────────────────────────────
   title: {
-    default: 'Oosira — Créateur de CV Professionnel Gratuit | Algérie',
-    template: '%s | Oosira',
+    default: 'Oosira, Créateur de CV Gratuit en Algérie, CV DZ Professionnel',
+    template: '%s, Oosira CV Algérie',
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    'CV', 'curriculum vitae', 'créateur de CV', 'générateur de CV',
-    'CV professionnel', 'CV gratuit', 'modèle CV', 'CV Algérie',
-    'resume builder', 'PDF CV', 'CV en ligne', 'Oosira',
-    'سيرة ذاتية', 'CV maker', 'CV designer', 'export PDF',
-    'CV ATS', 'CV template', 'build resume free',
+    // ── Primary keywords (high search volume) ──
+    'CV', 'CV DZ', 'cv dz', 'CV Algérie', 'cv algérie', 'CV en Algérie',
+    'créer CV', 'créer CV Algérie', 'créateur de CV', 'créer un CV',
+    'faire un CV', 'faire CV en ligne', 'CV en ligne',
+    'CV professionnel', 'CV gratuit', 'CV gratuit Algérie',
+    // ── Secondary keywords ──
+    'modèle CV', 'modèle CV Algérie', 'modèle de CV gratuit',
+    'curriculum vitae', 'curriculum vitae Algérie',
+    'générateur de CV', 'générateur de CV gratuit',
+    'CV PDF', 'export PDF CV', 'télécharger CV PDF',
+    // ── English keywords ──
+    'resume builder', 'resume builder Algeria', 'CV maker', 'CV maker DZ',
+    'CV builder free', 'free resume builder Algeria', 'CV designer',
+    'CV template', 'build resume free', 'online CV maker',
+    // ── Arabic keywords ──
+    'سيرة ذاتية', 'سيرة ذاتية الجزائر', 'إنشاء سيرة ذاتية',
+    'نموذج سيرة ذاتية', 'سيرة ذاتية مجانية',
+    // ── Long-tail keywords ──
+    'comment faire un CV en Algérie', 'meilleur site CV Algérie',
+    'créer CV professionnel gratuit', 'CV ATS', 'Oosira',
+    'site de CV algérien', 'CV designer Algérie', 'CV moderne Algérie',
+    'CV étudiant Algérie', 'CV stage Algérie',
   ],
   authors: [{ name: 'Oosira', url: SITE_URL }],
   creator: 'Oosira',
@@ -61,14 +78,14 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US', 'ar_DZ'],
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: 'Oosira — Créateur de CV Professionnel Gratuit',
+    title: 'Oosira, Créateur de CV Professionnel Gratuit en Algérie, CV DZ',
     description: SITE_DESCRIPTION,
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Oosira — Créez votre CV professionnel en quelques minutes',
+        alt: 'Oosira Créez votre CV professionnel en quelques minutes',
         type: 'image/png',
       },
     ],
@@ -77,8 +94,8 @@ export const metadata: Metadata = {
   // ─── Twitter Card ─────────────────────────────────────
   twitter: {
     card: 'summary_large_image',
-    title: 'Oosira — Créateur de CV Professionnel Gratuit',
-    description: SITE_DESCRIPTION,
+    title: 'Oosira, Créateur de CV Gratuit en Algérie, CV DZ',
+     description: SITE_DESCRIPTION,
     images: ['/og-image.png'],
     creator: '@oosira',
   },
@@ -116,6 +133,12 @@ export const metadata: Metadata = {
   other: {
     'google': 'notranslate',
     'format-detection': 'telephone=no',
+    // ─── Geo-Targeting for Algeria ──────────────────────
+    'geo.region': 'DZ',
+    'geo.placename': 'Algeria',
+    'geo.position': '36.7538;3.0588',
+    'ICBM': '36.7538, 3.0588',
+    'content-language': 'fr-DZ',
   },
 };
 
@@ -130,10 +153,27 @@ const jsonLd = {
   description: SITE_DESCRIPTION,
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'All',
+  inLanguage: ['fr-DZ', 'ar-DZ', 'en'],
+  availableLanguage: [
+    { '@type': 'Language', name: 'French', alternateName: 'fr' },
+    { '@type': 'Language', name: 'Arabic', alternateName: 'ar' },
+    { '@type': 'Language', name: 'English', alternateName: 'en' },
+  ],
+  areaServed: {
+    '@type': 'Country',
+    name: 'Algeria',
+    alternateName: 'DZ',
+    sameAs: 'https://en.wikipedia.org/wiki/Algeria',
+  },
   offers: {
     '@type': 'Offer',
     price: '0',
     priceCurrency: 'DZD',
+    availability: 'https://schema.org/InStock',
+    areaServed: {
+      '@type': 'Country',
+      name: 'Algeria',
+    },
   },
   author: {
     '@type': 'Organization',
@@ -147,6 +187,47 @@ const jsonLd = {
     bestRating: '5',
     worstRating: '1',
   },
+  keywords: 'CV DZ, CV Algérie, créateur CV, CV gratuit Algérie, سيرة ذاتية الجزائر',
+};
+
+// ─── FAQ Structured Data for Rich Snippets ──────────────
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Comment créer un CV gratuitement en Algérie ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Avec Oosira, créez votre CV professionnel gratuitement en quelques minutes. Choisissez parmi nos modèles élégants, remplissez vos informations et exportez en PDF haute qualité. Aucune inscription requise.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Quel est le meilleur site pour faire un CV en DZ ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Oosira est le meilleur créateur de CV en Algérie (DZ). Il offre des modèles professionnels, l\'export PDF gratuit, et une interface en français et arabe adaptée aux standards algériens.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Est-ce que Oosira est gratuit ?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Oui, Oosira est 100% gratuit. Vous pouvez créer, personnaliser et télécharger votre CV en PDF sans aucun frais ni inscription obligatoire.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'هل يمكنني إنشاء سيرة ذاتية مجانية في الجزائر؟',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'نعم، أوصيرا هو أفضل موقع لإنشاء سيرة ذاتية مجانية في الجزائر. يقدم قوالب احترافية وتصدير PDF مجاني بالفرنسية والعربية.',
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -160,6 +241,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       </head>
       <body suppressHydrationWarning className="font-sans antialiased">
