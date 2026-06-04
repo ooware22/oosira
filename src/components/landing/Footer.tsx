@@ -10,7 +10,7 @@ const footerSections = [
     titleAr: 'المنتج',
     links: [
       { labelFr: 'Créateur de CV', labelAr: 'صانع السيرة الذاتية', href: '/builder' },
-      { labelFr: 'Modèles', labelAr: 'القوالب', href: '/templates' },
+      { labelFr: 'Modèles', labelAr: 'القوالب', href: '/modeles' },
       { labelFr: 'Tarifs', labelAr: 'الأسعار', href: '/pricing' },
     ],
   },
