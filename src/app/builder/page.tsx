@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, Suspense } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   candidates,
@@ -63,6 +63,7 @@ import {
   ChevronDownIcon,
   PencilSquareIcon,
   ShieldCheckIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -390,6 +391,55 @@ function BuilderPageContent() {
   const FIRST_PAGE_CONTENT = A4_HEIGHT - PAGE_MARGIN;
   // Content that fits on pages 2+ (top + bottom margin)
   const OTHER_PAGE_CONTENT = A4_HEIGHT - 2 * PAGE_MARGIN;
+
+  // ── CV Validation Warnings (yellow badges for missing fields) ──
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
+
+  const cvWarnings = useMemo(() => {
+    const hasContent = formData.prenom || formData.nom || formData.email ||
+      formData.experiences.length > 0 || formData.formations.length > 0;
+    if (!hasContent) return [];
+
+    type Warning = { id: string; label: Record<string, string>; step: number; severity: 'critical' | 'important' };
+    const warnings: Warning[] = [];
+
+    if (!formData.prenom && !formData.nom) {
+      warnings.push({ id: 'name', label: { en: 'Name missing', fr: 'Nom manquant', ar: 'الاسم مفقود' }, step: 1, severity: 'critical' });
+    }
+    if (!formData.email) {
+      warnings.push({ id: 'email', label: { en: 'Email missing', fr: 'Email manquant', ar: 'البريد مفقود' }, step: 1, severity: 'important' });
+    }
+    if (!formData.titre) {
+      warnings.push({ id: 'titre', label: { en: 'Job title missing', fr: 'Titre manquant', ar: 'المسمى الوظيفي مفقود' }, step: 1, severity: 'important' });
+    }
+    if (!formData.accroche?.trim()) {
+      warnings.push({ id: 'accroche', label: { en: 'Summary empty', fr: 'Résumé vide', ar: 'الملخص فارغ' }, step: 2, severity: 'important' });
+    }
+    if (formData.experiences.length === 0) {
+      warnings.push({ id: 'no-exp', label: { en: 'No experience added', fr: 'Aucune expérience', ar: 'لا توجد خبرة' }, step: 3, severity: 'critical' });
+    } else {
+      const missingDates = formData.experiences.filter(exp => !exp.dateDebut && !exp.dateFin);
+      if (missingDates.length > 0) {
+        warnings.push({ id: 'exp-dates', label: { en: `${missingDates.length} exp. missing dates`, fr: `${missingDates.length} exp. sans dates`, ar: `${missingDates.length} خبرات بدون تواريخ` }, step: 3, severity: 'important' });
+      }
+      const missingPoste = formData.experiences.filter(exp => !exp.poste);
+      if (missingPoste.length > 0) {
+        warnings.push({ id: 'exp-titles', label: { en: `${missingPoste.length} exp. missing title`, fr: `${missingPoste.length} exp. sans poste`, ar: `${missingPoste.length} خبرات بدون منصب` }, step: 3, severity: 'important' });
+      }
+    }
+    if (formData.formations.length === 0) {
+      warnings.push({ id: 'no-edu', label: { en: 'No education', fr: 'Aucune formation', ar: 'لا يوجد تعليم' }, step: 4, severity: 'important' });
+    }
+    if (formData.competences.length === 0) {
+      warnings.push({ id: 'no-skills', label: { en: 'No skills listed', fr: 'Aucune compétence', ar: 'لا توجد مهارات' }, step: 5, severity: 'important' });
+    }
+
+    return warnings.filter(w => !dismissedWarnings.has(w.id));
+  }, [formData, dismissedWarnings]);
+
+  const dismissWarning = useCallback((id: string) => {
+    setDismissedWarnings(prev => new Set([...prev, id]));
+  }, []);
 
   // Measure CV content height and compute page count
   useEffect(() => {
@@ -1229,6 +1279,57 @@ function BuilderPageContent() {
 
   const stepLabel = (id: string) =>
     STEP_LABELS[id]?.[language] || STEP_LABELS[id]?.en || id;
+
+  // ── Warning badges overlay for CV preview ──
+  const renderWarnings = () => {
+    if (cvWarnings.length === 0) return null;
+    return (
+      <div className="shrink-0 px-3 py-2.5 border-b border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-amber-400/5 to-amber-500/5">
+        <div className="flex items-center gap-1.5 mb-2">
+          <ExclamationTriangleIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+            {cvWarnings.length} {language === 'fr' ? 'champ(s) à compléter' : language === 'ar' ? 'حقول للإكمال' : 'field(s) to complete'}
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {cvWarnings.map(w => (
+            <div key={w.id} className="group/warn relative">
+              {/* Badge — click directly to jump to the step */}
+              <button
+                onClick={() => { setMobilePreviewOpen(false); goTo(w.step); }}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-all duration-200 ${
+                  w.severity === 'critical'
+                    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/30 hover:bg-amber-500/25 hover:ring-amber-500/50'
+                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20 hover:bg-amber-500/20 hover:ring-amber-500/40'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${w.severity === 'critical' ? 'bg-amber-500 animate-pulse' : 'bg-amber-400'}`} />
+                {w.label[language] || w.label.en}
+              </button>
+              {/* Hover popover with Skip / Fix — pb-3 bridges the gap so hover doesn't break */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-3 hidden group-hover/warn:flex flex-col items-center z-50">
+                <div className="bg-surface border border-border rounded-xl shadow-2xl shadow-black/20 p-1.5 flex items-center gap-1 whitespace-nowrap">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); dismissWarning(w.id); }}
+                    className="px-3 py-1.5 rounded-lg text-[10px] font-medium text-txt-muted hover:bg-surface2 hover:text-txt transition-all"
+                  >
+                    {language === 'fr' ? 'Ignorer' : language === 'ar' ? 'تجاهل' : 'Skip'}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setMobilePreviewOpen(false); goTo(w.step); }}
+                    className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-all"
+                  >
+                    {language === 'fr' ? 'Corriger →' : language === 'ar' ? '← إصلاح' : 'Fix →'}
+                  </button>
+                </div>
+                <div className="w-2.5 h-2.5 bg-surface border-b border-r border-border transform rotate-45 -mt-[6px]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   /* -- Template thumbnails data -- */
   const templateThumbs = [
@@ -3606,6 +3707,7 @@ function BuilderPageContent() {
                   {totalPages} {totalPages === 1 ? "page" : "pages"}
                 </span>
               </div>
+              {renderWarnings()}
               <div className="flex-1 overflow-auto preview-scrollbar p-4">
                 <div className="flex flex-col items-center gap-4 min-w-fit" dir={dir}>
                   {renderPaginatedSheets(sidePreviewZoom)}
@@ -3646,6 +3748,7 @@ function BuilderPageContent() {
                   <XMarkIcon className="w-4 h-4" />
                 </button>
               </div>
+              {renderWarnings()}
               <div className="flex-1 overflow-hidden">
                 <PinchZoomPreview minScale={0.3} maxScale={2.5} initialScale={0.5}>
                   <div className="flex flex-col items-center gap-4 max-w-full" dir={dir}>
