@@ -13,20 +13,27 @@ export function getToken(): string | null {
 
 /**
  * Store the JWT token in localStorage.
+ * Also sets a lightweight cookie so the server-side middleware
+ * can detect that the user is logged in (the cookie is just a flag,
+ * NOT the actual JWT — auth still uses the Bearer header).
  */
 export function setToken(token: string): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem('oosira_token', token);
+    // Sync a session flag cookie for middleware route protection
+    document.cookie = 'oosira_session=1; path=/; max-age=604800; SameSite=Lax';
   }
 }
 
 /**
- * Remove the JWT token from localStorage.
+ * Remove the JWT token from localStorage and clear the session cookie.
  */
 export function clearToken(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('oosira_token');
     localStorage.removeItem('oosira_refresh_token');
+    // Remove the session flag cookie
+    document.cookie = 'oosira_session=; path=/; max-age=0; SameSite=Lax';
   }
 }
 
