@@ -49,20 +49,35 @@ export default function ExportPage() {
 
   return (
     <>
-      {/* Suppress SyncTeX hover outlines & ensure exact A4 pixel match with preview */}
+      {/* 
+        Force PDF fidelity:
+        - Suppress SyncTeX hover outlines 
+        - Force exact color reproduction via print-color-adjust
+        - Ensure backgrounds on ALL elements are preserved
+        - Match the builder preview's .cv-page-wrapper behavior exactly
+      */}
       <style>{`
+        /* Force all backgrounds/colors to print exactly as rendered */
+        *, *::before, *::after {
+          print-color-adjust: exact !important;
+          -webkit-print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        /* Suppress SyncTeX hover indicators */
         [data-cv-field] { cursor: default !important; outline: none !important; }
-        [data-cv-field]:hover { background: transparent !important; outline: none !important; }
+        [data-cv-field]:hover { background: inherit !important; outline: none !important; }
         body { margin: 0; padding: 0; background: white; }
+        @media print {
+          @page { margin: 0; size: A4; }
+          html, body { height: auto !important; overflow: visible !important; }
+        }
       `}</style>
       <div
+        className="cv-page-wrapper"
         style={{
-          width: 794,
-          minHeight: 1123,
-          margin: 0,
-          padding: 0,
-          background: '#fff',
           ...cssVars as any,
+          minHeight: 1123,
+          height: 1123,
         }}
       >
         <TemplateComponent data={data.cv} config={data.config} />
