@@ -1246,6 +1246,7 @@ function BuilderPageContent() {
           cv_data: formData,
           style_config: styleConfig,
           template_id: activeTemplate,
+          language: language,
         }),
       });
 

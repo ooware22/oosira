@@ -7,6 +7,7 @@ import { CVExecutif } from "../templates/CVExecutif";
 import { CVTech } from "../templates/CVTech";
 import { CVMedical } from "../templates/CVMedical";
 import { styleToCSSVars } from "../templates/styleConfig";
+import { useLanguage } from "@/app/i18n/LanguageContext";
 
 const TEMPLATES: Record<number, any> = {
   1: CVClassique,
@@ -18,10 +19,15 @@ const TEMPLATES: Record<number, any> = {
 
 export default function ExportPage() {
   const [data, setData] = useState<{ cv: any; config: any; id: number } | null>(null);
+  const { setLanguage } = useLanguage();
 
   useEffect(() => {
     // 1. Expose a global method so Playwright (Django) can push data into this page
-    (window as any).injectCVData = (cvData: any, styleConfig: any, templateId: number) => {
+    (window as any).injectCVData = (cvData: any, styleConfig: any, templateId: number, lang?: string) => {
+      // Set the language BEFORE triggering a re-render so templates use the correct labels
+      if (lang && (lang === 'fr' || lang === 'en' || lang === 'ar')) {
+        setLanguage(lang);
+      }
       setData({ cv: cvData, config: styleConfig, id: templateId });
       // Add a small delay for CSS/fonts to load
       setTimeout(() => document.body.classList.add("print-ready"), 800);
@@ -34,7 +40,7 @@ export default function ExportPage() {
       setData(parsed);
       setTimeout(() => document.body.classList.add("print-ready"), 800);
     }
-  }, []);
+  }, [setLanguage]);
 
   if (!data) return <div className="p-8 text-center text-sm font-medium text-gray-500">Awaiting PDF render data from server...</div>;
 
