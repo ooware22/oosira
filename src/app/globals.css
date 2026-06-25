@@ -201,7 +201,7 @@
   #topbar, #workspace { display: none !important; }
   #print-area { display: block !important; }
   .cv-page { width: 210mm; min-height: 297mm; margin: 0; box-shadow: none; }
-  [data-cv-field] { cursor: default; outline: none !important; background: transparent !important; }
+  [data-cv-field] { cursor: default; outline: none !important; outline-offset: 0 !important; }
   @page { margin: 0; size: A4; }
 }
 
