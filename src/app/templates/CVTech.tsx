@@ -25,10 +25,10 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
             <div className="cv-timeline">
               {data.experiences.map((exp, i) => (
                 <div className="cv-timeline-item" key={`exp-${i}`}>
-                  <div className="tl-date">{fmtDate(exp.dateDebut)} - {fmtDate(exp.dateFin)}</div>
-                  <div className="tl-title">{exp.poste}</div>
-                  <div className="tl-company">{exp.entreprise} | {exp.secteur}</div>
-                  <div className="tl-desc">{exp.description}</div>
+                  <div className="tl-date" data-cv-field={`experiences.${i}.dateDebut`}>{fmtDate(exp.dateDebut)} - {fmtDate(exp.dateFin)}</div>
+                  <div className="tl-title" data-cv-field={`experiences.${i}.poste`}>{exp.poste}</div>
+                  <div className="tl-company" data-cv-field={`experiences.${i}.entreprise`}>{exp.entreprise} | {exp.secteur}</div>
+                  <div className="tl-desc" data-cv-field={`experiences.${i}.description`}>{exp.description}</div>
                   {exp.links?.map((link, lIdx) => (
                     <a key={`l-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                       <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
@@ -46,9 +46,9 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
             <div className="cv-section-title">{t('builder.education')}</div>
             {data.formations.map((f, i) => (
               <div className="cv-formation-item" key={`form-${i}`}>
-                <div className="year">{f.dateDebut && f.dateFin ? `${fmtDate(f.dateDebut)} - ${fmtDate(f.dateFin)}` : f.annee}</div>
-                <div className="diploma">{f.diplome} - {f.specialite}</div>
-                <div className="school">{f.etablissement}, {f.ville}</div>
+                <div className="year" data-cv-field={`formations.${i}.dateDebut`}>{f.dateDebut && f.dateFin ? `${fmtDate(f.dateDebut)} - ${fmtDate(f.dateFin)}` : f.annee}</div>
+                <div className="diploma" data-cv-field={`formations.${i}.diplome`}>{f.diplome} - {f.specialite}</div>
+                <div className="school" data-cv-field={`formations.${i}.etablissement`}>{f.etablissement}, {f.ville}</div>
                 {f.links?.map((link, lIdx) => (
                   <a key={`fl-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                      <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
@@ -63,7 +63,7 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
         return (
           <div key="competences" className="cv-section-col" style={{ marginBottom: 14 }}>
             <div className="cv-section-title">{t('builder.skills')}</div>
-            <div>{data.competences.map((s, i) => (<span className="cv-skill-highlight" key={`comp-${i}`}>{s}</span>))}</div>
+            <div>{data.competences.map((s, i) => (<span className="cv-skill-highlight" key={`comp-${i}`} data-cv-field="competences">{s}</span>))}</div>
           </div>
         );
       case 'logiciels':
@@ -71,7 +71,7 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
         return (
           <div key="logiciels" className="cv-section-col" style={{ marginBottom: 14 }}>
             <div className="cv-section-title">{t('builder.software')}</div>
-            <div>{data.logiciels.map((s, i) => (<span className="cv-skill-highlight" key={`logiciel-${i}`}>{s}</span>))}</div>
+            <div>{data.logiciels.map((s, i) => (<span className="cv-skill-highlight" key={`logiciel-${i}`} data-cv-field="logiciels">{s}</span>))}</div>
           </div>
         );
       case 'langues':
@@ -81,7 +81,7 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
             <div className="cv-section-title">{t('builder.languages')}</div>
             {data.langues.map((l, i) => (
               <div className="cv-lang-bar" key={`lang-${i}`}>
-                <div className="bar-label">
+                <div className="bar-label" data-cv-field={`langues.${i}.langue`}>
                   {l.langue} - {t(`builder.level_${l.niveau}`)}
                   {l.certification && (
                     <>
@@ -108,26 +108,26 @@ export function CVTech({ data, config }: { data: Candidate, config?: CVStyleConf
   return (
     <div className="cv-page cv-tech">
       <div className="cv-header">
-        <div className="cv-name">{data.prenom} {data.nom}</div>
-        <div className="cv-title">{data.titre}</div>
+        <div className="cv-name" data-cv-field="prenom">{data.prenom} {data.nom}</div>
+        <div className="cv-title" data-cv-field="titre">{data.titre}</div>
         <div className="cv-contact-row">
-          <span><EmailIcon /><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></span>
-          <span><PhoneIcn />{data.telephone}</span>
-          <span><LocationIcon />{data.ville}</span>
+          <span data-cv-field="email"><EmailIcon /><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></span>
+          <span data-cv-field="telephone"><PhoneIcn />{data.telephone}</span>
+          <span data-cv-field="ville"><LocationIcon />{data.ville}</span>
           {data.linkedin && (
             <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{textDecoration: 'none', color: 'inherit'}}>
-              <span><LinkedInIcon />{data.linkedin}</span>
+              <span data-cv-field="linkedin"><LinkedInIcon />{data.linkedin}</span>
             </a>
           )}
         </div>
         {data.competences.length > 0 && (
           <div className="cv-tech-tags">
-            {data.competences.slice(0, 8).map((s, i) => (<span className="tech-tag" key={i}>{s}</span>))}
+            {data.competences.slice(0, 8).map((s, i) => (<span className="tech-tag" key={i} data-cv-field="competences">{s}</span>))}
           </div>
         )}
       </div>
       <div className="cv-body">
-        {data.accroche && <div className="cv-accroche">{data.accroche}</div>}
+        {data.accroche && <div className="cv-accroche" data-cv-field="accroche">{data.accroche}</div>}
         
         {config?.layoutCols === '1' ? (
           <div className="flex flex-col gap-4">

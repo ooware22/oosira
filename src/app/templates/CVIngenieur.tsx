@@ -20,10 +20,10 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             <div className="cv-timeline">
               {data.experiences.map((exp, i) => (
                 <div className="cv-timeline-item" key={i}>
-                  <div className="tl-date">{fmtDate(exp.dateDebut)} - {fmtDate(exp.dateFin)}</div>
-                  <div className="tl-title">{exp.poste}</div>
-                  <div className="tl-company">{exp.entreprise} | {exp.secteur}</div>
-                  <div className="tl-desc">{exp.description}</div>
+                  <div className="tl-date" data-cv-field={`experiences.${i}.dateDebut`}>{fmtDate(exp.dateDebut)} - {fmtDate(exp.dateFin)}</div>
+                  <div className="tl-title" data-cv-field={`experiences.${i}.poste`}>{exp.poste}</div>
+                  <div className="tl-company" data-cv-field={`experiences.${i}.entreprise`}>{exp.entreprise} | {exp.secteur}</div>
+                  <div className="tl-desc" data-cv-field={`experiences.${i}.description`}>{exp.description}</div>
                   {exp.links?.map((link, lIdx) => (
                     <a key={`l-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                       <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
@@ -41,10 +41,10 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             <div className="cv-section-title">{t('builder.education')}</div>
             {data.formations.map((f, i) => (
               <div className="cv-formation-item" key={i}>
-                <div className="year">{f.dateDebut && f.dateFin ? `${fmtDate(f.dateDebut)} - ${fmtDate(f.dateFin)}` : f.annee}</div>
-                <div className="diploma">{f.diplome} - {f.specialite}</div>
-                <div className="school">{f.etablissement}, {f.ville}</div>
-                {f.mention && <div className="mention-badge">{f.mention}</div>}
+                <div className="year" data-cv-field={`formations.${i}.dateDebut`}>{f.dateDebut && f.dateFin ? `${fmtDate(f.dateDebut)} - ${fmtDate(f.dateFin)}` : f.annee}</div>
+                <div className="diploma" data-cv-field={`formations.${i}.diplome`}>{f.diplome} - {f.specialite}</div>
+                <div className="school" data-cv-field={`formations.${i}.etablissement`}>{f.etablissement}, {f.ville}</div>
+                {f.mention && <div className="mention-badge" data-cv-field={`formations.${i}.mention`}>{f.mention}</div>}
                 {f.links?.map((link, lIdx) => (
                   <a key={`fl-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
                      <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
@@ -61,7 +61,7 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             <div className="cv-section-title">{t('builder.skills')}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
               {data.competences.map((s, i) => (
-                <span className="skill-tag" key={i}>{s}</span>
+                <span className="skill-tag" key={i} data-cv-field="competences">{s}</span>
               ))}
             </div>
           </div>
@@ -73,7 +73,7 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             <div className="cv-section-title">{t('builder.languages')}</div>
             {data.langues.map((l, i) => (
               <div className="cv-lang-item" key={i}>
-                <span>{l.langue}</span>
+                <span data-cv-field={`langues.${i}.langue`}>{l.langue}</span>
                 <span className="cv-lang-level">
                   {t(`builder.level_${l.niveau}`)}
                   {l.certification && (
@@ -100,7 +100,7 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
             <div className="cv-section-title">{t('builder.software')}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
               {data.logiciels.map((s, i) => (
-                <span className="skill-tag" key={i}>{s}</span>
+                <span className="skill-tag" key={i} data-cv-field="logiciels">{s}</span>
               ))}
             </div>
           </div>
@@ -113,18 +113,18 @@ export function CVIngenieur({ data, config }: { data: Candidate, config?: CVStyl
     <div className="cv-page cv-ingenieur">
       <div className="cv-header">
         <div>
-          <div className="cv-name">{data.prenom} {data.nom}</div>
-          <div className="cv-title">{data.titre}</div>
+          <div className="cv-name" data-cv-field="prenom">{data.prenom} {data.nom}</div>
+          <div className="cv-title" data-cv-field="titre">{data.titre}</div>
         </div>
         <div className="cv-contact-right">
-          <div><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></div>
-          <div>{data.telephone}</div>
-          <div>{data.ville}</div>
-          {data.linkedin && <div><a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</a></div>}
+          <div data-cv-field="email"><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></div>
+          <div data-cv-field="telephone">{data.telephone}</div>
+          <div data-cv-field="ville">{data.ville}</div>
+          {data.linkedin && <div data-cv-field="linkedin"><a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{data.linkedin.replace(/^https?:\/\/(www\.)?/, '')}</a></div>}
         </div>
       </div>
       <div className="cv-body">
-        {data.accroche && <div className="cv-accroche">{data.accroche}</div>}
+        {data.accroche && <div className="cv-accroche" data-cv-field="accroche">{data.accroche}</div>}
         {config?.layoutCols === '1' ? (
           <div className="flex flex-col gap-4">
              {[...mainOrder, ...sideOrder].map(k => renderSection(k))}

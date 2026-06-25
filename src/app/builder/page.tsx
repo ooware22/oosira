@@ -150,6 +150,8 @@ function Input({
   placeholder,
   type = "text",
   list,
+  isTemplateData,
+  id,
 }: {
   label: string;
   value: string;
@@ -157,19 +159,32 @@ function Input({
   placeholder?: string;
   type?: string;
   list?: string;
+  isTemplateData?: boolean;
+  id?: string;
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
-        {label}
-      </label>
+      <div className="flex items-center gap-2">
+        <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+          {label}
+        </label>
+        {isTemplateData && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold uppercase tracking-wide animate-pulse">
+            <ExclamationTriangleIcon className="w-2.5 h-2.5" />
+            Template
+          </span>
+        )}
+      </div>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         list={list}
-        className="w-full bg-surface border border-border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+        className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim ${
+          isTemplateData ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
+        }`}
       />
     </div>
   );
@@ -215,24 +230,39 @@ function TextArea({
   onChange,
   placeholder,
   rows = 3,
+  isTemplateData,
+  id,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   rows?: number;
+  isTemplateData?: boolean;
+  id?: string;
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
-        {label}
-      </label>
+      <div className="flex items-center gap-2">
+        <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
+          {label}
+        </label>
+        {isTemplateData && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold uppercase tracking-wide animate-pulse">
+            <ExclamationTriangleIcon className="w-2.5 h-2.5" />
+            Template
+          </span>
+        )}
+      </div>
       <textarea
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full bg-surface border border-border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none resize-y transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim font-body"
+        className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none resize-y transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim font-body ${
+          isTemplateData ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
+        }`}
       />
     </div>
   );
@@ -366,6 +396,9 @@ function BuilderPageContent() {
   });
   const [newSkill, setNewSkill] = useState("");
   const [newLogiciel, setNewLogiciel] = useState("");
+
+  // ── Template Data Snapshot (warns users about pre-filled data) ──
+  const [templateSnapshot, setTemplateSnapshot] = useState<Candidate | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [ecolesList, setEcolesList] = useState<string[]>([]);
@@ -403,6 +436,7 @@ function BuilderPageContent() {
     type Warning = { id: string; label: Record<string, string>; step: number; severity: 'critical' | 'important' };
     const warnings: Warning[] = [];
 
+    // ── Step 1: Personal Info ──
     if (!formData.prenom && !formData.nom) {
       warnings.push({ id: 'name', label: { en: 'Name missing', fr: 'Nom manquant', ar: 'الاسم مفقود' }, step: 1, severity: 'critical' });
     }
@@ -412,9 +446,19 @@ function BuilderPageContent() {
     if (!formData.titre) {
       warnings.push({ id: 'titre', label: { en: 'Job title missing', fr: 'Titre manquant', ar: 'المسمى الوظيفي مفقود' }, step: 1, severity: 'important' });
     }
+    if (!formData.telephone) {
+      warnings.push({ id: 'phone', label: { en: 'Phone missing', fr: 'Téléphone manquant', ar: 'الهاتف مفقود' }, step: 1, severity: 'important' });
+    }
+    if (!formData.ville) {
+      warnings.push({ id: 'city', label: { en: 'City missing', fr: 'Ville manquante', ar: 'المدينة مفقودة' }, step: 1, severity: 'important' });
+    }
+
+    // ── Step 2: Summary ──
     if (!formData.accroche?.trim()) {
       warnings.push({ id: 'accroche', label: { en: 'Summary empty', fr: 'Résumé vide', ar: 'الملخص فارغ' }, step: 2, severity: 'important' });
     }
+
+    // ── Step 3: Experiences ──
     if (formData.experiences.length === 0) {
       warnings.push({ id: 'no-exp', label: { en: 'No experience added', fr: 'Aucune expérience', ar: 'لا توجد خبرة' }, step: 3, severity: 'critical' });
     } else {
@@ -426,12 +470,43 @@ function BuilderPageContent() {
       if (missingPoste.length > 0) {
         warnings.push({ id: 'exp-titles', label: { en: `${missingPoste.length} exp. missing title`, fr: `${missingPoste.length} exp. sans poste`, ar: `${missingPoste.length} خبرات بدون منصب` }, step: 3, severity: 'important' });
       }
+      const missingCompany = formData.experiences.filter(exp => !exp.entreprise);
+      if (missingCompany.length > 0) {
+        warnings.push({ id: 'exp-company', label: { en: `${missingCompany.length} exp. missing company`, fr: `${missingCompany.length} exp. sans entreprise`, ar: `${missingCompany.length} خبرات بدون شركة` }, step: 3, severity: 'important' });
+      }
+      const missingDesc = formData.experiences.filter(exp => !exp.description?.trim());
+      if (missingDesc.length > 0) {
+        warnings.push({ id: 'exp-desc', label: { en: `${missingDesc.length} exp. no description`, fr: `${missingDesc.length} exp. sans description`, ar: `${missingDesc.length} خبرات بدون وصف` }, step: 3, severity: 'important' });
+      }
     }
+
+    // ── Step 4: Education ──
     if (formData.formations.length === 0) {
       warnings.push({ id: 'no-edu', label: { en: 'No education', fr: 'Aucune formation', ar: 'لا يوجد تعليم' }, step: 4, severity: 'important' });
+    } else {
+      const missingDiplome = formData.formations.filter(f => !f.diplome);
+      if (missingDiplome.length > 0) {
+        warnings.push({ id: 'edu-diploma', label: { en: `${missingDiplome.length} edu. missing diploma`, fr: `${missingDiplome.length} form. sans diplôme`, ar: `${missingDiplome.length} تعليم بدون شهادة` }, step: 4, severity: 'important' });
+      }
+      const missingSchool = formData.formations.filter(f => !f.etablissement);
+      if (missingSchool.length > 0) {
+        warnings.push({ id: 'edu-school', label: { en: `${missingSchool.length} edu. missing school`, fr: `${missingSchool.length} form. sans établissement`, ar: `${missingSchool.length} تعليم بدون مؤسسة` }, step: 4, severity: 'important' });
+      }
+      const missingEduDates = formData.formations.filter(f => !f.dateDebut && !f.dateFin && !f.annee);
+      if (missingEduDates.length > 0) {
+        warnings.push({ id: 'edu-dates', label: { en: `${missingEduDates.length} edu. missing dates`, fr: `${missingEduDates.length} form. sans dates`, ar: `${missingEduDates.length} تعليم بدون تواريخ` }, step: 4, severity: 'important' });
+      }
     }
+
+    // ── Step 5: Skills & More ──
     if (formData.competences.length === 0) {
       warnings.push({ id: 'no-skills', label: { en: 'No skills listed', fr: 'Aucune compétence', ar: 'لا توجد مهارات' }, step: 5, severity: 'important' });
+    }
+    if (formData.langues.length === 0) {
+      warnings.push({ id: 'no-lang', label: { en: 'No languages', fr: 'Aucune langue', ar: 'لا توجد لغات' }, step: 5, severity: 'important' });
+    }
+    if (formData.logiciels.length === 0) {
+      warnings.push({ id: 'no-software', label: { en: 'No software listed', fr: 'Aucun logiciel', ar: 'لا توجد برامج' }, step: 5, severity: 'important' });
     }
 
     return warnings.filter(w => !dismissedWarnings.has(w.id));
@@ -439,6 +514,66 @@ function BuilderPageContent() {
 
   const dismissWarning = useCallback((id: string) => {
     setDismissedWarnings(prev => new Set([...prev, id]));
+  }, []);
+
+  // ── Template data detection helpers ──
+  const isTemplateValue = useCallback((field: keyof Candidate): boolean => {
+    if (!templateSnapshot) return false;
+    const snapVal = templateSnapshot[field];
+    const curVal = formData[field];
+    if (!snapVal || !curVal) return false;
+    return snapVal === curVal;
+  }, [templateSnapshot, formData]);
+
+  const isTemplateArrayValue = useCallback((arrayField: 'experiences' | 'formations' | 'langues', index: number, subField: string): boolean => {
+    if (!templateSnapshot) return false;
+    const snapArr = templateSnapshot[arrayField] as any[];
+    if (!snapArr || index >= snapArr.length) return false;
+    const snapVal = snapArr[index]?.[subField];
+    const curArr = formData[arrayField] as any[];
+    const curVal = curArr[index]?.[subField];
+    if (!snapVal || !curVal) return false;
+    return snapVal === curVal;
+  }, [templateSnapshot, formData]);
+
+  const isTemplateListItem = useCallback((listField: 'competences' | 'logiciels', value: string): boolean => {
+    if (!templateSnapshot) return false;
+    return templateSnapshot[listField]?.includes(value) ?? false;
+  }, [templateSnapshot]);
+
+  const templateFieldCount = useMemo(() => {
+    if (!templateSnapshot) return 0;
+    let count = 0;
+    const fields: (keyof Candidate)[] = ['prenom', 'nom', 'titre', 'email', 'telephone', 'ville', 'linkedin', 'accroche'];
+    for (const f of fields) {
+      if (templateSnapshot[f] && templateSnapshot[f] === formData[f]) count++;
+    }
+    // Count array items
+    for (const exp of formData.experiences) {
+      const idx = formData.experiences.indexOf(exp);
+      const snapExp = (templateSnapshot.experiences as any[])?.[idx];
+      if (snapExp) {
+        if (snapExp.poste && snapExp.poste === exp.poste) count++;
+        if (snapExp.entreprise && snapExp.entreprise === exp.entreprise) count++;
+        if (snapExp.description && snapExp.description === exp.description) count++;
+      }
+    }
+    for (const f of formData.formations) {
+      const idx = formData.formations.indexOf(f);
+      const snapF = (templateSnapshot.formations as any[])?.[idx];
+      if (snapF) {
+        if (snapF.diplome && snapF.diplome === f.diplome) count++;
+        if (snapF.etablissement && snapF.etablissement === f.etablissement) count++;
+      }
+    }
+    count += formData.competences.filter(s => templateSnapshot.competences?.includes(s)).length;
+    count += formData.logiciels.filter(s => templateSnapshot.logiciels?.includes(s)).length;
+    count += formData.langues.filter((l, i) => templateSnapshot.langues?.[i]?.langue === l.langue).length;
+    return count;
+  }, [templateSnapshot, formData]);
+
+  const clearTemplateSnapshot = useCallback(() => {
+    setTemplateSnapshot(null);
   }, []);
 
   // Measure CV content height and compute page count
@@ -891,6 +1026,7 @@ function BuilderPageContent() {
   const switchCandidate = useCallback((idx: number) => {
     setActiveCandidate(idx);
     if (idx === -1) {
+      setTemplateSnapshot(null);
       setFormData({
         id: -1,
         prenom: "",
@@ -914,6 +1050,15 @@ function BuilderPageContent() {
       return;
     }
     const c = candidates[idx];
+    // Snapshot the template data for warning indicators
+    setTemplateSnapshot({
+      ...c,
+      formations: c.formations.map((f) => ({ ...f })),
+      experiences: c.experiences.map((e) => ({ ...e })),
+      langues: c.langues.map((l) => ({ ...l })),
+      competences: [...c.competences],
+      logiciels: [...c.logiciels],
+    });
     setFormData({
       ...c,
       formations: c.formations.map((f) => ({ ...f })),
@@ -1208,6 +1353,72 @@ function BuilderPageContent() {
     return FIRST_PAGE_CONTENT + (i - 1) * OTHER_PAGE_CONTENT;
   };
 
+  // ── Double-click-to-edit: Overleaf-style SyncTeX navigation ──
+  const handlePreviewDoubleClick = useCallback((e: React.MouseEvent) => {
+    // Walk up from the clicked element to find one with data-cv-field
+    let el = e.target as HTMLElement;
+    let field: string | null = null;
+    while (el && !field) {
+      field = el.getAttribute('data-cv-field');
+      if (!field) el = el.parentElement as HTMLElement;
+    }
+    if (!field) return;
+
+    // Flash feedback on the clicked element
+    if (el) {
+      el.style.transition = 'outline 0.2s, outline-offset 0.2s';
+      el.style.outline = '2px solid #3b82f6';
+      el.style.outlineOffset = '2px';
+      el.style.borderRadius = '4px';
+      setTimeout(() => {
+        el.style.outline = 'none';
+        el.style.outlineOffset = '0px';
+      }, 600);
+    }
+
+    // Map field path to step number and input ID
+    const fieldToStep: Record<string, number> = {
+      prenom: 1, nom: 1, titre: 1, email: 1, telephone: 1, ville: 1, linkedin: 1,
+      accroche: 2,
+      competences: 5, logiciels: 5,
+    };
+
+    let targetStep: number;
+    let focusId: string | undefined;
+
+    if (field.startsWith('experiences.')) {
+      targetStep = 3;
+      // e.g. "experiences.0.poste" → focus input for that experience field
+      focusId = `exp-${field.replace('experiences.', '').replace('.', '-')}`;
+    } else if (field.startsWith('formations.')) {
+      targetStep = 4;
+      focusId = `edu-${field.replace('formations.', '').replace('.', '-')}`;
+    } else if (field.startsWith('langues.')) {
+      targetStep = 5;
+      focusId = `lang-${field.replace('langues.', '').replace('.', '-')}`;
+    } else {
+      targetStep = fieldToStep[field] || 1;
+      focusId = `field-${field}`;
+    }
+
+    // Close mobile preview if open, navigate to step
+    setMobilePreviewOpen(false);
+    goTo(targetStep);
+
+    // After navigation renders, try to focus the target input
+    setTimeout(() => {
+      const input = document.getElementById(focusId || '');
+      if (input) {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.focus();
+        // Pulse animation
+        input.style.transition = 'box-shadow 0.3s';
+        input.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.4)';
+        setTimeout(() => { input.style.boxShadow = ''; }, 1200);
+      }
+    }, 150);
+  }, [goTo]);
+
   /** Render paginated A4 sheets with proper margins.
    *  Each sheet contains an inner clipping window that enforces
    *  top margin (pages 2+) and bottom margin (all pages). */
@@ -1327,6 +1538,127 @@ function BuilderPageContent() {
             </div>
           ))}
         </div>
+      </div>
+    );
+  };
+
+  // ── Template data floating overlay for CV preview ──
+  const renderTemplateOverlay = () => {
+    if (!templateSnapshot || templateFieldCount === 0) return null;
+
+    // Categorize which sections still have template data
+    const sections: { label: string; count: number; step: number; key: string }[] = [];
+    const personalFields: (keyof Candidate)[] = ['prenom', 'nom', 'titre', 'email', 'telephone', 'ville', 'linkedin'];
+    const personalCount = personalFields.filter(f => templateSnapshot[f] && templateSnapshot[f] === formData[f]).length;
+    if (personalCount > 0) sections.push({ label: language === 'fr' ? 'Infos perso' : language === 'ar' ? 'معلومات شخصية' : 'Personal info', count: personalCount, step: 1, key: 'personal' });
+
+    if (templateSnapshot.accroche && templateSnapshot.accroche === formData.accroche) {
+      sections.push({ label: language === 'fr' ? 'Résumé' : language === 'ar' ? 'ملخص' : 'Summary', count: 1, step: 2, key: 'summary' });
+    }
+
+    let expCount = 0;
+    formData.experiences.forEach((exp, idx) => {
+      const snapExp = (templateSnapshot.experiences as any[])?.[idx];
+      if (snapExp) {
+        if (snapExp.poste && snapExp.poste === exp.poste) expCount++;
+        if (snapExp.entreprise && snapExp.entreprise === exp.entreprise) expCount++;
+        if (snapExp.description && snapExp.description === exp.description) expCount++;
+      }
+    });
+    if (expCount > 0) sections.push({ label: language === 'fr' ? 'Expériences' : language === 'ar' ? 'خبرات' : 'Experience', count: expCount, step: 3, key: 'experiences' });
+
+    let eduCount = 0;
+    formData.formations.forEach((f, idx) => {
+      const snapF = (templateSnapshot.formations as any[])?.[idx];
+      if (snapF) {
+        if (snapF.diplome && snapF.diplome === f.diplome) eduCount++;
+        if (snapF.etablissement && snapF.etablissement === f.etablissement) eduCount++;
+      }
+    });
+    if (eduCount > 0) sections.push({ label: language === 'fr' ? 'Formation' : language === 'ar' ? 'تعليم' : 'Education', count: eduCount, step: 4, key: 'formations' });
+
+    const skillsCount = formData.competences.filter(s => templateSnapshot.competences?.includes(s)).length
+      + formData.logiciels.filter(s => templateSnapshot.logiciels?.includes(s)).length
+      + formData.langues.filter((l, i) => templateSnapshot.langues?.[i]?.langue === l.langue).length;
+    if (skillsCount > 0) sections.push({ label: language === 'fr' ? 'Compétences' : language === 'ar' ? 'مهارات' : 'Skills', count: skillsCount, step: 5, key: 'skills' });
+
+    // Dismiss a single section's template data by clearing those fields from the snapshot
+    const clearSection = (key: string) => {
+      if (!templateSnapshot) return;
+      const updated = { ...templateSnapshot };
+      if (key === 'personal') {
+        personalFields.forEach(f => { (updated as any)[f] = ''; });
+      } else if (key === 'summary') {
+        updated.accroche = '';
+      } else if (key === 'experiences') {
+        updated.experiences = [];
+      } else if (key === 'formations') {
+        updated.formations = [];
+      } else if (key === 'skills') {
+        updated.competences = [];
+        updated.logiciels = [];
+        updated.langues = [];
+      }
+      setTemplateSnapshot(updated);
+    };
+
+    return (
+      <div className="shrink-0 px-3 py-2.5 border-b border-orange-500/20 bg-gradient-to-r from-orange-500/5 via-amber-400/5 to-orange-500/5">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheckIcon className="w-3.5 h-3.5 text-orange-500 shrink-0 animate-pulse" />
+            <span className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
+              {language === 'fr'
+                ? `${templateFieldCount} champ(s) pré-rempli(s)`
+                : language === 'ar'
+                  ? `${templateFieldCount} حقول معبأة مسبقاً`
+                  : `${templateFieldCount} pre-filled field(s)`}
+            </span>
+          </div>
+          <button
+            onClick={clearTemplateSnapshot}
+            className="text-[9px] font-bold text-orange-500 hover:text-orange-600 dark:hover:text-orange-300 uppercase tracking-wider transition-colors"
+          >
+            {language === 'fr' ? 'Ignorer tout' : language === 'ar' ? 'تجاهل الكل' : 'Dismiss all'}
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {sections.map(s => (
+            <div key={s.key} className="group/sec relative">
+              <button
+                onClick={() => { setMobilePreviewOpen(false); goTo(s.step); }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-semibold ring-1 ring-orange-500/20 cursor-pointer transition-all duration-200 hover:bg-orange-500/20 hover:ring-orange-500/40"
+              >
+                {s.label} <span className="text-[9px] opacity-70">({s.count})</span>
+              </button>
+              {/* Hover popover with Dismiss / Fix */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 pb-3 hidden group-hover/sec:flex flex-col items-center z-50">
+                <div className="bg-surface border border-border rounded-xl shadow-2xl shadow-black/20 p-1.5 flex items-center gap-1 whitespace-nowrap">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); clearSection(s.key); }}
+                    className="px-3 py-1.5 rounded-lg text-[10px] font-medium text-txt-muted hover:bg-surface2 hover:text-txt transition-all"
+                  >
+                    {language === 'fr' ? 'Ignorer' : language === 'ar' ? 'تجاهل' : 'Dismiss'}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setMobilePreviewOpen(false); goTo(s.step); }}
+                    className="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 transition-all"
+                  >
+                    {language === 'fr' ? 'Corriger →' : language === 'ar' ? '← إصلاح' : 'Fix →'}
+                  </button>
+                </div>
+                <div className="w-2.5 h-2.5 bg-surface border-b border-r border-border transform rotate-45 -mt-[6px]" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="text-[9px] text-orange-500/70 mt-1.5 italic">
+          {language === 'fr'
+            ? 'Vérifiez et remplacez les données du modèle avant d\'exporter.'
+            : language === 'ar'
+              ? 'راجع واستبدل بيانات القالب قبل التصدير.'
+              : 'Review and replace template data before exporting.'}
+        </p>
       </div>
     );
   };
@@ -1723,11 +2055,15 @@ function BuilderPageContent() {
                 label={t("builder.firstName") || "First Name"}
                 value={formData.prenom}
                 onChange={(v) => updateField("prenom", v)}
+                isTemplateData={isTemplateValue("prenom")}
+                id="field-prenom"
               />
               <Input
                 label={t("builder.lastName") || "Last Name"}
                 value={formData.nom}
                 onChange={(v) => updateField("nom", v)}
+                isTemplateData={isTemplateValue("nom")}
+                id="field-nom"
               />
             </div>
             <AutocompleteInput
@@ -1736,6 +2072,8 @@ function BuilderPageContent() {
               onChange={(v) => updateField("titre", v)}
               placeholder="e.g. Ingénieur Logiciel"
               suggestions={SUGGESTIONS.titres}
+              isTemplateData={isTemplateValue("titre")}
+              id="field-titre"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
@@ -1743,12 +2081,16 @@ function BuilderPageContent() {
                 value={formData.email}
                 onChange={(v) => updateField("email", v)}
                 type="email"
+                isTemplateData={isTemplateValue("email")}
+                id="field-email"
               />
               <Input
                 label={t("builder.phone")}
                 value={formData.telephone}
                 onChange={(v) => updateField("telephone", v)}
                 type="tel"
+                isTemplateData={isTemplateValue("telephone")}
+                id="field-telephone"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1757,11 +2099,15 @@ function BuilderPageContent() {
                 value={formData.ville}
                 onChange={(v) => updateField("ville", v)}
                 suggestions={SUGGESTIONS.villes}
+                isTemplateData={isTemplateValue("ville")}
+                id="field-ville"
               />
               <Input
                 label={t("builder.linkedin")}
                 value={formData.linkedin}
                 onChange={(v) => updateField("linkedin", v)}
+                isTemplateData={isTemplateValue("linkedin")}
+                id="field-linkedin"
               />
             </div>
           </motion.div>
@@ -1795,6 +2141,8 @@ function BuilderPageContent() {
                 "Experienced professional with deep expertise in..."
               }
               rows={6}
+              isTemplateData={isTemplateValue("accroche")}
+              id="field-accroche"
             />
             <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
               <p className="text-xs lg:text-base text-blue-600 dark:text-blue-400 font-medium">
@@ -1872,6 +2220,8 @@ function BuilderPageContent() {
                       value={exp.poste}
                       onChange={(v) => updateExperience(idx, "poste", v)}
                       suggestions={SUGGESTIONS.titres}
+                      isTemplateData={isTemplateArrayValue("experiences", idx, "poste")}
+                      id={`exp-${idx}-poste`}
                     />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <AutocompleteInput
@@ -1879,12 +2229,15 @@ function BuilderPageContent() {
                         value={exp.entreprise}
                         onChange={(v) => updateExperience(idx, "entreprise", v)}
                         suggestions={SUGGESTIONS.entreprises}
+                        isTemplateData={isTemplateArrayValue("experiences", idx, "entreprise")}
+                        id={`exp-${idx}-entreprise`}
                       />
                       <AutocompleteInput
                         label={t("builder.secteur") || "Secteur"}
                         value={exp.secteur}
                         onChange={(v) => updateExperience(idx, "secteur", v)}
                         suggestions={SUGGESTIONS.secteurs}
+                        isTemplateData={isTemplateArrayValue("experiences", idx, "secteur")}
                       />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1893,6 +2246,8 @@ function BuilderPageContent() {
                         value={exp.dateDebut}
                         onChange={(v) => updateExperience(idx, "dateDebut", v)}
                         type="month"
+                        isTemplateData={isTemplateArrayValue("experiences", idx, "dateDebut")}
+                        id={`exp-${idx}-dateDebut`}
                       />
                       <div className="space-y-1.5">
                         {exp.dateFin === "Present" || exp.dateFin === "En cours" ? (
@@ -1938,6 +2293,8 @@ function BuilderPageContent() {
                       value={exp.description}
                       onChange={(v) => updateExperience(idx, "description", v)}
                       rows={3}
+                      isTemplateData={isTemplateArrayValue("experiences", idx, "description")}
+                      id={`exp-${idx}-description`}
                     />
 
                     {/* Multiple URLs Toggle */}
@@ -2071,6 +2428,8 @@ function BuilderPageContent() {
                         value={f.diplome}
                         onChange={(v) => updateFormation(idx, "diplome", v)}
                         suggestions={SUGGESTIONS.diplomes}
+                        isTemplateData={isTemplateArrayValue("formations", idx, "diplome")}
+                        id={`edu-${idx}-diplome`}
                       />
                       <Input
                         label={t("builder.startDate") || "Start Date"}
@@ -2123,6 +2482,8 @@ function BuilderPageContent() {
                       value={f.specialite}
                       onChange={(v) => updateFormation(idx, "specialite", v)}
                       suggestions={SUGGESTIONS.specialites}
+                      isTemplateData={isTemplateArrayValue("formations", idx, "specialite")}
+                      id={`edu-${idx}-specialite`}
                     />
                     <Select
                       label={
@@ -2174,12 +2535,16 @@ function BuilderPageContent() {
                           updateFormation(idx, "etablissement", v)
                         }
                         list={`ecoles-list-${f.type_etablissement || "all"}`}
+                        isTemplateData={isTemplateArrayValue("formations", idx, "etablissement")}
+                        id={`edu-${idx}-etablissement`}
                       />
                       <AutocompleteInput
                         label={t("builder.location")}
                         value={f.ville}
                         onChange={(v) => updateFormation(idx, "ville", v)}
                         suggestions={SUGGESTIONS.villes}
+                        isTemplateData={isTemplateArrayValue("formations", idx, "ville")}
+                        id={`edu-${idx}-ville`}
                       />
                     </div>
                     <AutocompleteInput
@@ -2187,6 +2552,8 @@ function BuilderPageContent() {
                       value={f.mention}
                       onChange={(v) => updateFormation(idx, "mention", v)}
                       suggestions={SUGGESTIONS.mentions}
+                      isTemplateData={isTemplateArrayValue("formations", idx, "mention")}
+                      id={`edu-${idx}-mention`}
                     />
 
                     {/* Multiple URLs Toggle */}
@@ -2305,8 +2672,13 @@ function BuilderPageContent() {
                     key={i}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="inline-flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs lg:text-base font-bold"
+                    className={`inline-flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-base font-bold ${
+                      isTemplateListItem('competences', s)
+                        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-400/40'
+                        : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                    }`}
                   >
+                    {isTemplateListItem('competences', s) && <ExclamationTriangleIcon className="w-3 h-3 animate-pulse" />}
                     {s}
                     <button
                       onClick={() => removeSkill(i)}
@@ -2339,7 +2711,9 @@ function BuilderPageContent() {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
                       <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input
-                          className="w-full bg-surface2 border border-border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500"
+                          className={`w-full bg-surface2 border rounded-xl px-3 py-2.5 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all focus:border-blue-500 ${
+                            isTemplateArrayValue('langues', idx, 'langue') ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
+                          }`}
                           value={l.langue}
                           onChange={(e) =>
                             updateLangue(idx, "langue", e.target.value)
@@ -2450,8 +2824,13 @@ function BuilderPageContent() {
                 {formData.logiciels.map((s, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 rounded-full text-xs lg:text-base font-bold"
+                    className={`inline-flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 rounded-full text-xs lg:text-base font-bold ${
+                      isTemplateListItem('logiciels', s)
+                        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 ring-1 ring-amber-400/40'
+                        : 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+                    }`}
                   >
+                    {isTemplateListItem('logiciels', s) && <ExclamationTriangleIcon className="w-3 h-3 animate-pulse" />}
                     {s}
                     <button
                       onClick={() => removeLogiciel(i)}
@@ -3219,7 +3598,7 @@ function BuilderPageContent() {
 
               {/* Desktop preview — paginated A4 sheets */}
               <div className={`hidden lg:flex flex-col ${previewZoom > 0.8 ? 'items-start' : 'items-center'} gap-8 py-8 px-4 bg-surface2/30 rounded-3xl border border-border min-h-[500px] overflow-auto custom-scrollbar`}>
-                <div className={`flex flex-col ${previewZoom > 0.8 ? 'items-start mx-auto' : 'items-center'} gap-6`} dir={dir}>
+                <div className={`flex flex-col ${previewZoom > 0.8 ? 'items-start mx-auto' : 'items-center'} gap-6`} dir={dir} onDoubleClick={handlePreviewDoubleClick}>
                   {renderPaginatedSheets(previewZoom)}
                 </div>
               </div>
@@ -3708,8 +4087,9 @@ function BuilderPageContent() {
                 </span>
               </div>
               {renderWarnings()}
+              {renderTemplateOverlay()}
               <div className="flex-1 overflow-auto preview-scrollbar p-4">
-                <div className="flex flex-col items-center gap-4 min-w-fit" dir={dir}>
+                <div className="flex flex-col items-center gap-4 min-w-fit" dir={dir} onDoubleClick={handlePreviewDoubleClick}>
                   {renderPaginatedSheets(sidePreviewZoom)}
                 </div>
               </div>
@@ -3749,9 +4129,10 @@ function BuilderPageContent() {
                 </button>
               </div>
               {renderWarnings()}
+              {renderTemplateOverlay()}
               <div className="flex-1 overflow-hidden">
                 <PinchZoomPreview minScale={0.3} maxScale={2.5} initialScale={0.5}>
-                  <div className="flex flex-col items-center gap-4 max-w-full" dir={dir}>
+                  <div className="flex flex-col items-center gap-4 max-w-full" dir={dir} onDoubleClick={handlePreviewDoubleClick}>
                     {renderPaginatedSheets(0.5)}
                   </div>
                 </PinchZoomPreview>

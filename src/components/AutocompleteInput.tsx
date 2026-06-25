@@ -11,6 +11,10 @@ interface AutocompleteInputProps {
   maxResults?: number;
   /** When true, show all suggestions on focus even when input is empty */
   showAllOnFocus?: boolean;
+  /** When true, shows amber warning indicating this field contains template data */
+  isTemplateData?: boolean;
+  /** DOM id for SyncTeX focus targeting */
+  id?: string;
 }
 
 /**
@@ -26,6 +30,8 @@ export default function AutocompleteInput({
   type = "text",
   maxResults = 8,
   showAllOnFocus = false,
+  isTemplateData,
+  id,
 }: AutocompleteInputProps) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
@@ -111,10 +117,18 @@ export default function AutocompleteInput({
 
   return (
     <div className="space-y-1.5 relative" ref={wrapperRef}>
-      <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
-        {label}
-      </label>
+      <div className="flex items-center gap-2">
+        <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
+          {label}
+        </label>
+        {isTemplateData && (
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold uppercase tracking-wide animate-pulse">
+            ⚠ Template
+          </span>
+        )}
+      </div>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(e) => {
@@ -132,7 +146,9 @@ export default function AutocompleteInput({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoComplete="off"
-        className="w-full bg-surface border border-border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+        className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim ${
+          isTemplateData ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
+        }`}
       />
       {open && filtered.length > 0 && (
         <ul

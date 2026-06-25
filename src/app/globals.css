@@ -124,6 +124,18 @@
   box-sizing: border-box;
 }
 
+/* SyncTeX: double-click-to-edit hover hint */
+[data-cv-field] {
+  cursor: pointer;
+  transition: background 0.15s, outline 0.2s;
+  border-radius: 2px;
+}
+[data-cv-field]:hover {
+  background: rgba(59,130,246,0.06);
+  outline: 1px dashed rgba(59,130,246,0.25);
+  outline-offset: 1px;
+}
+
 /* ── Custom Link styles for CV Builder ── */
 .cv-link {
   display: inline-block;
@@ -189,6 +201,7 @@
   #topbar, #workspace { display: none !important; }
   #print-area { display: block !important; }
   .cv-page { width: 210mm; min-height: 297mm; margin: 0; box-shadow: none; }
+  [data-cv-field] { cursor: default; outline: none !important; background: transparent !important; }
   @page { margin: 0; size: A4; }
 }
 
