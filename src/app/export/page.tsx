@@ -23,7 +23,7 @@ export default function ExportPage() {
     // 1. Expose a global method so Playwright (Django) can push data into this page
     (window as any).injectCVData = (cvData: any, styleConfig: any, templateId: number) => {
       setData({ cv: cvData, config: styleConfig, id: templateId });
-      // Add a small delay for Framer CSS/images to load if any
+      // Add a small delay for CSS/fonts to load
       setTimeout(() => document.body.classList.add("print-ready"), 800);
     };
 
@@ -42,11 +42,25 @@ export default function ExportPage() {
   const cssVars = data.config ? styleToCSSVars(data.config) : {};
 
   return (
-    <div 
-      className="w-[210mm] min-h-[297mm] bg-white m-0 p-0 box-border"
-      style={cssVars as any}
-    >
-      <TemplateComponent data={data.cv} config={data.config} />
-    </div>
+    <>
+      {/* Suppress SyncTeX hover outlines & ensure exact A4 pixel match with preview */}
+      <style>{`
+        [data-cv-field] { cursor: default !important; outline: none !important; }
+        [data-cv-field]:hover { background: transparent !important; outline: none !important; }
+        body { margin: 0; padding: 0; background: white; }
+      `}</style>
+      <div
+        style={{
+          width: 794,
+          minHeight: 1123,
+          margin: 0,
+          padding: 0,
+          background: '#fff',
+          ...cssVars as any,
+        }}
+      >
+        <TemplateComponent data={data.cv} config={data.config} />
+      </div>
+    </>
   );
 }
