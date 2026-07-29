@@ -1,4 +1,3 @@
-# Clean Frontend Deployment Workflow
 name: Deploy Frontend to VPS
 
 on:
@@ -17,4 +16,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: 22
-          script: bash /var/www/oosira/oosira/deploy.sh
+          script: |
+            cd /var/www/oosira/oosira
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart oosira-frontend
