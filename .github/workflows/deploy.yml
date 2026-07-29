@@ -1,4 +1,4 @@
-# Frontend Deployment Workflow
+# Clean Frontend Deployment Workflow
 name: Deploy Frontend to VPS
 
 on:
