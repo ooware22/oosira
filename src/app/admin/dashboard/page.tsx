@@ -117,8 +117,8 @@ export default function AdminDashboardPage() {
     if (!editingPlan) return;
     try {
       const isNew = !editingPlan.id;
-      const url = isNew 
-        ? `${API_BASE}/admin/subscriptions/plans/` 
+      const url = isNew
+        ? `${API_BASE}/admin/subscriptions/plans/`
         : `${API_BASE}/admin/subscriptions/plans/${editingPlan.id}/`;
       const method = isNew ? 'POST' : 'PUT';
 
@@ -196,7 +196,7 @@ export default function AdminDashboardPage() {
           <div className="group relative w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-medium text-[13px] overflow-hidden shadow-lg shadow-blue-500/20">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 dark:from-blue-500 dark:via-cyan-300 dark:to-blue-500 bg-[length:200%_auto] bg-left z-0" />
             <ShieldCheckIcon className="w-4 h-4 relative z-10" />
-            <span className="relative z-10">Admin Panel</span>
+            <span className="relative z-10">Admin Dashboard</span>
           </div>
         </div>
 
@@ -209,11 +209,10 @@ export default function AdminDashboardPage() {
               <button
                 key={item.id}
                 onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${isActive
                     ? 'bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/15'
                     : 'text-txt-muted hover:text-txt hover:bg-surface2'
-                }`}
+                  }`}
               >
                 <Icon className={`w-[18px] h-[18px] ${isActive ? 'text-blue-500' : ''}`} />
                 <span>{item.label}</span>
@@ -379,11 +378,10 @@ export default function AdminDashboardPage() {
                               </div>
                             </td>
                             <td className="px-5 py-3.5">
-                              <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-                                u.plan === 'pro'
+                              <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${u.plan === 'pro'
                                   ? 'bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-500 border border-blue-500/20'
                                   : 'bg-surface2 text-txt-muted'
-                              }`}>
+                                }`}>
                                 {u.plan}
                               </span>
                             </td>
@@ -399,7 +397,7 @@ export default function AdminDashboardPage() {
                             <td className="px-5 py-3.5 text-[12px] text-txt-muted">{new Date(u.joinedAt).toLocaleDateString()}</td>
                             <td className="px-5 py-3.5 text-right">
                               <div className="flex items-center justify-end gap-1">
-                                <button onClick={() => setEditingUser({...u})} className="p-2 rounded-lg text-txt-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors">
+                                <button onClick={() => setEditingUser({ ...u })} className="p-2 rounded-lg text-txt-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors">
                                   <PencilSquareIcon className="w-4 h-4" />
                                 </button>
                                 <button onClick={() => handleDeleteUser(u.id)} disabled={u.isSuperuser} className="p-2 rounded-lg text-txt-muted hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
@@ -421,7 +419,7 @@ export default function AdminDashboardPage() {
               <motion.div key="pricing" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-txt">Subscription Plans</h3>
-                  <button 
+                  <button
                     onClick={() => setEditingPlan({ code: '', price_da: 0, features: [], is_popular: false })}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-blue-500/20"
                   >
@@ -440,7 +438,7 @@ export default function AdminDashboardPage() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h4 className="text-lg font-bold text-txt flex items-center gap-2">
-                            {p.icon_type === 'sparkles' ? <SparklesIcon className="w-5 h-5 text-blue-500"/> : <DocumentTextIcon className="w-5 h-5 text-txt-muted"/>}
+                            {p.icon_type === 'sparkles' ? <SparklesIcon className="w-5 h-5 text-blue-500" /> : <DocumentTextIcon className="w-5 h-5 text-txt-muted" />}
                             {p.name_en}
                           </h4>
                           <p className="text-sm text-txt-muted mt-1">{p.desc_en}</p>
@@ -449,7 +447,7 @@ export default function AdminDashboardPage() {
                       <div className="text-3xl font-extrabold text-txt mb-6">
                         {p.price_da} <span className="text-base font-medium text-txt-muted">DA</span>
                       </div>
-                      
+
                       <div className="mt-auto space-y-3 mb-6">
                         {p.features.slice(0, 3).map((f: any, i: number) => (
                           <div key={i} className={`flex items-center gap-2 text-sm ${f.is_included ? 'text-txt' : 'text-txt-muted opacity-50'}`}>
@@ -463,7 +461,7 @@ export default function AdminDashboardPage() {
                       </div>
 
                       <div className="flex items-center gap-2 border-t border-border pt-4">
-                        <button onClick={() => setEditingPlan({...p})} className="flex-1 py-2 text-sm font-medium bg-surface2 hover:bg-border rounded-lg transition-colors text-txt">
+                        <button onClick={() => setEditingPlan({ ...p })} className="flex-1 py-2 text-sm font-medium bg-surface2 hover:bg-border rounded-lg transition-colors text-txt">
                           Edit
                         </button>
                         <button onClick={() => handleDeletePlan(p.id)} className="p-2 text-txt-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
@@ -505,7 +503,7 @@ export default function AdminDashboardPage() {
                   <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Plan</label>
                   <select
                     value={editingUser.plan}
-                    onChange={e => setEditingUser({...editingUser, plan: e.target.value})}
+                    onChange={e => setEditingUser({ ...editingUser, plan: e.target.value })}
                     className="w-full bg-surface2 border border-border rounded-xl px-4 py-3 text-[13px] text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   >
                     <option value="free">Free</option>
@@ -516,14 +514,14 @@ export default function AdminDashboardPage() {
                 {/* Toggles */}
                 <div className="flex items-center justify-between bg-surface2 border border-border rounded-xl p-4">
                   <div><p className="text-[13px] font-medium text-txt">Active</p><p className="text-[11px] text-txt-muted">Can log in</p></div>
-                  <button type="button" onClick={() => setEditingUser({...editingUser, isActive: !editingUser.isActive})}
+                  <button type="button" onClick={() => setEditingUser({ ...editingUser, isActive: !editingUser.isActive })}
                     className={`relative w-11 h-6 rounded-full transition-colors ${editingUser.isActive ? 'bg-blue-500' : 'bg-border'}`}>
                     <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${editingUser.isActive ? 'translate-x-5' : ''}`} />
                   </button>
                 </div>
                 <div className="flex items-center justify-between bg-surface2 border border-border rounded-xl p-4">
                   <div><p className="text-[13px] font-medium text-txt">Staff</p><p className="text-[11px] text-txt-muted">Admin panel access</p></div>
-                  <button type="button" disabled={editingUser.isSuperuser} onClick={() => setEditingUser({...editingUser, isStaff: !editingUser.isStaff})}
+                  <button type="button" disabled={editingUser.isSuperuser} onClick={() => setEditingUser({ ...editingUser, isStaff: !editingUser.isStaff })}
                     className={`relative w-11 h-6 rounded-full transition-colors disabled:opacity-40 ${editingUser.isStaff ? 'bg-blue-500' : 'bg-border'}`}>
                     <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${editingUser.isStaff ? 'translate-x-5' : ''}`} />
                   </button>
@@ -557,39 +555,39 @@ export default function AdminDashboardPage() {
                 <h3 className="text-[15px] font-bold text-txt">{editingPlan.id ? 'Edit Plan' : 'Create Plan'}</h3>
                 <button onClick={() => setEditingPlan(null)} className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted"><XMarkIcon className="w-5 h-5" /></button>
               </div>
-              
+
               <form onSubmit={handleUpdatePlan} className="p-6 overflow-y-auto space-y-6">
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Plan Code</label>
-                    <input required value={editingPlan.code || ''} onChange={e => setEditingPlan({...editingPlan, code: e.target.value})} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-[13px] text-txt outline-none focus:border-blue-500" placeholder="e.g. pro" />
+                    <input required value={editingPlan.code || ''} onChange={e => setEditingPlan({ ...editingPlan, code: e.target.value })} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-[13px] text-txt outline-none focus:border-blue-500" placeholder="e.g. pro" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Price (DA)</label>
-                    <input type="number" required value={editingPlan.price_da} onChange={e => setEditingPlan({...editingPlan, price_da: parseInt(e.target.value) || 0})} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-[13px] text-txt outline-none focus:border-blue-500" />
+                    <input type="number" required value={editingPlan.price_da} onChange={e => setEditingPlan({ ...editingPlan, price_da: parseInt(e.target.value) || 0 })} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-[13px] text-txt outline-none focus:border-blue-500" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 border-b border-border pb-6">
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Name (EN)</label>
-                    <input required value={editingPlan.name_en || ''} onChange={e => setEditingPlan({...editingPlan, name_en: e.target.value})} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2 text-[13px] text-txt outline-none focus:border-blue-500" />
+                    <input required value={editingPlan.name_en || ''} onChange={e => setEditingPlan({ ...editingPlan, name_en: e.target.value })} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2 text-[13px] text-txt outline-none focus:border-blue-500" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Name (FR)</label>
-                    <input value={editingPlan.name_fr || ''} onChange={e => setEditingPlan({...editingPlan, name_fr: e.target.value})} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2 text-[13px] text-txt outline-none focus:border-blue-500" />
+                    <input value={editingPlan.name_fr || ''} onChange={e => setEditingPlan({ ...editingPlan, name_fr: e.target.value })} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2 text-[13px] text-txt outline-none focus:border-blue-500" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Name (AR)</label>
-                    <input value={editingPlan.name_ar || ''} onChange={e => setEditingPlan({...editingPlan, name_ar: e.target.value})} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2 text-[13px] text-txt outline-none focus:border-blue-500" />
+                    <input value={editingPlan.name_ar || ''} onChange={e => setEditingPlan({ ...editingPlan, name_ar: e.target.value })} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2 text-[13px] text-txt outline-none focus:border-blue-500" />
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-sm text-txt">Features</h4>
-                    <button type="button" onClick={() => setEditingPlan({...editingPlan, features: [...editingPlan.features, { text_en: '', text_fr: '', text_ar: '', is_included: true }]})} className="text-[11px] font-bold bg-blue-500/10 text-blue-500 px-3 py-1.5 rounded-lg hover:bg-blue-500/20 transition-colors">
+                    <button type="button" onClick={() => setEditingPlan({ ...editingPlan, features: [...editingPlan.features, { text_en: '', text_fr: '', text_ar: '', is_included: true }] })} className="text-[11px] font-bold bg-blue-500/10 text-blue-500 px-3 py-1.5 rounded-lg hover:bg-blue-500/20 transition-colors">
                       + Add Feature
                     </button>
                   </div>
@@ -597,17 +595,17 @@ export default function AdminDashboardPage() {
                     {editingPlan.features.map((f: any, i: number) => (
                       <div key={i} className="flex gap-2 items-start bg-surface2 p-3 rounded-xl border border-border">
                         <div className="flex-1 space-y-2">
-                          <input required placeholder="English text" value={f.text_en} onChange={e => { const n = [...editingPlan.features]; n[i].text_en = e.target.value; setEditingPlan({...editingPlan, features: n}); }} className="w-full bg-transparent border-b border-border px-1 py-1 text-[13px] outline-none focus:border-blue-500" />
+                          <input required placeholder="English text" value={f.text_en} onChange={e => { const n = [...editingPlan.features]; n[i].text_en = e.target.value; setEditingPlan({ ...editingPlan, features: n }); }} className="w-full bg-transparent border-b border-border px-1 py-1 text-[13px] outline-none focus:border-blue-500" />
                           <div className="flex gap-2">
-                            <input placeholder="French" value={f.text_fr || ''} onChange={e => { const n = [...editingPlan.features]; n[i].text_fr = e.target.value; setEditingPlan({...editingPlan, features: n}); }} className="flex-1 bg-transparent border-b border-border px-1 py-1 text-[11px] outline-none" />
-                            <input placeholder="Arabic" value={f.text_ar || ''} onChange={e => { const n = [...editingPlan.features]; n[i].text_ar = e.target.value; setEditingPlan({...editingPlan, features: n}); }} className="flex-1 bg-transparent border-b border-border px-1 py-1 text-[11px] outline-none" />
+                            <input placeholder="French" value={f.text_fr || ''} onChange={e => { const n = [...editingPlan.features]; n[i].text_fr = e.target.value; setEditingPlan({ ...editingPlan, features: n }); }} className="flex-1 bg-transparent border-b border-border px-1 py-1 text-[11px] outline-none" />
+                            <input placeholder="Arabic" value={f.text_ar || ''} onChange={e => { const n = [...editingPlan.features]; n[i].text_ar = e.target.value; setEditingPlan({ ...editingPlan, features: n }); }} className="flex-1 bg-transparent border-b border-border px-1 py-1 text-[11px] outline-none" />
                           </div>
                         </div>
                         <div className="flex flex-col gap-2 shrink-0">
-                          <button type="button" onClick={() => { const n = [...editingPlan.features]; n[i].is_included = !n[i].is_included; setEditingPlan({...editingPlan, features: n}); }} className={`p-1.5 rounded-lg border ${f.is_included ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-red-500/10 border-red-500/30 text-red-500'}`}>
-                            {f.is_included ? <CheckCircleIcon className="w-4 h-4"/> : <XMarkIcon className="w-4 h-4"/>}
+                          <button type="button" onClick={() => { const n = [...editingPlan.features]; n[i].is_included = !n[i].is_included; setEditingPlan({ ...editingPlan, features: n }); }} className={`p-1.5 rounded-lg border ${f.is_included ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500' : 'bg-red-500/10 border-red-500/30 text-red-500'}`}>
+                            {f.is_included ? <CheckCircleIcon className="w-4 h-4" /> : <XMarkIcon className="w-4 h-4" />}
                           </button>
-                          <button type="button" onClick={() => { const n = [...editingPlan.features]; n.splice(i, 1); setEditingPlan({...editingPlan, features: n}); }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-txt-muted hover:text-red-500">
+                          <button type="button" onClick={() => { const n = [...editingPlan.features]; n.splice(i, 1); setEditingPlan({ ...editingPlan, features: n }); }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-txt-muted hover:text-red-500">
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -618,7 +616,7 @@ export default function AdminDashboardPage() {
 
                 <div className="flex items-center justify-between bg-surface2 border border-border rounded-xl p-4">
                   <div><p className="text-[13px] font-medium text-txt">Popular Plan</p><p className="text-[11px] text-txt-muted">Highlights this plan on pricing page</p></div>
-                  <button type="button" onClick={() => setEditingPlan({...editingPlan, is_popular: !editingPlan.is_popular})} className={`relative w-11 h-6 rounded-full transition-colors ${editingPlan.is_popular ? 'bg-blue-500' : 'bg-border'}`}>
+                  <button type="button" onClick={() => setEditingPlan({ ...editingPlan, is_popular: !editingPlan.is_popular })} className={`relative w-11 h-6 rounded-full transition-colors ${editingPlan.is_popular ? 'bg-blue-500' : 'bg-border'}`}>
                     <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${editingPlan.is_popular ? 'translate-x-5' : ''}`} />
                   </button>
                 </div>
