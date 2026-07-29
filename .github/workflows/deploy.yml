@@ -1,4 +1,4 @@
-# Automated CI/CD deployment for oosira-frontend
+# Trigger frontend deployment
 name: Deploy Frontend to VPS
 
 on:
