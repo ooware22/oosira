@@ -12,6 +12,19 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+// `t()` is called on every render, including inside .map() over free-text
+// fields (e.g. `builder.level_${niveau}` for an OCR-imported or hand-typed
+// language level). A missing key there used to console.warn on every single
+// render, which under a long editing session eventually OOM'd the dev
+// server's Node heap. Warn once per key instead.
+const warnedKeys = new Set<string>();
+function warnOnce(keyPath: string, language: string) {
+  const cacheKey = `${language}:${keyPath}`;
+  if (warnedKeys.has(cacheKey)) return;
+  warnedKeys.add(cacheKey);
+  console.warn(`Translation missing for key: ${keyPath} in language: ${language}`);
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>('fr'); // Default french
 
@@ -35,8 +48,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const keys = keyPath.split('.');
     let current: any = dictionaries[language];
     for (const key of keys) {
-      if (current[key] === undefined) {
-        console.warn(`Translation missing for key: ${keyPath} in language: ${language}`);
+      if (current === null || typeof current !== 'object' || current[key] === undefined) {
+        warnOnce(keyPath, language);
         return keyPath;
       }
       current = current[key];

@@ -195,14 +195,27 @@
 /* ══════════════════════════════════════════
    Print
    ══════════════════════════════════════════ */
+/* Each sheet emitted by the pagination engine is exactly one A4 page, so the
+   browser only has to place them — it never has to fragment content itself. */
+.cv-print-page { break-after: page; page-break-after: always; }
+.cv-print-page:last-child { break-after: auto; page-break-after: auto; }
+
 @media print {
   * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
-  html, body { height: auto !important; overflow: visible !important; background: #fff !important; }
-  #topbar, #workspace { display: none !important; }
-  #print-area { display: block !important; }
-  .cv-page { width: 210mm; min-height: 297mm; margin: 0; box-shadow: none; }
+  html, body { height: auto !important; overflow: visible !important; background: #fff !important; margin: 0 !important; }
+  /* .cv-page keeps its exact 794x1123 box: the engine already sized each sheet
+     to one page, so overriding the dimensions here would desync preview and PDF. */
+  .cv-page { margin: 0; box-shadow: none; }
+  .cv-print-page { margin: 0; }
   [data-cv-field] { cursor: default; outline: none !important; outline-offset: 0 !important; }
-  @page { margin: 0; size: A4; }
+  [data-cv-field]:hover { background: none !important; outline: none !important; }
+  /* Belt-and-braces: nothing inside a generated page should ever be split. */
+  .cv-exp-item, .cv-formation-item, .cv-timeline-item, .exec-entry,
+  .cv-lang-item, .cv-lang-bar, .cv-skill-pill, .exec-lang-row {
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .cv-section-title, .exec-section-title { break-after: avoid; page-break-after: avoid; }
+  @page { margin: 0; size: 210mm 297mm; }
 }
 
 /* Shimmer animation for gradient bars */

@@ -1,73 +1,107 @@
-'use client';
+﻿'use client';
 import { Candidate } from '../data';
 import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon, ProjectLinkIcon } from './ContactIcons';
-import { fmtDate } from './dateFormat';
+import { dateRangeLabel } from './dateFormat';
+import { renderRichText } from './richText';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { CVStyleConfig } from './styleConfig';
+import { CVBlock, CVLayout, block } from './blocks';
+import { renderBlocks } from './renderBlocks';
+import { Translate } from './types';
 
-export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleConfig }) {
-  const { t } = useLanguage();
+function href(url: string) {
+  return url.startsWith('http') ? url : `https://${url}`;
+}
+
+function LinkRow({ url, label }: { url: string; label?: string }) {
+  return (
+    <a href={href(url)} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
+      <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {label || url}
+    </a>
+  );
+}
+
+export function buildMedicalLayout(
+  data: Candidate,
+  config: CVStyleConfig | undefined,
+  t: Translate,
+  language: string,
+): CVLayout {
   const mainOrder = config?.mainOrder || ['experiences', 'formations'];
   const sideOrder = config?.sideOrder || ['competences', 'langues', 'logiciels'];
 
-  const renderSection = (id: string) => {
-    switch(id) {
-      case 'experiences':
-        if (!data.experiences?.length) return null;
-        return (
-          <div key="experiences" className="cv-section-col" style={{ marginBottom: 16 }}>
-            <div className="cv-section-title">{t('builder.experiences')}</div>
-            {data.experiences.map((exp, i) => (
-              <div className="cv-exp-item" key={`exp-${i}`}>
-                <div className="exp-date" data-cv-field={`experiences.${i}.dateDebut`}>{fmtDate(exp.dateDebut)} - {fmtDate(exp.dateFin)}</div>
+  const title = (id: string, group: string, text: string) =>
+    block(id, group, <div className="cv-section-title">{text}</div>, {
+      wrapperClass: 'cv-section-col',
+      keepWithNext: true,
+    });
+
+  const section = (id: string): CVBlock[] => {
+    switch (id) {
+      case 'experiences': {
+        if (!data.experiences?.length) return [];
+        return [
+          title('exp-title', 'experiences', t('builder.experiences')),
+          ...data.experiences.map((exp, i) =>
+            block(
+              `exp-${i}`,
+              'experiences',
+              <div className="cv-exp-item">
+                <div className="exp-date" data-cv-field={`experiences.${i}.dateDebut`}>{dateRangeLabel(exp, language)}</div>
                 <div className="exp-poste" data-cv-field={`experiences.${i}.poste`}>{exp.poste}</div>
                 <div className="exp-company" data-cv-field={`experiences.${i}.entreprise`}>{exp.entreprise} | {exp.secteur}</div>
-                <div className="exp-desc" data-cv-field={`experiences.${i}.description`}>{exp.description}</div>
-                {exp.links?.map((link, lIdx) => (
-                  <a key={`l-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
-                    <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
-                  </a>
-                ))}
-              </div>
-            ))}
-          </div>
-        );
-      case 'formations':
-        if (!data.formations?.length) return null;
-        return (
-          <div key="formations" className="cv-section-col">
-            <div className="cv-section-title">{t('builder.education')}</div>
-            {data.formations.map((f, i) => (
-              <div className="cv-formation-item" key={`form-${i}`}>
-                <div className="year" data-cv-field={`formations.${i}.dateDebut`}>{f.dateDebut && f.dateFin ? `${fmtDate(f.dateDebut)} - ${fmtDate(f.dateFin)}` : f.annee}</div>
+                <div className="exp-desc" data-cv-field={`experiences.${i}.description`}>{renderRichText(exp.description)}</div>
+                {exp.links?.map((link, l) => <LinkRow key={l} url={link.url} label={link.label} />)}
+              </div>,
+              { wrapperClass: 'cv-section-col' },
+            ),
+          ),
+        ];
+      }
+      case 'formations': {
+        if (!data.formations?.length) return [];
+        return [
+          title('edu-title', 'formations', t('builder.education')),
+          ...data.formations.map((f, i) =>
+            block(
+              `edu-${i}`,
+              'formations',
+              <div className="cv-formation-item">
+                <div className="year" data-cv-field={`formations.${i}.dateDebut`}>{dateRangeLabel(f, language)}</div>
                 <div className="diploma" data-cv-field={`formations.${i}.diplome`}>{f.diplome} - {f.specialite}</div>
                 <div className="school" data-cv-field={`formations.${i}.etablissement`}>{f.etablissement}, {f.ville}</div>
-                {f.links?.map((link, lIdx) => (
-                  <a key={`fl-${lIdx}`} href={link.url.startsWith('http') ? link.url : `https://${link.url}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
-                     <span style={{ marginRight: '4px', display: 'inline-flex', alignItems: 'center' }}><ProjectLinkIcon /></span> {link.label || link.url}
-                  </a>
-                ))}
-              </div>
-            ))}
-          </div>
-        );
-      case 'competences':
-        if (!data.competences?.length) return null;
-        return (
-          <div key="competences" className="cv-section-col" style={{ marginBottom: 14 }}>
-            <div className="cv-section-title">{t('builder.skills')}</div>
+                {f.links?.map((link, l) => <LinkRow key={l} url={link.url} label={link.label} />)}
+              </div>,
+              { wrapperClass: 'cv-section-col' },
+            ),
+          ),
+        ];
+      }
+      case 'competences': {
+        if (!data.competences?.length) return [];
+        return [
+          title('comp-title', 'competences', t('builder.skills')),
+          block(
+            'comp-list',
+            'competences',
             <div className="cv-skills-list">
-              {data.competences.map((s, i) => (<span className="cv-skill-pill" key={`comp-${i}`} data-cv-field="competences">{s}</span>))}
-            </div>
-          </div>
-        );
-      case 'langues':
-        if (!data.langues?.length) return null;
-        return (
-          <div key="langues" className="cv-section-col" style={{ marginBottom: 14 }}>
-            <div className="cv-section-title">{t('builder.languages')}</div>
-            {data.langues.map((l, i) => (
-              <div className="cv-lang-item" key={`lang-${i}`}>
+              {data.competences.map((s, i) => (
+                <span className="cv-skill-pill" key={i} data-cv-field="competences">{s}</span>
+              ))}
+            </div>,
+            { wrapperClass: 'cv-section-col' },
+          ),
+        ];
+      }
+      case 'langues': {
+        if (!data.langues?.length) return [];
+        return [
+          title('lang-title', 'langues', t('builder.languages')),
+          ...data.langues.map((l, i) =>
+            block(
+              `lang-${i}`,
+              'langues',
+              <div className="cv-lang-item">
                 <span data-cv-field={`langues.${i}.langue`}>{l.langue}</span>
                 <span className="cv-lang-level">
                   {t(`builder.level_${l.niveau}`)}
@@ -75,7 +109,7 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
                     <>
                       {', '}
                       {l.certificationLink ? (
-                        <a href={l.certificationLink.startsWith('http') ? l.certificationLink : `https://${l.certificationLink}`} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ fontWeight: 500 }}>
+                        <a href={href(l.certificationLink)} target="_blank" rel="noopener noreferrer" className="cv-link" style={{ fontWeight: 500 }}>
                           {l.certification}{l.score ? ` (${l.score})` : ''}
                         </a>
                       ) : (
@@ -84,55 +118,82 @@ export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleC
                     </>
                   )}
                 </span>
-              </div>
-            ))}
-          </div>
-        );
-      case 'logiciels':
-        if (!data.logiciels?.length) return null;
-        return (
-          <div key="logiciels" className="cv-section-col">
-            <div className="cv-section-title">{t('builder.software')}</div>
+              </div>,
+              { wrapperClass: 'cv-section-col' },
+            ),
+          ),
+        ];
+      }
+      case 'logiciels': {
+        if (!data.logiciels?.length) return [];
+        return [
+          title('log-title', 'logiciels', t('builder.software')),
+          block(
+            'log-list',
+            'logiciels',
             <div className="cv-skills-list">
-              {data.logiciels.map((s, i) => (<span className="cv-skill-pill" key={`log-${i}`} data-cv-field="logiciels">{s}</span>))}
-            </div>
-          </div>
-        );
-      default: return null;
+              {data.logiciels.map((s, i) => (
+                <span className="cv-skill-pill" key={i} data-cv-field="logiciels">{s}</span>
+              ))}
+            </div>,
+            { wrapperClass: 'cv-section-col' },
+          ),
+        ];
+      }
+      default:
+        return [];
     }
   };
 
+  const header = (
+    <div className="cv-header">
+      <div className="cv-name" data-cv-field="prenom">{data.prenom} {data.nom}</div>
+      <div className="cv-title" data-cv-field="titre">{data.titre}</div>
+      <div className="cv-contact-row">
+        <span data-cv-field="email"><EmailIcon /><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></span>
+        <span data-cv-field="telephone"><PhoneIcn />{data.telephone}</span>
+        <span data-cv-field="ville"><LocationIcon />{data.ville}</span>
+        {data.linkedin && (
+          <a href={href(data.linkedin)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <span data-cv-field="linkedin"><LinkedInIcon />{data.linkedin}</span>
+          </a>
+        )}
+      </div>
+    </div>
+  );
+
+  const lead: CVBlock[] = data.accroche
+    ? [block('accroche', 'accroche', <div className="cv-accroche" data-cv-field="accroche">{renderRichText(data.accroche)}</div>)]
+    : [];
+
+  return {
+    pageClass: 'cv-medical',
+    bodyClass: 'cv-body',
+    gridClass: 'cv-grid',
+    columnClass: 'flex flex-col gap-4',
+    singleColumn: config?.layoutCols === '1',
+    header,
+    lead,
+    main: mainOrder.flatMap(section),
+    side: sideOrder.flatMap(section),
+  };
+}
+
+export function CVMedical({ data, config }: { data: Candidate, config?: CVStyleConfig }) {
+  const { t, language } = useLanguage();
+  const layout = buildMedicalLayout(data, config, t, language);
+
   return (
     <div className="cv-page cv-medical">
-      <div className="cv-header">
-        <div className="cv-name" data-cv-field="prenom">{data.prenom} {data.nom}</div>
-        <div className="cv-title" data-cv-field="titre">{data.titre}</div>
-        <div className="cv-contact-row">
-          <span data-cv-field="email"><EmailIcon /><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></span>
-          <span data-cv-field="telephone"><PhoneIcn />{data.telephone}</span>
-          <span data-cv-field="ville"><LocationIcon />{data.ville}</span>
-          {data.linkedin && (
-            <a href={data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`} target="_blank" rel="noopener noreferrer" style={{textDecoration: 'none', color: 'inherit'}}>
-              <span data-cv-field="linkedin"><LinkedInIcon />{data.linkedin}</span>
-            </a>
-          )}
-        </div>
-      </div>
-      <div className="cv-body">
-        {data.accroche && <div className="cv-accroche" data-cv-field="accroche">{data.accroche}</div>}
-        
-        {config?.layoutCols === '1' ? (
-          <div className="flex flex-col gap-4">
-             {[...mainOrder, ...sideOrder].map(k => renderSection(k))}
-          </div>
+      {layout.header}
+      <div className={layout.bodyClass}>
+        {renderBlocks(layout.lead)}
+        {layout.singleColumn ? (
+          <div className={layout.columnClass}>{renderBlocks([...layout.main, ...layout.side])}</div>
         ) : (
-          <div className="cv-grid">
-            <div className="flex flex-col gap-4">
-              {mainOrder.map(k => renderSection(k))}
-            </div>
-            <div className="flex flex-col gap-4">
-              {sideOrder.map(k => renderSection(k))}
-            </div>
+          <div className={layout.gridClass}>
+            <div className={layout.columnClass}>{renderBlocks(layout.main)}</div>
+            <div className={layout.columnClass}>{renderBlocks(layout.side)}</div>
           </div>
         )}
       </div>

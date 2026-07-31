@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import InfoPageShell from '@/components/InfoPageShell';
+import { FALLBACK_PLANS } from '@/data/pricingCopy';
 import {
   CheckCircleIcon,
   XMarkIcon,
@@ -37,40 +38,6 @@ const TRANSLATIONS: Record<string, any> = {
     faq: 'الأسئلة الشائعة',
   },
 };
-
-const FALLBACK_PLANS = [
-  {
-    code: 'free', price_da: 0, is_popular: false, icon_type: 'document',
-    name_en: 'Basic', name_fr: 'Basique', name_ar: 'أساسي',
-    desc_en: 'Perfect for starting your job search.',
-    desc_fr: "Parfait pour commencer votre recherche d'emploi.",
-    desc_ar: 'مثالي لبدء البحث عن عمل.',
-    features: [
-      { text_en: 'Build professional CVs', text_fr: 'Créer des CV professionnels', text_ar: 'بناء سير ذاتية احترافية', is_included: true },
-      { text_en: '5 PDF downloads per month', text_fr: '5 téléchargements PDF par mois', text_ar: '5 تنزيلات PDF شهرياً', is_included: true },
-      { text_en: 'Access to standard templates', text_fr: 'Accès aux modèles standards', text_ar: 'الوصول إلى القوالب القياسية', is_included: true },
-      { text_en: '1 free trial OCR import', text_fr: "1 essai gratuit d'importation OCR", text_ar: 'تجربة واحدة مجانية لاستيراد OCR', is_included: true },
-      { text_en: 'Limited color palettes', text_fr: 'Palettes de couleurs limitées', text_ar: 'لوحات ألوان محدودة', is_included: false },
-    ],
-  },
-  {
-    code: 'pro', price_da: 350, is_popular: true, icon_type: 'sparkles',
-    name_en: 'Pro', name_fr: 'Pro', name_ar: 'برو',
-    desc_en: 'Everything you need to stand out.',
-    desc_fr: 'Tout ce dont vous avez besoin pour vous démarquer.',
-    desc_ar: 'كل ما تحتاجه للتميز.',
-    billed_text_en: 'Billed 4800 DA yearly',
-    billed_text_fr: 'Facturé 4800 DA par an',
-    billed_text_ar: 'يتم فوترتها 4800 دج سنويا',
-    features: [
-      { text_en: 'Unlimited PDF downloads', text_fr: 'Téléchargements PDF illimités', text_ar: 'تنزيلات PDF غير محدودة', is_included: true },
-      { text_en: 'AI-powered OCR Resume Import', text_fr: "Importation CV par IA (OCR)", text_ar: 'استيراد السيرة بالذكاء الاصطناعي', is_included: true },
-      { text_en: 'All premium templates', text_fr: 'Tous les modèles premium', text_ar: 'جميع القوالب المميزة', is_included: true },
-      { text_en: 'Advanced color palettes', text_fr: 'Palettes de couleurs avancées', text_ar: 'لوحات ألوان متقدمة', is_included: true },
-      { text_en: 'Priority support', text_fr: 'Support prioritaire', text_ar: 'دعم ذو أولوية', is_included: true },
-    ],
-  },
-];
 
 export default function PricingPage() {
   const { language } = useLanguage();
@@ -211,7 +178,7 @@ export default function PricingPage() {
           },
           {
             q: language === 'ar' ? 'ما الفرق بين الخطة المجانية والبرو؟' : language === 'en' ? 'What\'s the difference between Free and Pro?' : 'Quelle est la différence entre Gratuit et Pro ?',
-            a: language === 'ar' ? 'الخطة المجانية تسمح بإنشاء سير ذاتية مع 5 تنزيلات PDF شهرياً. البرو يفتح كل القوالب والألوان والتنزيلات غير المحدودة.' : language === 'en' ? 'Free lets you build CVs with 5 PDF downloads/month. Pro unlocks all templates, colors, and unlimited downloads.' : 'Gratuit vous permet de créer des CV avec 5 téléchargements PDF/mois. Pro débloque tous les modèles, couleurs et téléchargements illimités.',
+            a: language === 'ar' ? 'كل القوالب ولوحات الألوان متاحة مجاناً. الفرق هو أن الخطة المجانية محدودة بـ 5 تنزيلات PDF شهرياً وتجربة واحدة للاستيراد بالذكاء الاصطناعي، بينما برو يمنحك تنزيلات واستيراد غير محدودين ودعماً ذا أولوية.' : language === 'en' ? 'All templates and color palettes are free for everyone. The difference is that Free is limited to 5 PDF downloads/month and one AI import trial, while Pro gives you unlimited downloads, unlimited AI import, and priority support.' : 'Tous les modèles et palettes de couleurs sont gratuits pour tout le monde. La différence : Gratuit est limité à 5 téléchargements PDF/mois et un essai d\'import IA, tandis que Pro offre des téléchargements et imports IA illimités, ainsi qu\'un support prioritaire.',
           },
         ].map((item, i) => (
           <details key={i} className="group bg-surface border border-border/50 rounded-2xl overflow-hidden">

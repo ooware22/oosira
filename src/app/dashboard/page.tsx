@@ -45,8 +45,10 @@ import {
   ListBulletIcon,
   FunnelIcon,
   HomeIcon,
+  BriefcaseIcon,
 } from '@heroicons/react/24/outline';
 import { useSubscription } from '@/app/hooks/useSubscription';
+import ApplicationsView from './ApplicationsView';
 
 // ════════════════════════════════════════════════════════════
 // NEW FORMS FOR PROFILE AND PASSWORD
@@ -175,7 +177,7 @@ function PasswordChangeForm() {
   );
 }
 
-type DashboardView = 'cvs' | 'settings' | 'profile' | 'analytics' | 'pricing';
+type DashboardView = 'cvs' | 'applications' | 'settings' | 'profile' | 'analytics' | 'pricing';
 
 // ── Stat Card ──
 function StatCard({ icon: Icon, label, value, trend, color }: {
@@ -730,6 +732,7 @@ function DashboardContent() {
   // ── Sidebar Nav Items ──
   const navItems: { id: DashboardView; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'cvs', label: t('dashboard.tabCVs') || 'My CVs', icon: DocumentTextIcon },
+    { id: 'applications', label: t('dashboard.tabApplications') || 'Mes candidatures', icon: BriefcaseIcon },
     { id: 'analytics', label: t('dashboard.tabAnalytics') || 'Analytics', icon: ChartBarIcon },
     { id: 'settings', label: t('dashboard.tabSettings') || 'Settings', icon: Cog6ToothIcon },
     { id: 'profile', label: t('dashboard.tabProfile') || 'Profile', icon: UserCircleIcon },
@@ -896,6 +899,7 @@ function DashboardContent() {
             <div>
               <h1 className="text-[18px] sm:text-[20px] font-bold text-txt">
                 {activeView === 'cvs' && (t('dashboard.tabCVs') || 'My CVs')}
+                {activeView === 'applications' && (t('dashboard.tabApplications') || 'Mes candidatures')}
                 {activeView === 'analytics' && (t('dashboard.tabAnalytics') || 'Analytics')}
                 {activeView === 'settings' && (t('dashboard.tabSettings') || 'Settings')}
                 {activeView === 'profile' && (t('dashboard.tabProfile') || 'Profile')}
@@ -903,6 +907,7 @@ function DashboardContent() {
               </h1>
               <p className="text-[12px] text-txt-muted hidden sm:block">
                 {activeView === 'cvs' && `${drafts.length} CVs · ${completedCount} ${t('dashboard.completed') || 'completed'}`}
+                {activeView === 'applications' && (t('dashboard.applicationsDesc') || 'Générez des lettres de motivation sur mesure')}
                 {activeView === 'analytics' && (t('dashboard.analyticsDesc') || 'Track your CV performance')}
                 {activeView === 'settings' && (t('dashboard.settingsDesc') || 'Manage your preferences')}
                 {activeView === 'profile' && (t('dashboard.profileDesc') || 'Your personal information')}
@@ -1127,6 +1132,11 @@ function DashboardContent() {
                   </div>
                 )}
               </motion.div>
+            )}
+
+            {/* ═════════ APPLICATIONS VIEW ═════════ */}
+            {activeView === 'applications' && (
+              <ApplicationsView key="applications" drafts={drafts} subscription={sub} />
             )}
 
             {/* ═════════ ANALYTICS VIEW ═════════ */}

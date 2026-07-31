@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,13 +10,8 @@ import {
   Langue,
   TEMPLATE_NAMES,
 } from "../data";
-import {
-  CVClassique,
-  CVIngenieur,
-  CVExecutif,
-  CVMedical,
-  CVTech,
-} from "../templates";
+import { getLayoutBuilder } from "../templates";
+import PaginatedCV, { A4_WIDTH as A4_SHEET_WIDTH } from "@/components/PaginatedCV";
 import {
   CVStyleConfig,
   TEMPLATE_DEFAULTS,
@@ -54,6 +49,7 @@ import {
   SwatchIcon,
   MinusIcon,
   BookmarkIcon,
+  ArrowRightOnRectangleIcon,
   LinkIcon,
   LockClosedIcon,
   ArrowPathIcon,
@@ -70,7 +66,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 import { ThemeToggle, LanguageToggle } from "@/components/Toggles";
 import { useAuth } from "@/app/auth/AuthContext";
-import { apiFetch, getToken } from "@/api/apiClient";
+import { apiFetch, getToken, setSessionExpiredHandler } from "@/api/apiClient";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { trackDownload } from "@/store/slices/statsSlice";
@@ -79,7 +75,19 @@ import {
   useSubscription,
   invalidateSubscriptionCache,
 } from "@/app/hooks/useSubscription";
-import AutocompleteInput from "@/components/AutocompleteInput";
+import { ongoingLabel } from "../templates/dateFormat";
+import { normalizeCandidate } from "../lib/cvData";
+import { mapLanguageLevel } from "../lib/languageLevel";
+import FormatToolbar, {
+  useFormatActions,
+  makeFormatKeyDown,
+} from "@/components/FormatToolbar";
+import AutocompleteInput, {
+  type RichSuggestion,
+} from "@/components/AutocompleteInput";
+
+/** An establishment entry: name + searchable acronym + wilaya for auto-fill. */
+type EcoleSuggestion = RichSuggestion;
 import PinchZoomPreview from "@/components/PinchZoomPreview";
 import { SUGGESTIONS, getCertificationsForLanguage } from "@/data/cvSuggestions";
 
@@ -114,7 +122,10 @@ const STEP_LABELS: Record<string, Record<string, string>> = {
     ar: "المعلومات الشخصية",
   },
   summary: { en: "Summary", fr: "Résumé", ar: "الملخص" },
-  experience: { en: "Experience", fr: "Expériences", ar: "الخبرات" },
+  // "Parcours Professionnel" in full is too wide for the stepper chip.
+  // Full titles are too wide for the stepper chip, so each language gets a
+  // shortened form: FR "Parcours", EN "Journey", AR "المسار".
+  experience: { en: "Journey", fr: "Parcours", ar: "المسار" },
   education: { en: "Education", fr: "Formations", ar: "التعليم" },
   skills: { en: "Skills & More", fr: "Compétences", ar: "المهارات" },
   design: { en: "Design", fr: "Design", ar: "التصميم" },
@@ -152,6 +163,7 @@ function Input({
   list,
   isTemplateData,
   id,
+  disabled,
 }: {
   label: string;
   value: string;
@@ -161,6 +173,7 @@ function Input({
   list?: string;
   isTemplateData?: boolean;
   id?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="space-y-1.5">
@@ -182,7 +195,8 @@ function Input({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         list={list}
-        className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim ${
+        disabled={disabled}
+        className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim disabled:opacity-50 disabled:cursor-not-allowed ${
           isTemplateData ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
         }`}
       />
@@ -232,6 +246,8 @@ function TextArea({
   rows = 3,
   isTemplateData,
   id,
+  formatting,
+  formatLabels,
 }: {
   label: string;
   value: string;
@@ -240,10 +256,16 @@ function TextArea({
   rows?: number;
   isTemplateData?: boolean;
   id?: string;
+  /** Show the bold / italic / bullet toolbar. */
+  formatting?: boolean;
+  formatLabels?: { bold: string; italic: string; bullet: string; hint?: string };
 }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const runFormat = useFormatActions(ref, value, onChange);
+
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <label className="block text-[11px] lg:text-[13px] font-bold text-txt-muted uppercase tracking-wider">
           {label}
         </label>
@@ -253,11 +275,23 @@ function TextArea({
             Template
           </span>
         )}
+        {formatting && (
+          <div className="ms-auto">
+            <FormatToolbar
+              textareaRef={ref}
+              value={value}
+              onChange={onChange}
+              labels={formatLabels}
+            />
+          </div>
+        )}
       </div>
       <textarea
+        ref={ref}
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={formatting ? makeFormatKeyDown(runFormat) : undefined}
         placeholder={placeholder}
         rows={rows}
         className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none resize-y transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim font-body ${
@@ -295,6 +329,7 @@ function BuilderPageContent() {
     return [stepParam ? Number(stepParam) : 0, 0];
   });
   const [activeCandidate, setActiveCandidate] = useState(-1);
+  const didRandomizeRef = useRef(false);
   const [activeTemplate, setActiveTemplate] = useState(1);
   const [styleConfig, setStyleConfig] = useState<CVStyleConfig>(
     TEMPLATE_DEFAULTS[1],
@@ -302,6 +337,7 @@ function BuilderPageContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedCvId, setSavedCvId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [expandedExpLinks, setExpandedExpLinks] = useState<number[]>([]);
   const [expandedFormLinks, setExpandedFormLinks] = useState<number[]>([]);
 
@@ -326,7 +362,7 @@ function BuilderPageContent() {
       apiFetch(`/cvs/${editId}/`)
         .then((data) => {
           if (data.cvData && Object.keys(data.cvData).length > 0)
-            setFormData(data.cvData);
+            setFormData(normalizeCandidate(data.cvData));
           if (data.styleConfig) {
             setStyleConfig({
               ...TEMPLATE_DEFAULTS[data.templateId || 1],
@@ -348,7 +384,7 @@ function BuilderPageContent() {
         try {
           const pending = JSON.parse(pendingRaw);
           if (pending.formData && (pending.formData.prenom || pending.formData.nom || pending.formData.email || pending.formData.experiences?.length)) {
-            setFormData(pending.formData);
+            setFormData(normalizeCandidate(pending.formData));
             if (pending.activeTemplate != null) setActiveTemplate(pending.activeTemplate);
             if (pending.styleConfig) setStyleConfig(pending.styleConfig);
             if (pending.cvTitle) setCvTitle(pending.cvTitle);
@@ -362,7 +398,11 @@ function BuilderPageContent() {
           localStorage.removeItem('oosira_pending_cv');
         }
       }
-      // Randomize initial template and style when entering the builder page
+      // Randomize the initial template and style — but only once. This effect
+      // re-runs when auth hydration flips `isAuthenticated`, and re-randomising
+      // there silently threw away the template and colours the user had picked.
+      if (didRandomizeRef.current) return;
+      didRandomizeRef.current = true;
       const templateKeys = Object.keys(TEMPLATE_DEFAULTS).map(Number);
       const randomTemplateId =
         templateKeys[Math.floor(Math.random() * templateKeys.length)];
@@ -401,8 +441,8 @@ function BuilderPageContent() {
   const [templateSnapshot, setTemplateSnapshot] = useState<Candidate | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
-  const [ecolesList, setEcolesList] = useState<string[]>([]);
-  const [ecolesData, setEcolesData] = useState<{ [key: string]: string[] }>({
+  const [ecolesList, setEcolesList] = useState<EcoleSuggestion[]>([]);
+  const [ecolesData, setEcolesData] = useState<Record<string, EcoleSuggestion[]>>({
     lycee: [],
     univ: [],
     institut: [],
@@ -414,23 +454,15 @@ function BuilderPageContent() {
   const [sidePreviewZoom, setSidePreviewZoom] = useState(0.9);
   const [sidebarWidth, setSidebarWidth] = useState(typeof window !== 'undefined' ? Math.floor(window.innerWidth / 2) : 600);
   const isDraggingRef = useRef(false);
-  const cvMeasureRef = useRef<HTMLDivElement>(null);
+  // Page count is reported by the pagination engine, not estimated here.
   const [totalPages, setTotalPages] = useState(1);
-  const A4_WIDTH = 794; // px at 96dpi
-  const A4_HEIGHT = 1123; // px at 96dpi
-  // Page margins: bottom margin on every page, top margin on pages 2+
-  const PAGE_MARGIN = 40; // ~15mm
-  // Content that fits on page 1 (no top margin, has bottom margin)
-  const FIRST_PAGE_CONTENT = A4_HEIGHT - PAGE_MARGIN;
-  // Content that fits on pages 2+ (top + bottom margin)
-  const OTHER_PAGE_CONTENT = A4_HEIGHT - 2 * PAGE_MARGIN;
 
   // ── CV Validation Warnings (yellow badges for missing fields) ──
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
 
   const cvWarnings = useMemo(() => {
     const hasContent = formData.prenom || formData.nom || formData.email ||
-      formData.experiences.length > 0 || formData.formations.length > 0;
+      (formData.experiences?.length ?? 0) > 0 || (formData.formations?.length ?? 0) > 0;
     if (!hasContent) return [];
 
     type Warning = { id: string; label: Record<string, string>; step: number; severity: 'critical' | 'important' };
@@ -462,7 +494,7 @@ function BuilderPageContent() {
     if (formData.experiences.length === 0) {
       warnings.push({ id: 'no-exp', label: { en: 'No experience added', fr: 'Aucune expérience', ar: 'لا توجد خبرة' }, step: 3, severity: 'critical' });
     } else {
-      const missingDates = formData.experiences.filter(exp => !exp.dateDebut && !exp.dateFin);
+      const missingDates = formData.experiences.filter(exp => !exp.dateDebut && !exp.dateFin && !exp.enCours);
       if (missingDates.length > 0) {
         warnings.push({ id: 'exp-dates', label: { en: `${missingDates.length} exp. missing dates`, fr: `${missingDates.length} exp. sans dates`, ar: `${missingDates.length} خبرات بدون تواريخ` }, step: 3, severity: 'important' });
       }
@@ -492,7 +524,7 @@ function BuilderPageContent() {
       if (missingSchool.length > 0) {
         warnings.push({ id: 'edu-school', label: { en: `${missingSchool.length} edu. missing school`, fr: `${missingSchool.length} form. sans établissement`, ar: `${missingSchool.length} تعليم بدون مؤسسة` }, step: 4, severity: 'important' });
       }
-      const missingEduDates = formData.formations.filter(f => !f.dateDebut && !f.dateFin && !f.annee);
+      const missingEduDates = formData.formations.filter(f => !f.dateDebut && !f.dateFin && !f.annee && !f.enCours);
       if (missingEduDates.length > 0) {
         warnings.push({ id: 'edu-dates', label: { en: `${missingEduDates.length} edu. missing dates`, fr: `${missingEduDates.length} form. sans dates`, ar: `${missingEduDates.length} تعليم بدون تواريخ` }, step: 4, severity: 'important' });
       }
@@ -576,29 +608,10 @@ function BuilderPageContent() {
     setTemplateSnapshot(null);
   }, []);
 
-  // Measure CV content height and compute page count
+  // ── Auto-save to localStorage ──
+  // Runs for signed-in users too: it is the only backup if the backend save
+  // fails or the session expires mid-edit.
   useEffect(() => {
-    const measure = () => {
-      if (cvMeasureRef.current) {
-        const h = cvMeasureRef.current.scrollHeight;
-        if (h <= A4_HEIGHT) {
-          setTotalPages(1);
-        } else {
-          setTotalPages(
-            1 + Math.ceil((h - FIRST_PAGE_CONTENT) / OTHER_PAGE_CONTENT),
-          );
-        }
-      }
-    };
-    measure();
-    // Re-measure on window resize
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [formData, activeTemplate, styleConfig]);
-
-  // ── Auto-save to localStorage for unauthenticated users ──
-  useEffect(() => {
-    if (isAuthenticated) return; // Authenticated users save to backend
     // Debounce: save 1s after last change
     const timer = setTimeout(() => {
       const hasContent = formData.prenom || formData.nom || formData.email || formData.experiences?.length || formData.formations?.length;
@@ -731,7 +744,7 @@ function BuilderPageContent() {
           competences: splitSkills(safeArray<string>(cvData?.competences)),
           langues: safeArray<any>(cvData?.langues).map((l: any) => ({
             langue: cleanInline(l?.langue),
-            niveau: cleanInline(l?.niveau) || "Intermédiaire",
+            niveau: mapLanguageLevel(cleanInline(l?.niveau)),
           })),
           logiciels: dedupe(safeArray<string>(cvData?.logiciels)),
           iconName: "document",
@@ -757,9 +770,8 @@ function BuilderPageContent() {
             entreprise: cleanInline(e?.company),
             secteur: cleanInline(e?.company_description || e?.contract_type),
             dateDebut: cleanInline(e?.start_date || e?.start),
-            dateFin: cleanInline(
-              e?.is_current ? "En cours" : e?.end_date || e?.end,
-            ),
+            dateFin: cleanInline(e?.end_date || e?.end),
+            enCours: !!e?.is_current,
             description: cleanMultiline(
               e?.description || safeArray<string>(e?.achievements).join(". "),
             ),
@@ -769,11 +781,12 @@ function BuilderPageContent() {
         // If OCR misses date blocks, still keep useful text in one normalized fallback item.
         if (misclassifiedLongText.length > 0) {
           mappedExperiences.push({
-            poste: "Expériences (à trier)",
+            poste: "Expérience (à trier)",
             entreprise: "Import OCR",
             secteur: "",
             dateDebut: "",
             dateFin: "",
+            enCours: false,
             description: cleanMultiline(misclassifiedLongText.join(". ")),
           });
         }
@@ -824,7 +837,7 @@ function BuilderPageContent() {
           competences: cleanCompetences,
           langues: safeArray<any>(cvData?.skills?.languages).map((l: any) => ({
             langue: cleanInline(l?.language || l?.langue),
-            niveau: cleanInline(l?.level || l?.niveau) || "Intermédiaire",
+            niveau: mapLanguageLevel(cleanInline(l?.level || l?.niveau)),
           })),
           logiciels: dedupe(
             rawSoftware.map((s: string) =>
@@ -874,40 +887,74 @@ function BuilderPageContent() {
         .then((r) => r.json())
         .catch(() => []),
     ]).then(([lycees, univs, instituts, formations, privees]) => {
-      const getNames = (arr: any[], key: string) =>
-        arr.map((e) => e[key]).filter(Boolean);
-      const lyceeNames = Array.from(
-        new Set(getNames(lycees, "nom_etablissement_ar")),
-      );
-      const univNames = Array.from(new Set(getNames(univs, "nom_officiel")));
-      const institutNames = Array.from(new Set(getNames(instituts, "nom")));
-      const formationNames = Array.from(
-        new Set(getNames(formations, "nom_etablissement")),
-      );
-      const priveNames = Array.from(new Set(getNames(privees, "nom")));
+      /**
+       * Keep the acronym and the wilaya instead of flattening each record to a
+       * bare name. The acronym feeds the search haystack (so "ENP" finds
+       * "Ecole Nationale Polytechnique d'Alger") and the wilaya auto-fills the
+       * Lieu field on selection — both are already present in the JSON.
+       */
+      const build = (
+        arr: any[],
+        nameKey: string,
+        cityKeys: string[],
+      ): EcoleSuggestion[] => {
+        const seen = new Set<string>();
+        const out: EcoleSuggestion[] = [];
+        for (const e of arr || []) {
+          const display = e?.[nameKey];
+          if (!display || seen.has(display)) continue;
+          seen.add(display);
+          const ville = cityKeys.map((k) => e?.[k]).find(Boolean);
+          const acronyms = [e?.sigle, e?.nom_court].filter(Boolean).join(" ");
+          out.push({
+            display,
+            haystack: acronyms || undefined,
+            hint: ville || undefined,
+            meta: { ville },
+          });
+        }
+        return out;
+      };
+
+      const lyceeItems = build(lycees, "nom_etablissement_ar", ["nom_wilaya_fr"]);
+      const univItems = build(univs, "nom_officiel", ["wilaya"]);
+      const institutItems = build(instituts, "nom", ["wilaya"]);
+      const formationItems = build(formations, "nom_etablissement", [
+        "commune",
+        "wilaya",
+      ]);
+      const priveItems = build(privees, "nom", ["commune", "wilaya"]);
 
       setEcolesData({
-        lycee: lyceeNames,
-        univ: univNames,
-        institut: institutNames,
-        formation: formationNames,
-        prive: priveNames,
+        lycee: lyceeItems,
+        univ: univItems,
+        institut: institutItems,
+        formation: formationItems,
+        prive: priveItems,
       });
 
-      const names = new Set([
-        ...lyceeNames,
-        ...univNames,
-        ...institutNames,
-        ...formationNames,
-        ...priveNames,
-      ]);
-      setEcolesList(Array.from(names));
+      const seen = new Set<string>();
+      const all: EcoleSuggestion[] = [];
+      for (const item of [
+        ...univItems,
+        ...institutItems,
+        ...priveItems,
+        ...formationItems,
+        ...lyceeItems,
+      ]) {
+        if (seen.has(item.display)) continue;
+        seen.add(item.display);
+        all.push(item);
+      }
+      setEcolesList(all);
     });
   }, []);
 
   // ── Save CV to backend ──
-  const saveCV = async () => {
-    if (!isAuthenticated) return;
+  /** Returns true when the CV reached the server. Callers that navigate away
+   *  must check it — a silent failure here used to lose the whole draft. */
+  const saveCV = async (): Promise<boolean> => {
+    if (!isAuthenticated) return false;
     setIsSaving(true);
     setSaveError(null);
     try {
@@ -987,40 +1034,108 @@ function BuilderPageContent() {
         setSavedCvId(created.id);
         dispatch(fetchDrafts());
       }
+      setLastSavedAt(Date.now());
+      return true;
     } catch (err: any) {
       console.error("Save CV error:", err);
       setSaveError(err.message || "Failed to save CV");
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Keep the latest closure reachable from timers without re-arming them.
+  const saveCVRef = useRef(saveCV);
+  useEffect(() => {
+    saveCVRef.current = saveCV;
+  });
+
+  /** Enough filled in to be worth persisting. */
+  const hasSaveableContent =
+    !!formData.prenom ||
+    !!formData.nom ||
+    !!formData.email ||
+    !!formData.accroche ||
+    !!formData.experiences?.length ||
+    !!formData.formations?.length;
+
   const handleSaveAndExit = async () => {
     if (isAuthenticated) {
-      await saveCV();
+      const ok = await saveCV();
+      // Leaving on a failed save is how drafts used to disappear.
+      if (!ok) return;
     }
     router.push("/dashboard");
   };
 
+  // ── Auto-save to the backend, debounced ──
+  const autosaveArmedRef = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || !hasSaveableContent) return;
+    // Skip the first pass so loading a CV doesn't immediately write it back.
+    if (!autosaveArmedRef.current) {
+      autosaveArmedRef.current = true;
+      return;
+    }
+    const timer = setTimeout(() => {
+      void saveCVRef.current();
+    }, 2500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData, styleConfig, activeTemplate, cvTitle, reminderDate, isAuthenticated]);
+
+  // ── Session expiry: keep the draft, don't yank the page away ──
+  // The default handler hard-navigates to /login, which wiped everything the
+  // user had typed. Here we stash the draft first and prompt in place.
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const stashDraftRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    return setSessionExpiredHandler(() => {
+      stashDraftRef.current();
+      setSessionExpired(true);
+    });
+  }, []);
+  useEffect(() => {
+    stashDraftRef.current = () => {
+      try {
+        localStorage.setItem(
+          "oosira_pending_cv",
+          JSON.stringify({
+            formData,
+            activeTemplate,
+            styleConfig,
+            cvTitle: cvTitle || `CV ${formData.prenom || ""} ${formData.nom || ""}`.trim(),
+            savedAt: new Date().toISOString(),
+          }),
+        );
+      } catch {
+        /* storage full or unavailable — nothing better to do here */
+      }
+    };
+  });
+
+  /** Persist before moving between steps — testers expect tab switches to save. */
+  const saveOnNavigate = () => {
+    if (!isAuthenticated || !hasSaveableContent) return;
+    setTimeout(() => void saveCVRef.current(), 300);
+  };
+
   const goTo = (step: number) => {
     setStep([step, step > currentStep ? 1 : -1]);
-    // Auto-save when reaching the preview step
-    if (step === STEPS.length - 1 && isAuthenticated) {
-      setTimeout(() => saveCV(), 300);
-    }
+    saveOnNavigate();
   };
   const next = () => {
     if (currentStep < STEPS.length - 1) {
-      const nextStep = currentStep + 1;
-      setStep([nextStep, 1]);
-      // Auto-save when reaching the preview step
-      if (nextStep === STEPS.length - 1 && isAuthenticated) {
-        setTimeout(() => saveCV(), 300);
-      }
+      setStep([currentStep + 1, 1]);
+      saveOnNavigate();
     }
   };
   const prev = () => {
-    if (currentStep > 0) setStep([currentStep - 1, -1]);
+    if (currentStep > 0) {
+      setStep([currentStep - 1, -1]);
+      saveOnNavigate();
+    }
   };
 
   const switchCandidate = useCallback((idx: number) => {
@@ -1315,44 +1430,16 @@ function BuilderPageContent() {
     document.body.style.userSelect = "none";
   }, [sidebarWidth]);
 
-  const getCVContent = () => {
-    switch (activeTemplate) {
-      case 1:
-        return <CVClassique data={formData} config={styleConfig} />;
-      case 2:
-        return <CVIngenieur data={formData} config={styleConfig} />;
-      case 3:
-        return <CVExecutif data={formData} config={styleConfig} />;
-
-      case 4:
-        return <CVMedical data={formData} config={styleConfig} />;
-      case 5:
-        return <CVTech data={formData} config={styleConfig} />;
-      default:
-        return <CVClassique data={formData} config={styleConfig} />;
-    }
-  };
-
   const cssVars = styleToCSSVars(styleConfig) as React.CSSProperties;
 
-  const renderCVFull = () => (
-    <div
-      style={{
-        ...cssVars,
-        minHeight: "1123px",
-        height: "1123px",
-      }}
-      className="cv-page-wrapper"
-    >
-      {getCVContent()}
-    </div>
+  // Block layout for the pagination engine. Rebuilt whenever the CV, the
+  // template, the styling or the language changes — the engine re-measures and
+  // redistributes from this.
+  const cvLayout = useMemo(
+    () => getLayoutBuilder(activeTemplate)(formData, styleConfig, t, language),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formData, styleConfig, activeTemplate, language],
   );
-
-  /** Helper: compute the content offset for page i */
-  const getContentOffset = (i: number) => {
-    if (i === 0) return 0;
-    return FIRST_PAGE_CONTENT + (i - 1) * OTHER_PAGE_CONTENT;
-  };
 
   // ── Double-click-to-edit: Overleaf-style SyncTeX navigation ──
   const handlePreviewDoubleClick = useCallback((e: React.MouseEvent) => {
@@ -1420,77 +1507,45 @@ function BuilderPageContent() {
     }, 150);
   }, [goTo]);
 
-  /** Render paginated A4 sheets with proper margins.
-   *  Each sheet contains an inner clipping window that enforces
-   *  top margin (pages 2+) and bottom margin (all pages). */
-  const renderPaginatedSheets = (scale: number = 1) => {
-    const sheetW = Math.round(A4_WIDTH * scale);
-    const sheetH = Math.round(A4_HEIGHT * scale);
-    const sheets = [];
-    for (let i = 0; i < totalPages; i++) {
-      const topMargin = i === 0 ? 0 : PAGE_MARGIN;
-      const contentOffset = getContentOffset(i);
-      sheets.push(
-        <div
-          key={i}
-          style={{
-            width: sheetW,
-            height: sheetH,
-            position: "relative",
-            flexShrink: 0,
-          }}
-        >
-          {/* Scaled cv-a4-sheet */}
-          <div
-            className="cv-a4-sheet"
-            dir="ltr"
-            style={{
-              ...cssVars,
-              background: "var(--cv-body-bg, #ffffff)",
-              transform: `scale(${scale})`,
-              transformOrigin: dir === "rtl" ? "top right" : "top left",
-            }}
-          >
-            {/* Inner clipping window with margins */}
-            <div
-              style={{
-                position: "absolute",
-                top: topMargin,
-                left: 0,
-                right: 0,
-                bottom: PAGE_MARGIN,
-                overflow: "hidden",
-              }}
-            >
-              {/* CV content positioned to show the right slice */}
-              <div
-                style={{
-                  ...cssVars,
-                  width: A4_WIDTH,
-                  minHeight: A4_HEIGHT,
-                  height: A4_HEIGHT,
-                  position: "absolute",
-                  top: -contentOffset,
-                  left: 0,
-                }}
-                className="cv-page-wrapper"
-              >
-                {getCVContent()}
-              </div>
-            </div>
-            {/* Page number badge */}
-            <div className="cv-a4-sheet-badge">
-              {i + 1} / {totalPages}
-            </div>
-          </div>
-        </div>,
-      );
-    }
-    return sheets;
-  };
+  /**
+   * Real A4 sheets from the pagination engine. Replaces the old approach of
+   * clipping one tall render every 1123px, which cut through lines of text and
+   * disagreed with the PDF about where pages break.
+   */
+  const renderPaginatedSheets = (scale: number = 1) => (
+    <PaginatedCV
+      layout={cvLayout}
+      cssVars={cssVars}
+      dir={dir}
+      scale={scale}
+      onPageCountChange={setTotalPages}
+    />
+  );
 
   const stepLabel = (id: string) =>
     STEP_LABELS[id]?.[language] || STEP_LABELS[id]?.en || id;
+
+  const formatLabels = useMemo(
+    () => ({
+      bold: t("builder.fmtBold"),
+      italic: t("builder.fmtItalic"),
+      bullet: t("builder.fmtBullet"),
+      hint: t("builder.fmtHint"),
+    }),
+    [language], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  /** Header autosave indicator. */
+  const saveStatus = useMemo(() => {
+    if (isSaving)
+      return { label: t("builder.saving"), tone: "muted" as const, spinner: true };
+    if (saveError)
+      return { label: t("builder.saveFailed"), tone: "error" as const, spinner: false };
+    if (lastSavedAt)
+      return { label: t("builder.savedOk"), tone: "muted" as const, spinner: false };
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSaving, saveError, lastSavedAt, language]);
 
   // ── Warning badges overlay for CV preview ──
   const renderWarnings = () => {
@@ -1558,7 +1613,7 @@ function BuilderPageContent() {
     }
 
     let expCount = 0;
-    formData.experiences.forEach((exp, idx) => {
+    (formData.experiences || []).forEach((exp, idx) => {
       const snapExp = (templateSnapshot.experiences as any[])?.[idx];
       if (snapExp) {
         if (snapExp.poste && snapExp.poste === exp.poste) expCount++;
@@ -1566,10 +1621,10 @@ function BuilderPageContent() {
         if (snapExp.description && snapExp.description === exp.description) expCount++;
       }
     });
-    if (expCount > 0) sections.push({ label: language === 'fr' ? 'Expériences' : language === 'ar' ? 'خبرات' : 'Experience', count: expCount, step: 3, key: 'experiences' });
+    if (expCount > 0) sections.push({ label: language === 'fr' ? 'Parcours' : language === 'ar' ? 'المسار' : 'Journey', count: expCount, step: 3, key: 'experiences' });
 
     let eduCount = 0;
-    formData.formations.forEach((f, idx) => {
+    (formData.formations || []).forEach((f, idx) => {
       const snapF = (templateSnapshot.formations as any[])?.[idx];
       if (snapF) {
         if (snapF.diplome && snapF.diplome === f.diplome) eduCount++;
@@ -1578,9 +1633,9 @@ function BuilderPageContent() {
     });
     if (eduCount > 0) sections.push({ label: language === 'fr' ? 'Formation' : language === 'ar' ? 'تعليم' : 'Education', count: eduCount, step: 4, key: 'formations' });
 
-    const skillsCount = formData.competences.filter(s => templateSnapshot.competences?.includes(s)).length
-      + formData.logiciels.filter(s => templateSnapshot.logiciels?.includes(s)).length
-      + formData.langues.filter((l, i) => templateSnapshot.langues?.[i]?.langue === l.langue).length;
+    const skillsCount = (formData.competences || []).filter(s => templateSnapshot.competences?.includes(s)).length
+      + (formData.logiciels || []).filter(s => templateSnapshot.logiciels?.includes(s)).length
+      + (formData.langues || []).filter((l, i) => templateSnapshot.langues?.[i]?.langue === l.langue).length;
     if (skillsCount > 0) sections.push({ label: language === 'fr' ? 'Compétences' : language === 'ar' ? 'مهارات' : 'Skills', count: skillsCount, step: 5, key: 'skills' });
 
     // Dismiss a single section's template data by clearing those fields from the snapshot
@@ -2144,6 +2199,8 @@ function BuilderPageContent() {
               rows={6}
               isTemplateData={isTemplateValue("accroche")}
               id="field-accroche"
+              formatting
+              formatLabels={formatLabels}
             />
             <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
               <p className="text-xs lg:text-base text-blue-600 dark:text-blue-400 font-medium">
@@ -2164,7 +2221,7 @@ function BuilderPageContent() {
             animate="visible"
             className="space-y-6"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">
                   {t("builder.experiences")}
@@ -2174,13 +2231,11 @@ function BuilderPageContent() {
                     "Add your professional experience, starting with the most recent."}
                 </p>
               </div>
-              <button
-                onClick={addExperience}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs lg:text-base font-bold transition-all hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20"
-              >
-                <PlusIcon className="w-4 h-4" />
-                {t("builder.add")}
-              </button>
+              {formData.experiences.length > 0 && (
+                <span className="shrink-0 px-3 py-1 rounded-full bg-surface2 border border-border text-xs font-bold text-txt-muted">
+                  {formData.experiences.length}
+                </span>
+              )}
             </div>
             <div className="space-y-4">
               {formData.experiences.map((exp, idx) => (
@@ -2251,40 +2306,27 @@ function BuilderPageContent() {
                         id={`exp-${idx}-dateDebut`}
                       />
                       <div className="space-y-1.5">
-                        {exp.dateFin === "Present" || exp.dateFin === "En cours" ? (
-                          <div>
-                            <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider mb-1.5">
-                              {t("builder.endDate")}
-                            </label>
-                            <div className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 font-semibold text-center">
-                              {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
-                            </div>
-                          </div>
-                        ) : (
-                          <Input
-                            label={t("builder.endDate")}
-                            value={exp.dateFin}
-                            onChange={(v) => updateExperience(idx, "dateFin", v)}
-                            type="month"
-                          />
-                        )}
+                        {/* The date input stays mounted while "en cours" is
+                            ticked, so the typed value survives a toggle. */}
+                        <Input
+                          label={t("builder.endDate")}
+                          value={exp.dateFin}
+                          onChange={(v) => updateExperience(idx, "dateFin", v)}
+                          type="month"
+                          disabled={!!exp.enCours}
+                          id={`exp-${idx}-dateFin`}
+                        />
                         <label className="flex items-center gap-2 cursor-pointer select-none pt-1">
                           <input
                             type="checkbox"
-                            checked={exp.dateFin === "Present" || exp.dateFin === "En cours"}
+                            checked={!!exp.enCours}
                             onChange={(e) =>
-                              updateExperience(
-                                idx,
-                                "dateFin",
-                                e.target.checked
-                                  ? language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"
-                                  : "",
-                              )
+                              updateExperience(idx, "enCours", e.target.checked)
                             }
                             className="w-4 h-4 rounded border-border text-emerald-500 focus:ring-emerald-500/30 accent-emerald-500"
                           />
                           <span className="text-xs font-medium text-txt-muted">
-                            {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
+                            {ongoingLabel(language)}
                           </span>
                         </label>
                       </div>
@@ -2296,6 +2338,8 @@ function BuilderPageContent() {
                       rows={3}
                       isTemplateData={isTemplateArrayValue("experiences", idx, "description")}
                       id={`exp-${idx}-description`}
+                      formatting
+                      formatLabels={formatLabels}
                     />
 
                     {/* Multiple URLs Toggle */}
@@ -2358,6 +2402,13 @@ function BuilderPageContent() {
                 </motion.div>
               ))}
             </div>
+            <button
+              onClick={addExperience}
+              className="w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl border-2 border-dashed border-border text-txt-muted text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-500/5"
+            >
+              <PlusIcon className="w-5 h-5" />
+              {t("builder.addExperience")}
+            </button>
           </motion.div>
         );
 
@@ -2371,7 +2422,7 @@ function BuilderPageContent() {
             animate="visible"
             className="space-y-6"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-txt mb-2">
                   {t("builder.education")}
@@ -2381,13 +2432,11 @@ function BuilderPageContent() {
                     "Add your educational background."}
                 </p>
               </div>
-              <button
-                onClick={addFormation}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-xs font-bold transition-all hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20"
-              >
-                <PlusIcon className="w-4 h-4" />
-                {t("builder.add")}
-              </button>
+              {formData.formations.length > 0 && (
+                <span className="shrink-0 px-3 py-1 rounded-full bg-surface2 border border-border text-xs font-bold text-txt-muted">
+                  {formData.formations.length}
+                </span>
+              )}
             </div>
             <div className="space-y-4">
               {formData.formations.map((f, idx) => (
@@ -2439,41 +2488,30 @@ function BuilderPageContent() {
                         type="month"
                       />
                       <div className="space-y-1.5">
-                        {(f.dateFin === "Present" || f.dateFin === "En cours") ? (
-                          <div>
-                            <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider mb-1.5">
-                              {t("builder.endDate") || "End Date"}
-                            </label>
-                            <div className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-400 font-semibold text-center">
-                              {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
-                            </div>
-                          </div>
-                        ) : (
-                          <Input
-                            label={t("builder.endDate") || "End Date"}
-                            value={f.dateFin || f.annee || ""}
-                            onChange={(v) => {
-                              updateFormation(idx, "dateFin", v);
-                              updateFormation(idx, "annee", v);
-                            }}
-                            type="month"
-                          />
-                        )}
+                        {/* Stays mounted while "en cours" is ticked so the
+                            typed value survives a toggle. */}
+                        <Input
+                          label={t("builder.endDate") || "End Date"}
+                          value={f.dateFin || f.annee || ""}
+                          onChange={(v) => {
+                            updateFormation(idx, "dateFin", v);
+                            updateFormation(idx, "annee", v);
+                          }}
+                          type="month"
+                          disabled={!!f.enCours}
+                          id={`edu-${idx}-dateFin`}
+                        />
                         <label className="flex items-center gap-2 cursor-pointer select-none pt-1">
                           <input
                             type="checkbox"
-                            checked={f.dateFin === "Present" || f.dateFin === "En cours"}
-                            onChange={(e) => {
-                              const val = e.target.checked
-                                ? language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"
-                                : "";
-                              updateFormation(idx, "dateFin", val);
-                              updateFormation(idx, "annee", val);
-                            }}
+                            checked={!!f.enCours}
+                            onChange={(e) =>
+                              updateFormation(idx, "enCours", e.target.checked)
+                            }
                             className="w-4 h-4 rounded border-border text-emerald-500 focus:ring-emerald-500/30 accent-emerald-500"
                           />
                           <span className="text-xs font-medium text-txt-muted">
-                            {language === "fr" ? "En cours" : language === "ar" ? "حاليا" : "Present"}
+                            {ongoingLabel(language)}
                           </span>
                         </label>
                       </div>
@@ -2529,13 +2567,26 @@ function BuilderPageContent() {
                           : "Filters school suggestions below"}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input
+                      <AutocompleteInput
                         label={t("builder.school")}
                         value={f.etablissement}
                         onChange={(v) =>
                           updateFormation(idx, "etablissement", v)
                         }
-                        list={`ecoles-list-${f.type_etablissement || "all"}`}
+                        suggestions={
+                          f.type_etablissement
+                            ? ecolesData[f.type_etablissement] || ecolesList
+                            : ecolesList
+                        }
+                        // Fill the city from the picked establishment, but never
+                        // clobber one the user typed themselves.
+                        onSelect={(item) => {
+                          const ville = item.meta?.ville;
+                          if (ville && !f.ville?.trim()) {
+                            updateFormation(idx, "ville", ville);
+                          }
+                        }}
+                        maxResults={10}
                         isTemplateData={isTemplateArrayValue("formations", idx, "etablissement")}
                         id={`edu-${idx}-etablissement`}
                       />
@@ -2617,6 +2668,13 @@ function BuilderPageContent() {
                 </motion.div>
               ))}
             </div>
+            <button
+              onClick={addFormation}
+              className="w-full flex items-center justify-center gap-2 px-4 py-4 rounded-2xl border-2 border-dashed border-border text-txt-muted text-sm font-bold transition-all hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-500/5"
+            >
+              <PlusIcon className="w-5 h-5" />
+              {t("builder.addFormation")}
+            </button>
           </motion.div>
         );
 
@@ -3612,7 +3670,7 @@ function BuilderPageContent() {
                       className="flex flex-col items-center gap-4"
                       style={{
                         margin: "0 auto",
-                        width: Math.round(A4_WIDTH * 0.48),
+                        width: Math.round(A4_SHEET_WIDTH * 0.48),
                         maxWidth: "100%",
                       }}
                       dir={dir}
@@ -3633,6 +3691,51 @@ function BuilderPageContent() {
 
   return (
     <>
+      {/* ── Session expired ── */}
+      {/* Replaces the old hard redirect to /login, which discarded everything
+          the user had typed. The draft is already stashed in localStorage and
+          is restored automatically after logging back in. */}
+      <AnimatePresence>
+        {sessionExpired && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 16, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="w-full max-w-sm bg-surface border border-border rounded-2xl p-6 text-center shadow-2xl"
+            >
+              <div className="mx-auto w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-4">
+                <LockClosedIcon className="w-5 h-5 text-amber-500" />
+              </div>
+              <h2 className="text-lg font-bold text-txt mb-2">
+                {t("builder.sessionExpiredTitle")}
+              </h2>
+              <p className="text-sm text-txt-muted mb-6">
+                {t("builder.sessionExpiredDesc")}
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setSessionExpired(false)}
+                  className="px-4 py-2 rounded-xl border border-border text-sm font-bold text-txt-muted hover:bg-surface2 transition-colors"
+                >
+                  {t("builder.sessionExpiredStay")}
+                </button>
+                <Link
+                  href="/login?redirect=/builder"
+                  className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
+                >
+                  {t("builder.sessionExpiredLogin")}
+                </Link>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Guest Sign-Up Overlay ── */}
       <AnimatePresence>
         {showGuestOverlay && !isAuthenticated && (
@@ -3826,6 +3929,34 @@ function BuilderPageContent() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {isAuthenticated && saveStatus && (
+              <span
+                className={`hidden md:inline-flex items-center gap-1.5 text-[11px] font-semibold ${
+                  saveStatus.tone === "error"
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-txt-muted"
+                }`}
+                title={saveError || undefined}
+              >
+                {saveStatus.spinner && (
+                  <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                )}
+                {saveStatus.label}
+              </span>
+            )}
+            {/* Save without leaving the builder — available on every step. */}
+            {isAuthenticated && (
+              <button
+                onClick={() => void saveCV()}
+                disabled={isSaving || !hasSaveableContent}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-full text-[11px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <BookmarkIcon className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">
+                  {t("builder.saveOnly")}
+                </span>
+              </button>
+            )}
             <button
               onClick={handleSaveAndExit}
               disabled={isSaving}
@@ -3834,12 +3965,14 @@ function BuilderPageContent() {
               {isSaving ? (
                 <span className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <BookmarkIcon className="w-3.5 h-3.5" />
+                <ArrowRightOnRectangleIcon className="w-3.5 h-3.5" />
               )}
               <span className="hidden sm:inline">
                 {t("builder.saveAndExit") || "Save & Exit"}
               </span>
-              <span className="sm:hidden">{t("builder.save") || "Save"}</span>
+              {/* The mobile label used to read just "Sauvegarder" while the
+                  button actually navigated away — a trap testers hit. */}
+              <span className="sm:hidden">{t("builder.exit")}</span>
             </button>
             <ThemeToggle />
             <LanguageToggle />
@@ -4155,55 +4288,14 @@ function BuilderPageContent() {
         </AnimatePresence>
       </div>
 
-      {/* Hidden full-render div for measuring content height + PDF capture */}
-      <div
-        ref={cvMeasureRef}
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          insetInlineStart: "-9999px",
-          top: 0,
-          width: A4_WIDTH,
-          overflow: "visible",
-          pointerEvents: "none",
-          zIndex: -1,
-          visibility: "hidden",
-        }}
-        dir={dir}
-      >
-        {renderCVFull()}
-      </div>
+      {/* The old hidden full-render measurer is gone — <PaginatedCV> owns
+          measurement now, and reports the page count back via
+          onPageCountChange. */}
 
-      <datalist id="ecoles-list-all">
-        {ecolesList.map((ecole) => (
-          <option key={ecole} value={ecole} />
-        ))}
-      </datalist>
-      <datalist id="ecoles-list-lycee">
-        {ecolesData.lycee.map((ecole) => (
-          <option key={ecole} value={ecole} />
-        ))}
-      </datalist>
-      <datalist id="ecoles-list-univ">
-        {ecolesData.univ.map((ecole) => (
-          <option key={ecole} value={ecole} />
-        ))}
-      </datalist>
-      <datalist id="ecoles-list-institut">
-        {ecolesData.institut.map((ecole) => (
-          <option key={ecole} value={ecole} />
-        ))}
-      </datalist>
-      <datalist id="ecoles-list-formation">
-        {ecolesData.formation.map((ecole) => (
-          <option key={ecole} value={ecole} />
-        ))}
-      </datalist>
-      <datalist id="ecoles-list-prive">
-        {ecolesData.prive.map((ecole) => (
-          <option key={ecole} value={ecole} />
-        ))}
-      </datalist>
+      {/* The establishment <datalist>s are gone: native datalist matching is
+          accent-sensitive, name-only, and gives no selection callback, so it
+          could never support acronym search or city auto-fill. The field now
+          uses AutocompleteInput. */}
     </>
   );
 }

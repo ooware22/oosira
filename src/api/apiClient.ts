@@ -55,6 +55,30 @@ export function setRefreshToken(token: string): void {
 }
 
 /**
+ * What to do when the session can no longer be refreshed.
+ *
+ * The default is a hard navigation to /login, which destroys any unsaved work
+ * in the page. Long-lived editors (the CV builder) override this so they can
+ * stash the draft and prompt in place instead of vanishing.
+ */
+type SessionExpiredHandler = () => void;
+
+const defaultSessionExpired: SessionExpiredHandler = () => {
+  if (typeof window !== 'undefined') window.location.href = '/login';
+};
+
+let sessionExpiredHandler: SessionExpiredHandler = defaultSessionExpired;
+
+/** Returns a restore function; call it on unmount. */
+export function setSessionExpiredHandler(fn: SessionExpiredHandler): () => void {
+  const previous = sessionExpiredHandler;
+  sessionExpiredHandler = fn;
+  return () => {
+    sessionExpiredHandler = previous;
+  };
+}
+
+/**
  * Authenticated fetch wrapper that auto-injects the Bearer token.
  * Throws on non-ok responses with the response body as JSON.
  */
@@ -104,13 +128,20 @@ export async function apiFetch(
           if (refreshRes.ok) {
             const refreshData = await refreshRes.json();
             setToken(refreshData.access);
+            // SimpleJWT runs ROTATE_REFRESH_TOKENS with BLACKLIST_AFTER_ROTATION,
+            // so the old refresh token is dead the moment this succeeds. Failing
+            // to store the new one meant the *next* refresh replayed a
+            // blacklisted token, forcing a logout mid-session.
+            if (refreshData.refresh) setRefreshToken(refreshData.refresh);
             return apiFetch(endpoint, options, true);
           } else {
             clearToken();
-            window.location.href = '/login';
+            sessionExpiredHandler();
           }
         } catch (e) {
-          clearToken();
+          // Network failure while refreshing: the session may still be valid,
+          // so keep the tokens and let the caller surface the error.
+          console.error('Token refresh request failed:', e);
         }
       } else {
         clearToken();

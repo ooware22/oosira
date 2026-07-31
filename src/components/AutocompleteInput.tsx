@@ -1,11 +1,45 @@
-"use client";
+﻿"use client";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { normalize } from "@/lib/normalize";
+
+/**
+ * A suggestion can be a bare string, or an object carrying extra searchable
+ * text and a payload. `haystack` is what the query matches against — e.g. an
+ * institution adds its acronym there so "ENP" finds "Ecole Nationale
+ * Polytechnique d'Alger" — while `display` is what is shown and inserted.
+ */
+export interface RichSuggestion {
+  display: string;
+  /** Extra searchable text (acronym, short name…). Matched in addition to `display`. */
+  haystack?: string;
+  /** Secondary text shown on the right of the row, e.g. the wilaya. */
+  hint?: string;
+  /** Arbitrary payload handed back through `onSelect`. */
+  meta?: Record<string, string | undefined>;
+}
+
+export type Suggestion = string | RichSuggestion;
+
+const toRich = (s: Suggestion): RichSuggestion =>
+  typeof s === 'string' ? { display: s } : s;
+
+/** Lower is better. Exact acronym > acronym prefix > name prefix > anywhere. */
+function rank(item: RichSuggestion, q: string): number {
+  const display = normalize(item.display);
+  const hay = normalize(item.haystack ?? '');
+  if (hay.split(/\s+/).includes(q)) return 0;
+  if (hay.startsWith(q)) return 1;
+  if (display.startsWith(q)) return 2;
+  return 3;
+}
 
 interface AutocompleteInputProps {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  suggestions: readonly string[];
+  suggestions: readonly Suggestion[];
+  /** Fired only when a suggestion is picked (not on free typing). */
+  onSelect?: (item: RichSuggestion) => void;
   placeholder?: string;
   type?: string;
   maxResults?: number;
@@ -26,6 +60,7 @@ export default function AutocompleteInput({
   value,
   onChange,
   suggestions,
+  onSelect,
   placeholder,
   type = "text",
   maxResults = 8,
@@ -38,26 +73,29 @@ export default function AutocompleteInput({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  // Normalize: lowercase + strip accents (é→e, à→a, etc.)
-  const normalize = (s: string) =>
-    s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const items = useMemo(() => suggestions.map(toRich), [suggestions]);
 
-  // Fuzzy filter: match if all words of query appear in suggestion
+  // Fuzzy filter: match if all words of the query appear in the searchable text.
   const filtered = useMemo(() => {
     const q = normalize(value.trim());
     // When showAllOnFocus is enabled and input is empty, show all suggestions
     if (!q) {
-      return showAllOnFocus ? suggestions.slice(0, maxResults) : [];
+      return showAllOnFocus ? items.slice(0, maxResults) : [];
     }
     if (q.length < 2 && !showAllOnFocus) return [];
     const words = q.split(/\s+/);
-    return suggestions
-      .filter((s) => {
-        const lower = normalize(s);
-        return words.every((w) => lower.includes(w));
-      })
-      .slice(0, maxResults);
-  }, [value, suggestions, maxResults, showAllOnFocus]);
+
+    const matches = items.filter((item) => {
+      const hay = normalize(`${item.display} ${item.haystack ?? ""}`);
+      return words.every((w) => hay.includes(w));
+    });
+
+    // An exact acronym hit must outrank a substring buried in a long name,
+    // otherwise "ENP" gets crowded out by ENPO / ENPC / EPAU.
+    matches.sort((a, b) => rank(a, q) - rank(b, q));
+
+    return matches.slice(0, maxResults);
+  }, [value, items, maxResults, showAllOnFocus]);
 
   // Close on outside click
   useEffect(() => {
@@ -88,7 +126,9 @@ export default function AutocompleteInput({
         setActiveIdx((i) => (i > 0 ? i - 1 : filtered.length - 1));
       } else if (e.key === "Enter" && activeIdx >= 0) {
         e.preventDefault();
-        onChange(filtered[activeIdx]);
+        const picked = filtered[activeIdx];
+        onChange(picked.display);
+        onSelect?.(picked);
         setOpen(false);
         setActiveIdx(-1);
       } else if (e.key === "Escape") {
@@ -96,7 +136,7 @@ export default function AutocompleteInput({
         setActiveIdx(-1);
       }
     },
-    [open, filtered, activeIdx, onChange],
+    [open, filtered, activeIdx, onChange, onSelect],
   );
 
   // Highlight matching portions
@@ -157,21 +197,27 @@ export default function AutocompleteInput({
         >
           {filtered.map((item, i) => (
             <li
-              key={item}
+              key={`${item.display}-${i}`}
               onMouseDown={(e) => {
                 e.preventDefault();
-                onChange(item);
+                onChange(item.display);
+                onSelect?.(item);
                 setOpen(false);
                 setActiveIdx(-1);
               }}
               onMouseEnter={() => setActiveIdx(i)}
-              className={`px-4 py-2.5 lg:py-3 text-sm lg:text-base cursor-pointer transition-colors ${
+              className={`px-4 py-2.5 lg:py-3 text-sm lg:text-base cursor-pointer transition-colors flex items-center justify-between gap-3 ${
                 i === activeIdx
                   ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                   : "text-txt hover:bg-surface2"
               }`}
             >
-              {highlight(item)}
+              <span className="min-w-0">{highlight(item.display)}</span>
+              {item.hint && (
+                <span className="shrink-0 text-[11px] font-semibold text-txt-dim">
+                  {item.hint}
+                </span>
+              )}
             </li>
           ))}
         </ul>

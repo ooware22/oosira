@@ -1,4 +1,4 @@
-export interface CustomLink {
+﻿export interface CustomLink {
   url: string;
   label: string;
 }
@@ -11,6 +11,8 @@ export interface Formation {
   annee: string;
   dateDebut?: string;
   dateFin?: string;
+  /** Ongoing study. When true, `dateFin` is preserved but not printed. */
+  enCours?: boolean;
   mention: string;
   type_etablissement?: string;
   links?: CustomLink[];
@@ -22,6 +24,8 @@ export interface Experience {
   secteur: string;
   dateDebut: string;
   dateFin: string;
+  /** Ongoing role. When true, `dateFin` is preserved but not printed. */
+  enCours?: boolean;
   description: string;
   links?: CustomLink[];
 }
@@ -78,7 +82,7 @@ export const candidates: Candidate[] = [
       { diplome: 'Licence', specialite: 'Sciences Techniques, Mecanique', etablissement: 'Universite Badji Mokhtar', ville: 'Annaba', annee: '2010', dateDebut: '2007-09', dateFin: '2010-06', mention: 'Bien' },
     ],
     experiences: [
-      { poste: 'Ingenieur Conception Senior', entreprise: 'ArcelorMittal Annaba', secteur: 'Siderurgie', dateDebut: '2018-03', dateFin: 'Present', description: 'Direction de l\'equipe conception (5 ingenieurs). Optimisation des lignes de production avec une reduction de 18% des temps d\'arret. Mise en place de la maintenance predictive.' },
+      { poste: 'Ingenieur Conception Senior', entreprise: 'ArcelorMittal Annaba', secteur: 'Siderurgie', dateDebut: '2018-03', dateFin: '', enCours: true, description: 'Direction de l\'equipe conception (5 ingenieurs). Optimisation des lignes de production avec une reduction de 18% des temps d\'arret. Mise en place de la maintenance predictive.' },
       { poste: 'Ingenieur Mecanique', entreprise: 'Sonatrach, Division Production', secteur: 'Petrochimie', dateDebut: '2014-01', dateFin: '2018-02', description: 'Conception et suivi de montage d\'equipements sous pression. Realisation d\'etudes RDM et analyses par elements finis.' },
       { poste: 'Ingenieur Bureau d\'Etudes', entreprise: 'ENMTP', secteur: 'Materiel de Travaux Publics', dateDebut: '2012-09', dateFin: '2013-12', description: 'Conception de pieces mecaniques sur SolidWorks. Elaboration de plans de fabrication et gammes d\'usinage.' },
     ],
@@ -108,7 +112,7 @@ export const candidates: Candidate[] = [
       { diplome: 'Licence', specialite: 'Sciences Commerciales', etablissement: 'Universite des Freres Mentouri', ville: 'Constantine', annee: '2007', dateDebut: '2004-09', dateFin: '2007-06', mention: 'Bien' },
     ],
     experiences: [
-      { poste: 'Directeur Commercial Region Est', entreprise: 'Cevital', secteur: 'Agroalimentaire', dateDebut: '2019-06', dateFin: 'Present', description: 'Pilotage d\'une equipe de 25 commerciaux sur 12 wilayas. Croissance du CA de 35% en 3 ans. Negociation de contrats cadres avec la grande distribution.' },
+      { poste: 'Directeur Commercial Region Est', entreprise: 'Cevital', secteur: 'Agroalimentaire', dateDebut: '2019-06', dateFin: '', enCours: true, description: 'Pilotage d\'une equipe de 25 commerciaux sur 12 wilayas. Croissance du CA de 35% en 3 ans. Negociation de contrats cadres avec la grande distribution.' },
       { poste: 'Responsable Grands Comptes', entreprise: 'Danone Djurdjura', secteur: 'FMCG', dateDebut: '2014-02', dateFin: '2019-05', description: 'Gestion du portefeuille grands comptes (CA 800M DZD). Deploiement de la strategie trade marketing.' },
       { poste: 'Chef de Zone Commerciale', entreprise: 'Hamoud Boualem', secteur: 'Boissons', dateDebut: '2010-09', dateFin: '2014-01', description: 'Developpement du reseau de distribution sur 6 wilayas. Recrutement et formation de 15 commerciaux terrain.' },
     ],
@@ -139,7 +143,7 @@ export const candidates: Candidate[] = [
       { diplome: 'Licence', specialite: 'Sciences Financieres et Comptabilite', etablissement: 'Universite d\'Alger 3', ville: 'Alger', annee: '2012', dateDebut: '2009-09', dateFin: '2012-06', mention: 'Bien' },
     ],
     experiences: [
-      { poste: 'Chef Comptable', entreprise: 'Groupe Benamor', secteur: 'Agroalimentaire', dateDebut: '2020-01', dateFin: 'Present', description: 'Supervision d\'une equipe de 6 comptables. Etablissement des etats financiers consolides. Gestion des declarations fiscales (TVA, IBS, TAP).' },
+      { poste: 'Chef Comptable', entreprise: 'Groupe Benamor', secteur: 'Agroalimentaire', dateDebut: '2020-01', dateFin: '', enCours: true, description: 'Supervision d\'une equipe de 6 comptables. Etablissement des etats financiers consolides. Gestion des declarations fiscales (TVA, IBS, TAP).' },
       { poste: 'Comptable Principale', entreprise: 'Pfizer Algerie', secteur: 'Pharmaceutique', dateDebut: '2016-03', dateFin: '2019-12', description: 'Tenue de la comptabilite generale et analytique selon les normes IFRS. Preparation des reportings mensuels pour le siege regional.' },
       { poste: 'Comptable Junior', entreprise: 'Cabinet Mazars Algerie', secteur: 'Audit & Conseil', dateDebut: '2014-09', dateFin: '2016-02', description: 'Missions d\'audit legal pour des societes cotees. Verification des comptes annuels.' },
     ],
@@ -169,7 +173,7 @@ export const candidates: Candidate[] = [
       { diplome: 'Licence', specialite: 'Informatique, Systemes d\'Information', etablissement: 'Universite USTO', ville: 'Oran', annee: '2015', dateDebut: '2012-09', dateFin: '2015-06', mention: 'Bien' },
     ],
     experiences: [
-      { poste: 'Lead Developpeur Full Stack', entreprise: 'Yassir', secteur: 'Tech / Mobilite', dateDebut: '2021-04', dateFin: 'Present', description: 'Architecture et developpement du back-office en Django + React. Mise en place de pipelines CI/CD (GitHub Actions, Docker). Mentorat de 4 developpeurs juniors.', links: [{ url: 'github.com/kmeddah', label: 'GitHub' }] },
+      { poste: 'Lead Developpeur Full Stack', entreprise: 'Yassir', secteur: 'Tech / Mobilite', dateDebut: '2021-04', dateFin: '', enCours: true, description: 'Architecture et developpement du back-office en Django + React. Mise en place de pipelines CI/CD (GitHub Actions, Docker). Mentorat de 4 developpeurs juniors.', links: [{ url: 'github.com/kmeddah', label: 'GitHub' }] },
       { poste: 'Developpeur Backend Python', entreprise: 'Emploitic.com', secteur: 'RH / Job Board', dateDebut: '2019-01', dateFin: '2021-03', description: 'Developpement d\'APIs REST avec FastAPI. Integration de services de matching CV/offres avec NLP. Optimisation des requetes PostgreSQL.' },
       { poste: 'Developpeur Web Junior', entreprise: 'Icosnet', secteur: 'Services Numeriques', dateDebut: '2017-09', dateFin: '2018-12', description: 'Developpement de sites et applications web en Django. Integration frontend avec Bootstrap et jQuery.' },
     ],
@@ -199,7 +203,7 @@ export const candidates: Candidate[] = [
       { diplome: 'Certificat', specialite: 'Soins Intensifs et Reanimation', etablissement: 'CHU Setif, Formation Continue', ville: 'Setif', annee: '2015', dateDebut: '2014-09', dateFin: '2015-06', mention: '' },
     ],
     experiences: [
-      { poste: 'Infirmiere Coordinatrice, Reanimation', entreprise: 'CHU Setif', secteur: 'Sante Publique', dateDebut: '2019-01', dateFin: 'Present', description: 'Coordination d\'une equipe de 18 infirmieres en service de reanimation polyvalente (12 lits). Mise en place de protocoles de soins standardises.' },
+      { poste: 'Infirmiere Coordinatrice, Reanimation', entreprise: 'CHU Setif', secteur: 'Sante Publique', dateDebut: '2019-01', dateFin: '', enCours: true, description: 'Coordination d\'une equipe de 18 infirmieres en service de reanimation polyvalente (12 lits). Mise en place de protocoles de soins standardises.' },
       { poste: 'Infirmiere Specialisee, Soins Intensifs', entreprise: 'CHU Setif', secteur: 'Sante Publique', dateDebut: '2015-07', dateFin: '2018-12', description: 'Prise en charge de patients en soins critiques. Administration de traitements complexes (ventilation mecanique, catecholamines).' },
       { poste: 'Infirmiere de Soins Generaux', entreprise: 'EPH Setif', secteur: 'Sante Publique', dateDebut: '2013-09', dateFin: '2015-06', description: 'Soins infirmiers en service de medecine interne. Administration de traitements et surveillance des patients.' },
     ],

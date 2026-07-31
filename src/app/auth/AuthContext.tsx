@@ -42,7 +42,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isHydrating: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string) => Promise<string | true>;
   logout: () => void;
   drafts: DraftCV[];
   deleteDraft: (id: string) => void;
@@ -84,12 +84,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  /** Returns `true` on success, or an error message string on failure — the
+   *  caller needs the message to show the user, unlike `login`'s boolean. */
+  const register = async (name: string, email: string, password: string): Promise<string | true> => {
     try {
       await dispatch(registerAuth({ name, email, password })).unwrap();
       return true;
-    } catch {
-      return false;
+    } catch (err: any) {
+      return err?.message || 'Registration failed';
     }
   };
 

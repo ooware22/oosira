@@ -32,6 +32,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
+import { FALLBACK_PLANS } from '@/data/pricingCopy';
 
 const fadeUpVariant = {
   hidden: { opacity: 0, y: 20 },
@@ -63,20 +64,6 @@ const LOCAL_TRANSLATIONS: Record<string, any> = {
     
     pricingTitle: "Choose Your Plan",
     pricingDesc: "Unlock professional tools and unlimited templates to boost your career.",
-    proTitle: "Pro",
-    proPrice: "990 DA",
-    proPeriod: "/ month",
-    proFeature1: "All premium templates",
-    proFeature2: "Unlimited active drafts",
-    proFeature3: "High-speed PDF export",
-    
-    premiumTitle: "Premium",
-    premiumPrice: "1,990 DA",
-    premiumPeriod: "/ year",
-    premiumFeature1: "Everything in Pro",
-    premiumFeature2: "Priority customer support",
-    premiumFeature3: "Cover letter generator",
-    
     close: "Close",
     getStarted: "Get Started Free",
     h1: "ATS-Compliant & Trilingual",
@@ -135,20 +122,6 @@ const LOCAL_TRANSLATIONS: Record<string, any> = {
     
     pricingTitle: "Choisissez votre forfait",
     pricingDesc: "Débloquez les outils professionnels et des modèles illimités pour propulser votre carrière.",
-    proTitle: "Pro",
-    proPrice: "990 DA",
-    proPeriod: "/ mois",
-    proFeature1: "Tous les modèles premium",
-    proFeature2: "Brouillons actifs illimités",
-    proFeature3: "Exportation PDF haute vitesse",
-    
-    premiumTitle: "Premium",
-    premiumPrice: "1 990 DA",
-    premiumPeriod: "/ an",
-    premiumFeature1: "Tout ce qui est dans Pro",
-    premiumFeature2: "Support client prioritaire",
-    premiumFeature3: "Générateur de lettre de motivation",
-    
     close: "Fermer",
     getStarted: "Créer gratuitement",
     h1: "Conforme ATS & Trilingue",
@@ -207,20 +180,6 @@ const LOCAL_TRANSLATIONS: Record<string, any> = {
     
     pricingTitle: "اختر خطتك المناسبة",
     pricingDesc: "افتح الأدوات الاحترافية وقوالب غير محدودة لتطوير مسيرتك المهنية.",
-    proTitle: "برو (Pro)",
-    proPrice: "990 دج",
-    proPeriod: "/ شهرياً",
-    proFeature1: "الوصول لجميع القوالب المميزة",
-    proFeature2: "مسودات نشطة غير محدودة",
-    proFeature3: "تصدير سريع للغاية بصيغة PDF",
-    
-    premiumTitle: "بريميوم (Premium)",
-    premiumPrice: "1990 دج",
-    premiumPeriod: "/ سنوياً",
-    premiumFeature1: "كل ما تشمله الخطة الاحترافية",
-    premiumFeature2: "دعم فني ذو أولوية",
-    premiumFeature3: "محرر رسائل التغطية والاهتمام",
-    
     close: "إغلاق",
     getStarted: "ابدأ التصميم مجاناً",
     h1: "متوافق مع الـ ATS وثلاثي اللغات",
@@ -1074,51 +1033,7 @@ export default function LandingContent() {
 
                 {/* Plans Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-7">
-                  {(plans.length > 0 ? plans : [
-                    {
-                      id: 'free',
-                      code: 'free',
-                      price_da: 0,
-                      is_popular: false,
-                      icon_type: 'document',
-                      name_en: 'Basic',
-                      name_fr: 'Basique',
-                      name_ar: 'أساسي',
-                      desc_en: 'Perfect for starting your job search.',
-                      desc_fr: "Parfait pour commencer votre recherche d'emploi.",
-                      desc_ar: 'مثالي لبدء البحث عن عمل.',
-                      features: [
-                        { text_en: 'Build professional CVs', text_fr: 'Créer des CV professionnels', text_ar: 'بناء سير ذاتية احترافية', is_included: true },
-                        { text_en: '5 PDF downloads per month', text_fr: '5 téléchargements PDF par mois', text_ar: '5 تنزيلات PDF شهرياً', is_included: true },
-                        { text_en: 'Access to standard templates', text_fr: 'Accès aux modèles standards', text_ar: 'الوصول إلى القوالب القياسية', is_included: true },
-                        { text_en: '1 free trial OCR import', text_fr: "1 essai gratuit d'importation OCR par IA", text_ar: 'تجربة واحدة مجانية لاستيراد السيرة الذاتية (OCR)', is_included: true },
-                        { text_en: 'Limited color palettes', text_fr: 'Palettes de couleurs limitées', text_ar: 'لوحات ألوان محدودة', is_included: false }
-                      ]
-                    },
-                    {
-                      id: 'pro',
-                      code: 'pro',
-                      price_da: 350,
-                      is_popular: true,
-                      icon_type: 'sparkles',
-                      name_en: 'Pro',
-                      name_fr: 'Pro',
-                      name_ar: 'برو',
-                      desc_en: 'Everything you need to stand out.',
-                      desc_fr: 'Tout ce dont vous avez besoin pour vous démarquer.',
-                      desc_ar: 'كل ما تحتاجه للتميز.',
-                      billed_text_en: 'Billed 4800 DA yearly',
-                      billed_text_fr: 'Facturé 4800 DA par an',
-                      billed_text_ar: 'يتم فوترتها 4800 دج سنويا',
-                      features: [
-                        { text_en: 'Unlimited PDF downloads', text_fr: 'Téléchargements PDF illimités', text_ar: 'تنزيلات PDF غير محدودة', is_included: true },
-                        { text_en: 'AI-powered OCR Resume Import', text_fr: "Importation de CV par l'IA (OCR)", text_ar: 'استيراد السيرة الذاتية بالذكاء الاصطناعي (OCR)', is_included: true },
-                        { text_en: 'All premium templates unlocked', text_fr: 'Tous les modèles premium débloqués', text_ar: 'جميع القوالب المميزة مفتوحة', is_included: true },
-                        { text_en: 'Advanced color palettes & customization', text_fr: 'Palettes de couleurs avancées & personnalisation', text_ar: 'لوحات ألوان متقدمة وتخصيص', is_included: true },
-                        { text_en: 'Priority support', text_fr: 'Support prioritaire', text_ar: 'دعم ذو أولوية', is_included: true }
-                      ]
-                    }
-                  ]).map((plan: any) => {
+                  {(plans.length > 0 ? plans : FALLBACK_PLANS).map((plan: any) => {
                     const isPopular = plan.is_popular;
                     const hasPrice = plan.price_da > 0;
                     return (

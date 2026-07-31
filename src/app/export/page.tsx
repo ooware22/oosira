@@ -1,26 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CVClassique } from "../templates/CVClassique";
-import { CVIngenieur } from "../templates/CVIngenieur";
-import { CVExecutif } from "../templates/CVExecutif";
-import { CVTech } from "../templates/CVTech";
-import { CVMedical } from "../templates/CVMedical";
-import { styleToCSSVars } from "../templates/styleConfig";
+import { getLayoutBuilder } from "../templates";
+import { CVStyleConfig, styleToCSSVars } from "../templates/styleConfig";
+import { normalizeCandidate } from "../lib/cvData";
+import { Candidate } from "../data";
+import PaginatedCV from "@/components/PaginatedCV";
 import { useLanguage } from "@/app/i18n/LanguageContext";
 
-const TEMPLATES: Record<number, any> = {
-  1: CVClassique,
-  2: CVIngenieur,
-  3: CVExecutif,
-  4: CVMedical,
-  5: CVTech,
-};
+type ExportPayload = { cv: Candidate; config?: CVStyleConfig; id: number };
 
+declare global {
+  interface Window {
+    /** Called by the Django/Playwright exporter to push CV data into the page. */
+    injectCVData?: (
+      cvData: unknown,
+      styleConfig: CVStyleConfig,
+      templateId: number,
+    ) => void;
+  }
+}
+
+/**
+ * Render target for the Playwright PDF export in the Django backend.
+ *
+ * It runs the *same* pagination engine as the builder preview, so the page
+ * count and the break positions are identical by construction rather than by
+ * two independent mechanisms happening to agree.
+ */
 export default function ExportPage() {
-  const [data, setData] = useState<{ cv: any; config: any; id: number } | null>(null);
-  const { setLanguage } = useLanguage();
+  const [data, setData] = useState<ExportPayload | null>(null);
+  const { t, language, setLanguage } = useLanguage();
   const searchParams = useSearchParams();
 
   // Set language from URL query param immediately on mount
@@ -35,36 +46,55 @@ export default function ExportPage() {
 
   useEffect(() => {
     // Expose a global method so Playwright (Django) can push data into this page
-    (window as any).injectCVData = (cvData: any, styleConfig: any, templateId: number) => {
-      setData({ cv: cvData, config: styleConfig, id: templateId });
-      // Delay for CSS/fonts to load, then signal print-ready
-      setTimeout(() => document.body.classList.add("print-ready"), 1200);
+    window.injectCVData = (cvData, styleConfig, templateId) => {
+      // Same normalisation the builder applies on load, so a legacy record
+      // prints exactly what the preview showed.
+      setData({ cv: normalizeCandidate(cvData), config: styleConfig, id: templateId });
     };
 
     // Allow local debugging by pulling from localStorage
     const stored = localStorage.getItem("previewCV");
     if (stored) {
-      const parsed = JSON.parse(stored);
-      setData(parsed);
-      setTimeout(() => document.body.classList.add("print-ready"), 1200);
+      const parsed = JSON.parse(stored) as ExportPayload;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- local debug path only
+      setData({ ...parsed, cv: normalizeCandidate(parsed.cv) });
     }
   }, []);
 
-  if (!data) return <div className="p-8 text-center text-sm font-medium text-gray-500">Awaiting PDF render data from server...</div>;
+  /**
+   * Signal the backend that the document is laid out and safe to print.
+   * Replaces a blind 1200ms sleep: we now wait for the fonts to settle *and*
+   * for pagination to finish, which is both faster and race-free.
+   */
+  const handleReady = useCallback(() => {
+    const ready = async () => {
+      if (document.fonts?.ready) await document.fonts.ready;
+      // One frame so the final layout is committed before Chromium prints.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => document.body.classList.add("print-ready")),
+      );
+    };
+    void ready();
+  }, []);
 
-  const TemplateComponent = TEMPLATES[data.id] || TEMPLATES[1];
-  const cssVars = data.config ? styleToCSSVars(data.config) : {};
+  if (!data)
+    return (
+      <div className="p-8 text-center text-sm font-medium text-gray-500">
+        Awaiting PDF render data from server...
+      </div>
+    );
+
+  const cssVars = (data.config ? styleToCSSVars(data.config) : {}) as React.CSSProperties;
+  const layout = getLayoutBuilder(data.id)(data.cv, data.config, t, language);
 
   return (
-    <div
-      className="cv-page-wrapper"
-      style={{
-        ...cssVars as any,
-        minHeight: 1123,
-        height: 1123,
-      }}
-    >
-      <TemplateComponent data={data.cv} config={data.config} />
-    </div>
+    <PaginatedCV
+      layout={layout}
+      cssVars={cssVars}
+      dir={language === "ar" ? "rtl" : "ltr"}
+      print
+      chrome={false}
+      onReady={handleReady}
+    />
   );
 }

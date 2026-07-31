@@ -5,6 +5,26 @@
    ══════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════
+   Rich text (summary + descriptions)
+   Tailwind's preflight strips list markers and paragraph margins, so the
+   markup produced by renderRichText() needs them restored explicitly.
+   Logical properties keep this correct in RTL.
+   ══════════════════════════════════════════ */
+.cv-page .rt-p { margin: 0; }
+.cv-page .rt-p + .rt-p { margin-top: 0.5em; }
+.cv-page .rt-ul {
+  list-style: disc;
+  padding-inline-start: 1.1em;
+  margin: 0.25em 0;
+}
+.cv-page .rt-ul li { margin-bottom: 0.12em; }
+.cv-page .rt-ul + .rt-p,
+.cv-page .rt-p + .rt-ul { margin-top: 0.35em; }
+.cv-page .rt-p strong { font-weight: 700; }
+.cv-page .rt-p em,
+.cv-page .rt-ul em { font-style: italic; }
+
+/* ══════════════════════════════════════════
    T1 — Classique (dynamic)
    ══════════════════════════════════════════ */
 .cv-classique .cv-header { background: var(--cv-header-bg, #1B3A6B); color: var(--cv-header-text, #fff); padding: 28px 32px 22px; position: relative; }

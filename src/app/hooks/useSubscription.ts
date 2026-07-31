@@ -9,6 +9,9 @@ export interface SubscriptionStatus {
   pdfDownloadsThisMonth: number;
   pdfDownloadLimit: number;
   pdfDownloadsRemaining: number;
+  coverLettersThisMonth: number;
+  coverLetterLimit: number;
+  coverLettersRemaining: number | null;
   subscriptionActiveUntil: string | null;
 }
 
@@ -78,6 +81,8 @@ export function useSubscription() {
   const canDownload =
     isPro || (subscription?.pdfDownloadsRemaining ?? 1) > 0;
   const canOcr = isPro || !(subscription?.ocrTrialUsed ?? false);
+  const canGenerateApplication =
+    isPro || (subscription?.coverLettersRemaining ?? 1) > 0;
 
   return {
     subscription,
@@ -87,6 +92,7 @@ export function useSubscription() {
     isPro,
     canDownload,
     canOcr,
+    canGenerateApplication,
   };
 }
 

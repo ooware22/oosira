@@ -16,15 +16,27 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await register(name, email, password);
-    if (success) {
+    // Without this guard a double-click fired two overlapping register
+    // requests; the backend had no protection against that race either
+    // (see accounts/views.py), so the second request could 500 and the
+    // user — seeing nothing happen either time — would keep clicking.
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setError(null);
+    const result = await register(name, email, password);
+    if (result === true) {
       // Check for pending CV from builder (created before signup)
       await savePendingCV();
       router.push('/dashboard');
+      return;
     }
+    setError(result);
+    setIsSubmitting(false);
   };
 
   const savePendingCV = async () => {
@@ -173,18 +185,30 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {error && (
+                <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                  {error}
+                </div>
+              )}
+
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="group relative w-full inline-flex items-center justify-center px-4 py-3.5 rounded-xl text-white font-medium text-[14px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 shadow-lg shadow-blue-500/25 hover:shadow-cyan-500/40 hover:shadow-xl overflow-hidden cursor-pointer"
+                  disabled={isSubmitting}
+                  className="group relative w-full inline-flex items-center justify-center px-4 py-3.5 rounded-xl text-white font-medium text-[14px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 shadow-lg shadow-blue-500/25 hover:shadow-cyan-500/40 hover:shadow-xl overflow-hidden cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
                 >
                   {/* Shifting Gradient Background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 dark:from-blue-500 dark:via-cyan-300 dark:to-blue-500 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 ease-out z-0"></div>
-                  
+
                   {/* Light Beam Sweep Effect */}
                   <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 ease-in-out z-0 pointer-events-none"></div>
 
-                  <span className="relative z-10 drop-shadow-sm pointer-events-none">{t('auth.submit_signup')}</span>
+                  <span className="relative z-10 drop-shadow-sm pointer-events-none flex items-center gap-2">
+                    {isSubmitting && (
+                      <span className="w-3.5 h-3.5 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {t('auth.submit_signup')}
+                  </span>
                 </button>
               </div>
             </form>
