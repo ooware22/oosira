@@ -313,11 +313,11 @@ function NewApplicationModal({ drafts, subscription, onClose, onCreated }: {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.97 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-y-auto bg-surface border border-border rounded-3xl shadow-2xl"
+        className="w-[95vw] max-w-6xl max-h-[90vh] overflow-y-auto bg-surface border border-border rounded-3xl shadow-2xl"
       >
         <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-border sticky top-0 bg-surface/95 backdrop-blur-xl z-10">
           <h2 className="text-[16px] font-bold text-txt flex items-center gap-2">
-            <SparklesIcon className="w-5 h-5 text-blue-500" />
+            <BriefcaseIcon className="w-5 h-5 text-blue-500" />
             {t('applications.newTitle') || 'Nouvelle candidature'}
           </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted">
