@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getLayoutBuilder } from "../templates";
 import { CVStyleConfig, styleToCSSVars } from "../templates/styleConfig";
@@ -8,6 +8,8 @@ import { normalizeCandidate } from "../lib/cvData";
 import { Candidate } from "../data";
 import PaginatedCV from "@/components/PaginatedCV";
 import { useLanguage } from "@/app/i18n/LanguageContext";
+
+export const dynamic = 'force-dynamic';
 
 type ExportPayload = { cv: Candidate; config?: CVStyleConfig; id: number };
 
@@ -22,14 +24,7 @@ declare global {
   }
 }
 
-/**
- * Render target for the Playwright PDF export in the Django backend.
- *
- * It runs the *same* pagination engine as the builder preview, so the page
- * count and the break positions are identical by construction rather than by
- * two independent mechanisms happening to agree.
- */
-export default function ExportPage() {
+function ExportContent() {
   const [data, setData] = useState<ExportPayload | null>(null);
   const { t, language, setLanguage } = useLanguage();
   const searchParams = useSearchParams();
@@ -96,5 +91,17 @@ export default function ExportPage() {
       chrome={false}
       onReady={handleReady}
     />
+  );
+}
+
+/**
+ * Render target for the Playwright PDF export in the Django backend.
+ * Wrapped in Suspense to satisfy Next.js CSR requirements for useSearchParams.
+ */
+export default function ExportPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-sm font-medium text-gray-500">Loading export view...</div>}>
+      <ExportContent />
+    </Suspense>
   );
 }
