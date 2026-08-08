@@ -1,5 +1,6 @@
 ﻿'use client';
 import { Candidate } from '../data';
+import { formatLastName } from '../lib/cvData';
 import { EmailIcon, PhoneIcn, LocationIcon, LinkedInIcon, ProjectLinkIcon } from './ContactIcons';
 import { dateRangeLabel } from './dateFormat';
 import { renderRichText } from './richText';
@@ -154,7 +155,7 @@ export function buildClassiqueLayout(
 
   const header = (
     <div className="cv-header">
-      <div className="cv-name" data-cv-field="prenom">{data.prenom} {data.nom}</div>
+      <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
       <div className="cv-title" data-cv-field="titre">{data.titre}</div>
       <div className="cv-contact-row">
         <span data-cv-field="email"><EmailIcon /><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></span>

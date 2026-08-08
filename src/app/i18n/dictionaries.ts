@@ -236,6 +236,7 @@ export const dictionaries = {
       save: "Save",
       goToDashboard: "My Dashboard",
       cvTitleLabel: "CV Name / Title",
+      duplicateTitle: "You already have a CV with this name.",
       cvTitlePlaceholder: "e.g. Frontend Dev - Tech Corp",
       reminderLabel: "Update Reminder Date",
       selectType: "Select type...",
@@ -337,6 +338,19 @@ export const dictionaries = {
       updateReminderFor: "Time to update your CV:",
       reminderDate: "Reminder date:"
     },
+    spellcheck: {
+      button: "Fix spelling",
+      title: "Spelling correction",
+      checking: "Checking...",
+      noErrors: "No mistakes found",
+      noErrorsDesc: "Your text contains no spelling mistakes.",
+      legend: "Red = removed, green = corrected. Untick anything you want to keep as is.",
+      changes: "correction(s)",
+      apply: "Apply",
+      cancel: "Cancel",
+      retry: "Retry",
+      error: "Spell check failed. Please try again."
+    },
     applications: {
       newButton: "New Application",
       newTitle: "New Application",
@@ -379,7 +393,17 @@ export const dictionaries = {
       sentOn: "Sent on",
       save: "Save",
       saving: "Saving...",
-      saved: "Saved!"
+      saved: "Saved!",
+      previewCv: "Preview CV",
+      openCv: "Open",
+      coverLetterFilename: "Cover letter file name",
+      cvFilename: "CV file name",
+      loadError: "Failed to load applications",
+      loadErrorTitle: "Could not load your applications",
+      retry: "Retry",
+      invalidRecipientEmail: "Please enter a valid email address.",
+      invalidSenderEmail: "Please enter a valid email address.",
+      sendCopyToMe: "Send me a copy to my inbox"
     },
     pricing: {
       title1: "Simple, transparent",
@@ -648,6 +672,7 @@ export const dictionaries = {
       save: "Sauvegarder",
       goToDashboard: "Mon tableau de bord",
       cvTitleLabel: "Nom / Titre du CV",
+      duplicateTitle: "Vous avez déjà un CV portant ce nom.",
       cvTitlePlaceholder: "ex. Développeur Frontend - Tech Corp",
       reminderLabel: "Date de rappel de mise à jour",
       selectType: "Sélectionnez le type...",
@@ -749,6 +774,19 @@ export const dictionaries = {
       updateReminderFor: "Il est temps de mettre à jour votre CV :",
       reminderDate: "Date de rappel :"
     },
+    spellcheck: {
+      button: "Corriger l’orthographe",
+      title: "Correction de l’orthographe",
+      checking: "Vérification en cours...",
+      noErrors: "Aucune faute détectée",
+      noErrorsDesc: "Votre texte ne contient aucune faute d’orthographe.",
+      legend: "Rouge = supprimé, vert = corrigé. Décochez ce que vous souhaitez conserver.",
+      changes: "correction(s)",
+      apply: "Appliquer",
+      cancel: "Annuler",
+      retry: "Réessayer",
+      error: "Échec de la vérification. Veuillez réessayer."
+    },
     applications: {
       newButton: "Nouvelle candidature",
       newTitle: "Nouvelle candidature",
@@ -791,7 +829,17 @@ export const dictionaries = {
       sentOn: "Envoyé le",
       save: "Enregistrer",
       saving: "Enregistrement...",
-      saved: "Enregistré !"
+      saved: "Enregistré !",
+      previewCv: "Aperçu du CV",
+      openCv: "Ouvrir",
+      coverLetterFilename: "Nom du fichier de la lettre",
+      cvFilename: "Nom du fichier du CV",
+      loadError: "Échec du chargement des candidatures",
+      loadErrorTitle: "Impossible de charger vos candidatures",
+      retry: "Réessayer",
+      invalidRecipientEmail: "Veuillez saisir une adresse e-mail valide.",
+      invalidSenderEmail: "Veuillez saisir une adresse e-mail valide.",
+      sendCopyToMe: "Recevoir une copie dans ma boîte mail"
     },
     pricing: {
       title1: "Des tarifs simples et",
@@ -1060,6 +1108,7 @@ export const dictionaries = {
       save: "حفظ",
       goToDashboard: "لوحة التحكم",
       cvTitleLabel: "اسم / عنوان السيرة الذاتية",
+      duplicateTitle: "لديك بالفعل سيرة ذاتية بهذا الاسم.",
       cvTitlePlaceholder: "مثال: مطور واجهات - شركة التقنية",
       reminderLabel: "تاريخ التذكير بالتحديث",
       selectType: "اختر النوع...",
@@ -1161,6 +1210,19 @@ export const dictionaries = {
       updateReminderFor: "حان الوقت لتحديث سيرتك الذاتية:",
       reminderDate: "تاريخ التذكير:"
     },
+    spellcheck: {
+      button: "تصحيح الإملاء",
+      title: "تصحيح الإملاء",
+      checking: "جارٍ التحقق...",
+      noErrors: "لم يتم العثور على أخطاء",
+      noErrorsDesc: "لا يحتوي نصك على أخطاء إملائية.",
+      legend: "الأحمر = محذوف، الأخضر = مصحح. ألغ تحديد ما ترغب في إبقائه.",
+      changes: "تصحيح(ات)",
+      apply: "تطبيق",
+      cancel: "إلغاء",
+      retry: "إعادة المحاولة",
+      error: "فشل التحقق. حاول مرة أخرى."
+    },
     applications: {
       newButton: "طلب ترشح جديد",
       newTitle: "طلب ترشح جديد",
@@ -1203,7 +1265,17 @@ export const dictionaries = {
       sentOn: "تم الإرسال في",
       save: "حفظ",
       saving: "جاري الحفظ...",
-      saved: "تم الحفظ!"
+      saved: "تم الحفظ!",
+      previewCv: "معاينة السيرة الذاتية",
+      openCv: "فتح",
+      coverLetterFilename: "اسم ملف الرسالة التحفيزية",
+      cvFilename: "اسم ملف السيرة الذاتية",
+      loadError: "فشل تحميل الطلبات",
+      loadErrorTitle: "تعذر تحميل طلبات الترشح",
+      retry: "إعادة المحاولة",
+      invalidRecipientEmail: "يرجى إدخال عنوان بريد إلكتروني صالح.",
+      invalidSenderEmail: "يرجى إدخال عنوان بريد إلكتروني صالح.",
+      sendCopyToMe: "أرسل لي نسخة إلى بريدي"
     },
     pricing: {
       title1: "أسعار بسيطة",

@@ -54,6 +54,16 @@ function migrateLevel(l: Langue): Langue {
 }
 
 /**
+ * Surnames are written in full caps on a CV — the standard convention here,
+ * and it makes the family name unambiguous to a recruiter scanning quickly.
+ * Applied on the way in (so old records and OCR imports are fixed too) and
+ * again at render, so no template can miss it.
+ */
+export function formatLastName(nom: string | undefined): string {
+  return (nom || '').toLocaleUpperCase('fr-FR');
+}
+
+/**
  * Merge arbitrary stored CV data onto a complete `Candidate`, guaranteeing every
  * array exists and migrating legacy ongoing-date sentinels.
  */
@@ -63,6 +73,7 @@ export function normalizeCandidate(raw: unknown): Candidate {
   return {
     ...EMPTY_CANDIDATE,
     ...data,
+    nom: formatLastName(data.nom),
     experiences: asArray<Experience>(data.experiences).map(migrateOngoing),
     formations: asArray<Formation>(data.formations).map(migrateOngoing),
     competences: asArray<string>(data.competences),

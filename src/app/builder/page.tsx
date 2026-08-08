@@ -76,10 +76,11 @@ import {
   invalidateSubscriptionCache,
 } from "@/app/hooks/useSubscription";
 import { ongoingLabel } from "../templates/dateFormat";
-import { normalizeCandidate } from "../lib/cvData";
+import { normalizeCandidate, formatLastName } from "../lib/cvData";
 import { mapLanguageLevel } from "../lib/languageLevel";
 import FormatToolbar from "@/components/FormatToolbar";
 import RichTextField, { RichTextFieldHandle } from "@/components/RichTextField";
+import SpellCheckModal from "@/components/SpellCheckModal";
 import AutocompleteInput, {
   type RichSuggestion,
 } from "@/components/AutocompleteInput";
@@ -342,6 +343,8 @@ function BuilderPageContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedCvId, setSavedCvId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [titleError, setTitleError] = useState<string | null>(null);
+  const [showSpellCheck, setShowSpellCheck] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [expandedExpLinks, setExpandedExpLinks] = useState<number[]>([]);
   const [expandedFormLinks, setExpandedFormLinks] = useState<number[]>([]);
@@ -1043,11 +1046,73 @@ function BuilderPageContent() {
       return true;
     } catch (err: any) {
       console.error("Save CV error:", err);
-      setSaveError(err.message || "Failed to save CV");
+      // 409 is specifically "another CV already uses this name" — say so next
+      // to the title field instead of as a generic save failure.
+      if (err.status === 409) {
+        setTitleError(
+          t("builder.duplicateTitle") || "You already have a CV with this name.",
+        );
+      } else {
+        setSaveError(err.message || "Failed to save CV");
+      }
       return false;
     } finally {
       setIsSaving(false);
     }
+  };
+
+  /**
+   * Every prose field on the CV, flattened for the proofreader. Ids encode
+   * where each value came from so corrections can be written back precisely.
+   * Contact details, dates and skill keywords are left out on purpose: they
+   * are data or product names, where a "correction" is all risk and no gain.
+   */
+  const spellCheckFields = useMemo(() => {
+    const fields: { id: string; label: string; value: string }[] = [];
+    const add = (id: string, label: string, value?: string) => {
+      if (value && value.trim()) fields.push({ id, label, value });
+    };
+
+    add('titre', t('builder.jobTitle') || 'Job Title', formData.titre);
+    add('accroche', t('builder.summary') || 'Professional Summary', formData.accroche);
+
+    formData.experiences?.forEach((exp, i) => {
+      const where = exp.entreprise || `#${i + 1}`;
+      add(`exp.${i}.poste`, `${t('builder.position') || 'Position'} — ${where}`, exp.poste);
+      add(`exp.${i}.description`, `${t('builder.description') || 'Description'} — ${where}`, exp.description);
+    });
+
+    formData.formations?.forEach((f, i) => {
+      const where = f.etablissement || `#${i + 1}`;
+      add(`form.${i}.diplome`, `${t('builder.degree') || 'Degree'} — ${where}`, f.diplome);
+      add(`form.${i}.specialite`, `${t('builder.degree') || 'Degree'} — ${where}`, f.specialite);
+    });
+
+    return fields;
+  }, [formData, t]);
+
+  /** Write accepted corrections back into the matching CV fields. */
+  const applySpellCheck = (fixes: Record<string, string>) => {
+    setFormData((prev) => {
+      const next = { ...prev };
+      const experiences = [...(prev.experiences || [])];
+      const formations = [...(prev.formations || [])];
+
+      Object.entries(fixes).forEach(([id, value]) => {
+        const [scope, indexStr, field] = id.split('.');
+        if (scope === 'exp') {
+          const i = Number(indexStr);
+          if (experiences[i]) experiences[i] = { ...experiences[i], [field]: value };
+        } else if (scope === 'form') {
+          const i = Number(indexStr);
+          if (formations[i]) formations[i] = { ...formations[i], [field]: value };
+        } else {
+          (next as unknown as Record<string, string>)[id] = value;
+        }
+      });
+
+      return { ...next, experiences, formations };
+    });
   };
 
   // Keep the latest closure reachable from timers without re-arming them.
@@ -2122,7 +2187,9 @@ function BuilderPageContent() {
               <Input
                 label={t("builder.lastName") || "Last Name"}
                 value={formData.nom}
-                onChange={(v) => updateField("nom", v)}
+                // Surnames are always written in full caps on a CV — uppercase
+                // as it is typed so the field matches what the templates print.
+                onChange={(v) => updateField("nom", formatLastName(v))}
                 isTemplateData={isTemplateValue("nom")}
                 id="field-nom"
               />
@@ -3525,9 +3592,23 @@ function BuilderPageContent() {
                           "e.g. Frontend Dev - Tech Corp"
                         }
                         value={cvTitle}
-                        onChange={(e) => setCvTitle(e.target.value)}
-                        className="w-full bg-surface2/50 border border-border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                        onChange={(e) => {
+                          setCvTitle(e.target.value);
+                          if (titleError) setTitleError(null);
+                        }}
+                        aria-invalid={!!titleError}
+                        className={`w-full bg-surface2/50 border rounded-xl px-4 py-2.5 text-sm text-txt font-medium outline-none focus:ring-2 transition-all ${
+                          titleError
+                            ? "border-red-500/60 focus:border-red-500 focus:ring-red-500/10"
+                            : "border-border focus:border-blue-500 focus:ring-blue-500/10"
+                        }`}
                       />
+                      {titleError && (
+                        <p className="text-[11px] text-red-600 dark:text-red-400 flex items-center gap-1">
+                          <ExclamationTriangleIcon className="w-3 h-3 shrink-0" />
+                          {titleError}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-1.5">
                       <label className="flex items-center gap-1.5 text-[11px] font-bold text-txt-muted uppercase tracking-wider">
@@ -3552,6 +3633,13 @@ function BuilderPageContent() {
                     >
                       {t("builder.goToDashboard") || "My Dashboard"}
                     </Link>
+                    <button
+                      onClick={() => setShowSpellCheck(true)}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border text-txt text-sm font-semibold transition-all hover:bg-surface2"
+                    >
+                      <SparklesIcon className="w-4 h-4 text-blue-500" />
+                      {t("spellcheck.button") || "Corriger l’orthographe"}
+                    </button>
                     <button
                       onClick={saveCV}
                       disabled={isSaving}
@@ -4301,6 +4389,20 @@ function BuilderPageContent() {
           accent-sensitive, name-only, and gives no selection callback, so it
           could never support acronym search or city auto-fill. The field now
           uses AutocompleteInput. */}
+
+      <AnimatePresence>
+        {showSpellCheck && (
+          <SpellCheckModal
+            language={language}
+            fields={spellCheckFields}
+            onClose={() => setShowSpellCheck(false)}
+            onApply={(fixes) => {
+              applySpellCheck(fixes);
+              setShowSpellCheck(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -1,5 +1,6 @@
 ﻿'use client';
 import { Candidate } from '../data';
+import { formatLastName } from '../lib/cvData';
 import { ProjectLinkIcon } from './ContactIcons';
 import { dateRangeLabel } from './dateFormat';
 import { renderRichText } from './richText';
@@ -151,7 +152,7 @@ export function buildIngenieurLayout(
   const header = (
     <div className="cv-header">
       <div>
-        <div className="cv-name" data-cv-field="prenom">{data.prenom} {data.nom}</div>
+        <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
         <div className="cv-title" data-cv-field="titre">{data.titre}</div>
       </div>
       <div className="cv-contact-right">

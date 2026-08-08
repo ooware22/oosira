@@ -18,6 +18,18 @@
   line-height: 1.6;
 }
 
+/* Tailwind's preflight strips list markers/indent, so restore them here —
+   otherwise bulleted letters print as unmarked flush-left lines. */
+.letter-body ul {
+  margin: 0 0 1em;
+  padding-inline-start: 1.4em;
+  list-style: disc;
+}
+.letter-body li {
+  margin: 0.2em 0;
+  break-inside: avoid;
+}
+
 @page {
   size: A4;
   margin: 0 15mm;

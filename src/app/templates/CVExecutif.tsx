@@ -1,5 +1,6 @@
 ﻿'use client';
 import { Candidate } from '../data';
+import { formatLastName } from '../lib/cvData';
 import { dateRangeLabel } from './dateFormat';
 import { renderRichText } from './richText';
 import { useLanguage } from '@/app/i18n/LanguageContext';
@@ -266,7 +267,7 @@ export function buildExecutifLayout(
 
   const header = (
     <div className="exec-header">
-      <h1 className="exec-name" data-cv-field="prenom">{data.prenom} {data.nom}</h1>
+      <h1 className="exec-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</h1>
       <div className="exec-title" data-cv-field="titre">{data.titre}</div>
       {data.accroche && <div className="exec-accroche" data-cv-field="accroche">{renderRichText(data.accroche)}</div>}
     </div>

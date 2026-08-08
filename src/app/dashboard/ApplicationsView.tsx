@@ -1,9 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { apiFetch } from '@/api/apiClient';
+import FormatToolbar from '@/components/FormatToolbar';
+import RichTextField, { RichTextFieldHandle } from '@/components/RichTextField';
+import SpellCheckModal from '@/components/SpellCheckModal';
+import PaginatedCV from '@/components/PaginatedCV';
+import { getLayoutBuilder } from '@/app/templates';
+import { CVStyleConfig, styleToCSSVars } from '@/app/templates/styleConfig';
+import { normalizeCandidate } from '@/app/lib/cvData';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { DraftCV, useAuth } from '@/app/auth/AuthContext';
 import { useSubscription, invalidateSubscriptionCache } from '@/app/hooks/useSubscription';
@@ -24,6 +31,7 @@ import {
   LockClosedIcon,
   ChevronLeftIcon,
   BuildingOffice2Icon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 interface JobApplication {
@@ -58,22 +66,50 @@ function fmtDate(iso: string, locale: string) {
   }
 }
 
+/** Same shape Django's validate_email accepts, kept deliberately simple: it
+ *  catches the typos that matter (missing @, missing domain, no TLD, spaces)
+ *  without rejecting valid-but-unusual addresses. The server validates too. */
+const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
+
+function isValidEmail(value: string): boolean {
+  return EMAIL_RE.test(value.trim());
+}
+
+/** Mirrors the backend's slugify_filename closely enough for a prefilled
+ *  default — the server sanitizes whatever is actually submitted. */
+function slugFilename(text: string): string {
+  return (text || 'Document').trim().replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'Document';
+}
+
 // ── Small local field primitives (mirroring FormField's visual language,
 //    which is private to dashboard/page.tsx and can't be imported here) ──
-function Field({ label, value, onChange, placeholder, required }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; required?: boolean;
+function Field({ label, value, onChange, placeholder, required, type = 'text', error, onBlur }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string;
+  required?: boolean; type?: string; error?: string | null; onBlur?: () => void;
 }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{label}</label>
       <input
-        type="text"
+        type={type}
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
         placeholder={placeholder}
-        className="w-full bg-surface2 border border-border rounded-xl px-4 py-3 text-[13px] text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 placeholder:text-txt-dim"
+        aria-invalid={!!error}
+        className={`w-full bg-surface2 border rounded-xl px-4 py-3 text-[13px] text-txt outline-none transition-all duration-200 focus:ring-2 placeholder:text-txt-dim ${
+          error
+            ? 'border-red-500/60 focus:border-red-500 focus:ring-red-500/10'
+            : 'border-border focus:border-blue-500 focus:ring-blue-500/10'
+        }`}
       />
+      {error && (
+        <p className="text-[11px] text-red-600 dark:text-red-400 flex items-center gap-1">
+          <ExclamationTriangleIcon className="w-3 h-3 shrink-0" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -102,9 +138,87 @@ function CopyButton({ text, label, copiedLabel }: { text: string; label: string;
   );
 }
 
+// ── Read-only CV preview, opened from a CV title ──
+type CvDetail = { cvData: unknown; styleConfig: CVStyleConfig; templateId: number };
+
+function CvPreviewOverlay({ cvId, cvTitle, onClose }: {
+  cvId: string; cvTitle: string; onClose: () => void;
+}) {
+  const { t, language } = useLanguage();
+  const [cv, setCv] = useState<CvDetail | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch(`/cvs/${cvId}/`)
+      .then((data) => { if (!cancelled) setCv(data); })
+      .catch((err) => { if (!cancelled) setError(err.message || 'Failed to load CV'); });
+    return () => { cancelled = true; };
+  }, [cvId]);
+
+  // Same render recipe as the PDF export route, so the preview matches the
+  // document that actually gets attached to the email.
+  const layout = cv ? getLayoutBuilder(cv.templateId)(normalizeCandidate(cv.cvData), cv.styleConfig, t, language) : null;
+  const cssVars = (cv?.styleConfig ? styleToCSSVars(cv.styleConfig) : {}) as React.CSSProperties;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 16, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.97 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-[95vw] max-w-4xl max-h-[92vh] flex flex-col bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+          <h2 className="text-[15px] font-bold text-txt flex items-center gap-2 truncate">
+            <DocumentTextIcon className="w-5 h-5 text-blue-500 shrink-0" />
+            {cvTitle}
+          </h2>
+          <div className="flex items-center gap-1 shrink-0">
+            <Link
+              href={`/builder?id=${cvId}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 transition-colors"
+            >
+              {t('applications.openCv') || 'Ouvrir'}
+            </Link>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted">
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-auto p-6 bg-surface2/40 flex justify-center">
+          {error ? (
+            <div className="text-sm text-red-600 dark:text-red-400 py-10">{error}</div>
+          ) : !layout ? (
+            <div className="py-20">
+              <span className="inline-block w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            </div>
+          ) : (
+            <PaginatedCV
+              layout={layout}
+              cssVars={cssVars}
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
+              chrome={false}
+              scale={0.85}
+            />
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ── Card in the applications list ──
-function ApplicationCard({ app, onOpen, onDelete, delay }: {
-  app: JobApplication; onOpen: () => void; onDelete: () => void; delay: number;
+function ApplicationCard({ app, onOpen, onPreviewCv, onDelete, delay }: {
+  app: JobApplication; onOpen: () => void; onPreviewCv: () => void; onDelete: () => void; delay: number;
 }) {
   const { t, language, dir } = useLanguage();
   return (
@@ -132,10 +246,15 @@ function ApplicationCard({ app, onOpen, onDelete, delay }: {
         </button>
       </div>
       <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px] text-txt-dim">
-        <span className="inline-flex items-center gap-1.5 bg-surface2 text-txt-muted px-2 py-1 rounded-full truncate max-w-[60%]">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onPreviewCv(); }}
+          title={t('applications.previewCv') || 'Aperçu du CV'}
+          className="inline-flex items-center gap-1.5 bg-surface2 text-txt-muted px-2 py-1 rounded-full truncate max-w-[60%] hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+        >
           <DocumentTextIcon className="w-3 h-3 shrink-0" />
           {app.cvTitle}
-        </span>
+        </button>
         <span className="flex items-center gap-2">
           {app.emailSentAt && (
             <span className="inline-flex items-center gap-1 text-emerald-500 font-semibold">
@@ -151,12 +270,13 @@ function ApplicationCard({ app, onOpen, onDelete, delay }: {
 }
 
 // ── Detail / result panel ──
-function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated }: {
+function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated, onPreviewCv }: {
   app: JobApplication;
   subscription: ReturnType<typeof useSubscription>;
   onBack: () => void;
   onDeleted: () => void;
   onRegenerated: (updated: JobApplication) => void;
+  onPreviewCv: () => void;
 }) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -168,6 +288,11 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
 
   const [recipientEmail, setRecipientEmail] = useState(app.recipientEmail || '');
   const [senderEmail, setSenderEmail] = useState(app.senderEmail || user?.email || '');
+  const [letterFilename, setLetterFilename] = useState(`Lettre_de_motivation_${slugFilename(app.companyName)}.pdf`);
+  const [cvFilename, setCvFilename] = useState(`CV_${slugFilename(app.cvTitle)}.pdf`);
+  const [sendCopyToMe, setSendCopyToMe] = useState(true);
+  const [recipientTouched, setRecipientTouched] = useState(false);
+  const [senderTouched, setSenderTouched] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendQuotaExceeded, setSendQuotaExceeded] = useState(false);
@@ -181,12 +306,47 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
   const [emailSaved, setEmailSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const [showSpellCheck, setShowSpellCheck] = useState(false);
+
+  const letterFieldRef = useRef<RichTextFieldHandle>(null);
+  const emailFieldRef = useRef<RichTextFieldHandle>(null);
+  const formatLabels = useMemo(
+    () => ({
+      bold: t('builder.fmtBold'),
+      italic: t('builder.fmtItalic'),
+      bullet: t('builder.fmtBullet'),
+    }),
+    [t],
+  );
+
   // No prop-watching effect resets these: switching application remounts this
   // component (keyed on the id by the parent), and after a save the drafts
   // already hold what was saved. Regenerate is the one case that replaces the
   // content under the user, so it resets the drafts explicitly below.
   const letterDirty = coverLetterDraft !== app.generatedCoverLetter;
   const emailDirty = emailSubjectDraft !== app.generatedEmailSubject || emailBodyDraft !== app.generatedEmailBody;
+
+  /**
+   * Push any unsaved edits before an action that reads the server's copy.
+   * The PDF is rendered server-side and the email is sent server-side, both
+   * from the stored value — without this, "Download PDF" would print, and
+   * "Send by Email" would send a recruiter, the last-saved text rather than
+   * what the user is looking at.
+   */
+  const flushPendingEdits = async () => {
+    if (!letterDirty && !emailDirty) return;
+    const payload: Record<string, string> = {};
+    if (letterDirty) payload.generatedCoverLetter = coverLetterDraft;
+    if (emailDirty) {
+      payload.generatedEmailSubject = emailSubjectDraft;
+      payload.generatedEmailBody = emailBodyDraft;
+    }
+    const updated = await apiFetch(`/applications/${app.id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+    onRegenerated(updated);
+  };
 
   const handleSaveLetter = async () => {
     setIsSavingLetter(true);
@@ -259,6 +419,7 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
     setIsDownloadingPdf(true);
     setPdfError(null);
     try {
+      await flushPendingEdits();
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
       const response = await fetch(`${API_BASE}/applications/${app.id}/pdf/`, {
         method: 'POST',
@@ -292,16 +453,35 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
     }
   };
 
+  const recipientError = recipientTouched && !isValidEmail(recipientEmail)
+    ? (t('applications.invalidRecipientEmail') || 'Adresse e-mail invalide.')
+    : null;
+  const senderError = senderTouched && !isValidEmail(senderEmail)
+    ? (t('applications.invalidSenderEmail') || 'Adresse e-mail invalide.')
+    : null;
+  const canSend = isValidEmail(recipientEmail) && isValidEmail(senderEmail);
+
   const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSending) return;
+    // Surface any bad address instead of firing a request that will 400.
+    setRecipientTouched(true);
+    setSenderTouched(true);
+    if (!canSend) return;
     setIsSending(true);
     setSendError(null);
     setSendQuotaExceeded(false);
     try {
+      await flushPendingEdits();
       const updated = await apiFetch(`/applications/${app.id}/send-email/`, {
         method: 'POST',
-        body: JSON.stringify({ recipientEmail, senderEmail }),
+        body: JSON.stringify({
+          recipientEmail,
+          senderEmail,
+          coverLetterFilename: letterFilename,
+          cvFilename,
+          sendCopyToMe,
+        }),
       });
       subscription.refresh();
       onRegenerated(updated);
@@ -333,10 +513,24 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
             <p className="text-[13px] text-txt-muted flex items-center gap-1.5 mt-1">
               <BuildingOffice2Icon className="w-4 h-4" /> {app.companyName}
               <span className="text-txt-dim">·</span>
-              <DocumentTextIcon className="w-4 h-4" /> {app.cvTitle}
+              <button
+                type="button"
+                onClick={onPreviewCv}
+                title={t('applications.previewCv') || 'Aperçu du CV'}
+                className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 -mx-1 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
+              >
+                <DocumentTextIcon className="w-4 h-4" /> {app.cvTitle}
+              </button>
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSpellCheck(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors"
+            >
+              <LanguageIcon className="w-4 h-4" />
+              {t('spellcheck.button') || 'Corriger l’orthographe'}
+            </button>
             <button
               onClick={handleDownloadPdf}
               disabled={isDownloadingPdf}
@@ -389,6 +583,7 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
               {t('applications.coverLetter') || 'Lettre de motivation'}
             </h3>
             <div className="flex items-center gap-1">
+              <FormatToolbar onFormat={(kind) => letterFieldRef.current?.runFormat(kind)} labels={formatLabels} />
               <CopyButton text={coverLetterDraft} label={t('applications.copy') || 'Copier'} copiedLabel={t('applications.copied') || 'Copié !'} />
               {(letterDirty || letterSaved) && (
                 <button
@@ -409,11 +604,12 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
               )}
             </div>
           </div>
-          <textarea
+          <RichTextField
+            ref={letterFieldRef}
             value={coverLetterDraft}
-            onChange={(e) => setCoverLetterDraft(e.target.value)}
-            rows={14}
-            className="w-full bg-surface2/60 border border-border rounded-2xl p-5 text-[13px] text-txt leading-relaxed whitespace-pre-wrap resize-y outline-none transition-colors focus:border-blue-500/40 max-h-[420px]"
+            onChange={setCoverLetterDraft}
+            className="rich-text-field w-full bg-surface2/60 border border-border rounded-2xl p-5 text-[13px] text-txt leading-relaxed resize-y overflow-y-auto outline-none transition-colors focus:border-blue-500/40 max-h-[420px]"
+            style={{ minHeight: '18em' }}
           />
         </div>
 
@@ -425,6 +621,7 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
               {t('applications.email') || "E-mail de candidature"}
             </h3>
             <div className="flex items-center gap-1">
+              <FormatToolbar onFormat={(kind) => emailFieldRef.current?.runFormat(kind)} labels={formatLabels} />
               <CopyButton
                 text={`${t('applications.emailSubject') || 'Objet'}: ${emailSubjectDraft}\n\n${emailBodyDraft}`}
                 label={t('applications.copy') || 'Copier'}
@@ -458,11 +655,12 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
                 className="flex-1 bg-transparent font-semibold text-txt outline-none"
               />
             </div>
-            <textarea
+            <RichTextField
+              ref={emailFieldRef}
               value={emailBodyDraft}
-              onChange={(e) => setEmailBodyDraft(e.target.value)}
-              rows={8}
-              className="w-full p-5 text-[13px] text-txt leading-relaxed whitespace-pre-wrap resize-y outline-none bg-transparent"
+              onChange={setEmailBodyDraft}
+              className="rich-text-field w-full p-5 text-[13px] text-txt leading-relaxed resize-y overflow-y-auto outline-none bg-transparent"
+              style={{ minHeight: '11em' }}
             />
           </div>
         </div>
@@ -487,19 +685,51 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
                 label={t('applications.recipientEmail') || "E-mail du destinataire"}
                 value={recipientEmail}
                 onChange={setRecipientEmail}
+                onBlur={() => setRecipientTouched(true)}
+                error={recipientError}
                 required
+                type="email"
                 placeholder={t('applications.recipientEmailPlaceholder') || 'Ex. recrutement@entreprise.com'}
               />
-              <div className="space-y-1.5">
-                <Field
-                  label={t('applications.senderEmail') || 'Votre e-mail (réponses)'}
-                  value={senderEmail}
-                  onChange={setSenderEmail}
-                  required
-                  placeholder={t('applications.senderEmailHint') || 'Votre adresse e-mail'}
-                />
-              </div>
+              <Field
+                label={t('applications.senderEmail') || 'Votre e-mail (réponses)'}
+                value={senderEmail}
+                onChange={setSenderEmail}
+                onBlur={() => setSenderTouched(true)}
+                error={senderError}
+                required
+                type="email"
+                placeholder={t('applications.senderEmailHint') || 'Votre adresse e-mail'}
+              />
             </div>
+
+            {/* Attachment names, editable before sending */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field
+                label={t('applications.coverLetterFilename') || 'Nom du fichier de la lettre'}
+                value={letterFilename}
+                onChange={setLetterFilename}
+                placeholder="Lettre_de_motivation.pdf"
+              />
+              <Field
+                label={t('applications.cvFilename') || 'Nom du fichier du CV'}
+                value={cvFilename}
+                onChange={setCvFilename}
+                placeholder="CV.pdf"
+              />
+            </div>
+
+            <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+              <input
+                type="checkbox"
+                checked={sendCopyToMe}
+                onChange={(e) => setSendCopyToMe(e.target.checked)}
+                className="w-4 h-4 rounded border-border accent-blue-600 cursor-pointer"
+              />
+              <span className="text-[12px] text-txt-muted">
+                {t('applications.sendCopyToMe') || 'Recevoir une copie dans ma boîte mail'}
+              </span>
+            </label>
 
             {sendQuotaExceeded && (
               <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-start gap-3">
@@ -530,6 +760,28 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
           </form>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showSpellCheck && (
+          <SpellCheckModal
+            language={app.language}
+            fields={[
+              { id: 'coverLetter', label: t('applications.coverLetter') || 'Lettre de motivation', value: coverLetterDraft },
+              { id: 'emailSubject', label: t('applications.emailSubject') || 'Objet', value: emailSubjectDraft },
+              { id: 'emailBody', label: t('applications.email') || 'E-mail de candidature', value: emailBodyDraft },
+            ]}
+            onClose={() => setShowSpellCheck(false)}
+            onApply={(fixes) => {
+              // Only update the drafts — the user still saves explicitly, and
+              // the Save buttons light up because the drafts are now dirty.
+              if (fixes.coverLetter !== undefined) setCoverLetterDraft(fixes.coverLetter);
+              if (fixes.emailSubject !== undefined) setEmailSubjectDraft(fixes.emailSubject);
+              if (fixes.emailBody !== undefined) setEmailBodyDraft(fixes.emailBody);
+              setShowSpellCheck(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -719,17 +971,31 @@ export default function ApplicationsView({ drafts, subscription }: {
   const { t } = useLanguage();
   const [applications, setApplications] = useState<JobApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState<JobApplication | null>(null);
+  const [previewCv, setPreviewCv] = useState<{ id: string; title: string } | null>(null);
+
+  // A failed fetch must never render as the empty state — "you have no
+  // applications" and "we couldn't load your applications" are very
+  // different messages, and showing the former for the latter made real
+  // data look deleted.
+  const loadApplications = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const data = await apiFetch('/applications/');
+      setApplications(data);
+    } catch (err: any) {
+      setLoadError(err.message || t('applications.loadError') || 'Failed to load applications');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [t]);
 
   useEffect(() => {
-    let cancelled = false;
-    apiFetch('/applications/')
-      .then((data) => { if (!cancelled) setApplications(data); })
-      .catch(() => { /* list stays empty; the view still renders */ })
-      .finally(() => { if (!cancelled) setIsLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
+    loadApplications();
+  }, [loadApplications]);
 
   const handleCreated = (app: JobApplication) => {
     setApplications((prev) => [app, ...prev]);
@@ -764,6 +1030,7 @@ export default function ApplicationsView({ drafts, subscription }: {
             onBack={() => setSelected(null)}
             onDeleted={() => handleDeleted(selected.id)}
             onRegenerated={handleRegenerated}
+            onPreviewCv={() => setPreviewCv({ id: selected.cvId, title: selected.cvTitle })}
           />
         ) : (
           <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -784,6 +1051,19 @@ export default function ApplicationsView({ drafts, subscription }: {
             {isLoading ? (
               <div className="text-center py-20">
                 <span className="inline-block w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+              </div>
+            ) : loadError ? (
+              <div className="text-center py-20 bg-surface/50 border border-dashed border-red-500/30 rounded-3xl">
+                <ExclamationTriangleIcon className="w-12 h-12 mx-auto text-red-500/70 mb-4" />
+                <h3 className="text-txt font-bold mb-1.5">{t('applications.loadErrorTitle') || 'Impossible de charger vos candidatures'}</h3>
+                <p className="text-txt-muted text-sm max-w-sm mx-auto mb-6">{loadError}</p>
+                <button
+                  onClick={loadApplications}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[13px] font-bold hover:bg-blue-500/20 transition-colors"
+                >
+                  <ArrowPathIcon className="w-4 h-4" />
+                  {t('applications.retry') || 'Réessayer'}
+                </button>
               </div>
             ) : applications.length === 0 ? (
               <div className="text-center py-20 bg-surface/50 border border-dashed border-border rounded-3xl">
@@ -808,6 +1088,7 @@ export default function ApplicationsView({ drafts, subscription }: {
                     app={app}
                     delay={i}
                     onOpen={() => setSelected(app)}
+                    onPreviewCv={() => setPreviewCv({ id: app.cvId, title: app.cvTitle })}
                     onDelete={() => {
                       apiFetch(`/applications/${app.id}/`, { method: 'DELETE' })
                         .then(() => handleDeleted(app.id))
@@ -828,6 +1109,16 @@ export default function ApplicationsView({ drafts, subscription }: {
             subscription={subscription}
             onClose={() => setShowModal(false)}
             onCreated={handleCreated}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {previewCv && (
+          <CvPreviewOverlay
+            cvId={previewCv.id}
+            cvTitle={previewCv.title}
+            onClose={() => setPreviewCv(null)}
           />
         )}
       </AnimatePresence>

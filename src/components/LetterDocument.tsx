@@ -1,3 +1,5 @@
+import { renderRichText } from '@/app/templates/richText';
+
 export type LetterPayload = {
   candidateName: string;
   candidateEmail?: string;
@@ -41,8 +43,12 @@ export default function LetterDocument({ payload }: { payload: LetterPayload }) 
           {RECIPIENT_LABEL[payload.language](payload.companyName)}
         </div>
       </div>
-      <div className="letter-body" style={{ fontSize: '13.5px', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-        {payload.bodyText}
+      {/* renderRichText, not raw pre-wrap text: the letter is edited in a
+          rich-text field now, so its stored value can carry **bold**,
+          *italic* and "- " bullets that must print as formatting rather
+          than as literal markers. */}
+      <div className="letter-body" style={{ fontSize: '13.5px', lineHeight: 1.7 }}>
+        {renderRichText(payload.bodyText)}
       </div>
     </div>
   );

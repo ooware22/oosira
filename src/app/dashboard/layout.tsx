@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+// The CV preview overlay in "Mes candidatures" renders real templates, which
+// need the same stylesheet the builder and export routes load.
+import '../cv-templates.css';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',
