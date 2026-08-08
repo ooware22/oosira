@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { apiFetch } from '@/api/apiClient';
 import { useLanguage } from '@/app/i18n/LanguageContext';
-import { DraftCV } from '@/app/auth/AuthContext';
-import { useSubscription } from '@/app/hooks/useSubscription';
+import { DraftCV, useAuth } from '@/app/auth/AuthContext';
+import { useSubscription, invalidateSubscriptionCache } from '@/app/hooks/useSubscription';
 import {
   BriefcaseIcon,
   SparklesIcon,
@@ -15,6 +15,9 @@ import {
   ClipboardDocumentIcon,
   ClipboardDocumentCheckIcon,
   ArrowPathIcon,
+  ArrowDownTrayIcon,
+  PaperAirplaneIcon,
+  CheckCircleIcon,
   TrashIcon,
   PlusIcon,
   XMarkIcon,
@@ -34,6 +37,9 @@ interface JobApplication {
   generatedCoverLetter: string;
   generatedEmailSubject: string;
   generatedEmailBody: string;
+  recipientEmail: string;
+  senderEmail: string;
+  emailSentAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -130,28 +136,104 @@ function ApplicationCard({ app, onOpen, onDelete, delay }: {
           <DocumentTextIcon className="w-3 h-3 shrink-0" />
           {app.cvTitle}
         </span>
-        <span>{fmtDate(app.updatedAt, language)}</span>
+        <span className="flex items-center gap-2">
+          {app.emailSentAt && (
+            <span className="inline-flex items-center gap-1 text-emerald-500 font-semibold">
+              <CheckCircleIcon className="w-3 h-3" />
+              {t('applications.sentBadge') || 'Envoyé'}
+            </span>
+          )}
+          {fmtDate(app.updatedAt, language)}
+        </span>
       </div>
     </motion.div>
   );
 }
 
 // ── Detail / result panel ──
-function ApplicationDetail({ app, onBack, onDeleted, onRegenerated }: {
+function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated }: {
   app: JobApplication;
+  subscription: ReturnType<typeof useSubscription>;
   onBack: () => void;
   onDeleted: () => void;
   onRegenerated: (updated: JobApplication) => void;
 }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
+  const [recipientEmail, setRecipientEmail] = useState(app.recipientEmail || '');
+  const [senderEmail, setSenderEmail] = useState(app.senderEmail || user?.email || '');
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendQuotaExceeded, setSendQuotaExceeded] = useState(false);
+
+  const [coverLetterDraft, setCoverLetterDraft] = useState(app.generatedCoverLetter);
+  const [emailSubjectDraft, setEmailSubjectDraft] = useState(app.generatedEmailSubject);
+  const [emailBodyDraft, setEmailBodyDraft] = useState(app.generatedEmailBody);
+  const [isSavingLetter, setIsSavingLetter] = useState(false);
+  const [isSavingEmail, setIsSavingEmail] = useState(false);
+  const [letterSaved, setLetterSaved] = useState(false);
+  const [emailSaved, setEmailSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // No prop-watching effect resets these: switching application remounts this
+  // component (keyed on the id by the parent), and after a save the drafts
+  // already hold what was saved. Regenerate is the one case that replaces the
+  // content under the user, so it resets the drafts explicitly below.
+  const letterDirty = coverLetterDraft !== app.generatedCoverLetter;
+  const emailDirty = emailSubjectDraft !== app.generatedEmailSubject || emailBodyDraft !== app.generatedEmailBody;
+
+  const handleSaveLetter = async () => {
+    setIsSavingLetter(true);
+    setSaveError(null);
+    try {
+      const updated = await apiFetch(`/applications/${app.id}/`, {
+        method: 'PATCH',
+        body: JSON.stringify({ generatedCoverLetter: coverLetterDraft }),
+      });
+      onRegenerated(updated);
+      setLetterSaved(true);
+      setTimeout(() => setLetterSaved(false), 1800);
+    } catch (err: any) {
+      setSaveError(err.message || 'Save failed');
+    } finally {
+      setIsSavingLetter(false);
+    }
+  };
+
+  const handleSaveEmail = async () => {
+    setIsSavingEmail(true);
+    setSaveError(null);
+    try {
+      const updated = await apiFetch(`/applications/${app.id}/`, {
+        method: 'PATCH',
+        body: JSON.stringify({ generatedEmailSubject: emailSubjectDraft, generatedEmailBody: emailBodyDraft }),
+      });
+      onRegenerated(updated);
+      setEmailSaved(true);
+      setTimeout(() => setEmailSaved(false), 1800);
+    } catch (err: any) {
+      setSaveError(err.message || 'Save failed');
+    } finally {
+      setIsSavingEmail(false);
+    }
+  };
 
   const handleRegenerate = async () => {
     setIsRegenerating(true);
     setError(null);
     try {
       const updated = await apiFetch(`/applications/${app.id}/regenerate/`, { method: 'POST' });
+      // Regeneration replaces the content wholesale — drop any unsaved edits
+      // so the drafts (and the dirty/Save state derived from them) match.
+      setCoverLetterDraft(updated.generatedCoverLetter);
+      setEmailSubjectDraft(updated.generatedEmailSubject);
+      setEmailBodyDraft(updated.generatedEmailBody);
       onRegenerated(updated);
     } catch (err: any) {
       setError(err.message || t('applications.generateError') || 'Generation failed');
@@ -166,6 +248,71 @@ function ApplicationDetail({ app, onBack, onDeleted, onRegenerated }: {
       onDeleted();
     } catch (err: any) {
       setError(err.message || 'Delete failed');
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (subscription.subscription && !subscription.canDownload) {
+      setPdfError(t('applications.quotaExceeded') || 'Limite mensuelle atteinte.');
+      return;
+    }
+    setIsDownloadingPdf(true);
+    setPdfError(null);
+    try {
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE}/applications/${app.id}/pdf/`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${localStorage.getItem('oosira_token')}` },
+      });
+
+      if (response.status === 402) {
+        invalidateSubscriptionCache();
+        subscription.refresh();
+        setPdfError(t('applications.quotaExceeded') || 'Limite mensuelle atteinte.');
+        return;
+      }
+      if (!response.ok) throw new Error(t('applications.pdfDownloadError') || 'PDF generation failed');
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `Lettre_de_motivation_${app.companyName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+
+      invalidateSubscriptionCache();
+      subscription.refresh();
+    } catch (err: any) {
+      setPdfError(err.message || t('applications.pdfDownloadError') || 'PDF generation failed');
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSending) return;
+    setIsSending(true);
+    setSendError(null);
+    setSendQuotaExceeded(false);
+    try {
+      const updated = await apiFetch(`/applications/${app.id}/send-email/`, {
+        method: 'POST',
+        body: JSON.stringify({ recipientEmail, senderEmail }),
+      });
+      subscription.refresh();
+      onRegenerated(updated);
+    } catch (err: any) {
+      if (err.status === 402) {
+        setSendQuotaExceeded(true);
+      } else {
+        setSendError(err.message || t('applications.sendError') || 'Failed to send the email.');
+      }
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -191,6 +338,14 @@ function ApplicationDetail({ app, onBack, onDeleted, onRegenerated }: {
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-60"
+            >
+              <ArrowDownTrayIcon className={`w-4 h-4 ${isDownloadingPdf ? 'animate-pulse' : ''}`} />
+              {isDownloadingPdf ? (t('applications.downloadingPdf') || 'Préparation du PDF...') : (t('applications.downloadPdf') || 'Télécharger le PDF')}
+            </button>
+            <button
               onClick={handleRegenerate}
               disabled={isRegenerating}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-60"
@@ -214,6 +369,18 @@ function ApplicationDetail({ app, onBack, onDeleted, onRegenerated }: {
           </div>
         )}
 
+        {pdfError && (
+          <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            {pdfError}
+          </div>
+        )}
+
+        {saveError && (
+          <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            {saveError}
+          </div>
+        )}
+
         {/* Cover letter */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
@@ -221,11 +388,33 @@ function ApplicationDetail({ app, onBack, onDeleted, onRegenerated }: {
               <DocumentTextIcon className="w-4 h-4 text-blue-500" />
               {t('applications.coverLetter') || 'Lettre de motivation'}
             </h3>
-            <CopyButton text={app.generatedCoverLetter} label={t('applications.copy') || 'Copier'} copiedLabel={t('applications.copied') || 'Copié !'} />
+            <div className="flex items-center gap-1">
+              <CopyButton text={coverLetterDraft} label={t('applications.copy') || 'Copier'} copiedLabel={t('applications.copied') || 'Copié !'} />
+              {(letterDirty || letterSaved) && (
+                <button
+                  type="button"
+                  onClick={handleSaveLetter}
+                  disabled={isSavingLetter || !letterDirty}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                    letterSaved ? 'text-emerald-500' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-500/10'
+                  }`}
+                >
+                  {letterSaved ? <CheckCircleIcon className="w-3.5 h-3.5" /> : null}
+                  {letterSaved
+                    ? (t('applications.saved') || 'Enregistré !')
+                    : isSavingLetter
+                      ? (t('applications.saving') || 'Enregistrement...')
+                      : (t('applications.save') || 'Enregistrer')}
+                </button>
+              )}
+            </div>
           </div>
-          <div className="bg-surface2/60 border border-border rounded-2xl p-5 text-[13px] text-txt leading-relaxed whitespace-pre-wrap max-h-[420px] overflow-y-auto">
-            {app.generatedCoverLetter}
-          </div>
+          <textarea
+            value={coverLetterDraft}
+            onChange={(e) => setCoverLetterDraft(e.target.value)}
+            rows={14}
+            className="w-full bg-surface2/60 border border-border rounded-2xl p-5 text-[13px] text-txt leading-relaxed whitespace-pre-wrap resize-y outline-none transition-colors focus:border-blue-500/40 max-h-[420px]"
+          />
         </div>
 
         {/* Email */}
@@ -235,21 +424,110 @@ function ApplicationDetail({ app, onBack, onDeleted, onRegenerated }: {
               <EnvelopeIcon className="w-4 h-4 text-blue-500" />
               {t('applications.email') || "E-mail de candidature"}
             </h3>
-            <CopyButton
-              text={`${t('applications.emailSubject') || 'Objet'}: ${app.generatedEmailSubject}\n\n${app.generatedEmailBody}`}
-              label={t('applications.copy') || 'Copier'}
-              copiedLabel={t('applications.copied') || 'Copié !'}
-            />
+            <div className="flex items-center gap-1">
+              <CopyButton
+                text={`${t('applications.emailSubject') || 'Objet'}: ${emailSubjectDraft}\n\n${emailBodyDraft}`}
+                label={t('applications.copy') || 'Copier'}
+                copiedLabel={t('applications.copied') || 'Copié !'}
+              />
+              {(emailDirty || emailSaved) && (
+                <button
+                  type="button"
+                  onClick={handleSaveEmail}
+                  disabled={isSavingEmail || !emailDirty}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                    emailSaved ? 'text-emerald-500' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-500/10'
+                  }`}
+                >
+                  {emailSaved ? <CheckCircleIcon className="w-3.5 h-3.5" /> : null}
+                  {emailSaved
+                    ? (t('applications.saved') || 'Enregistré !')
+                    : isSavingEmail
+                      ? (t('applications.saving') || 'Enregistrement...')
+                      : (t('applications.save') || 'Enregistrer')}
+                </button>
+              )}
+            </div>
           </div>
           <div className="bg-surface2/60 border border-border rounded-2xl overflow-hidden">
-            <div className="px-5 py-3 border-b border-border text-[12px]">
-              <span className="text-txt-dim">{t('applications.emailSubject') || 'Objet'}: </span>
-              <span className="font-semibold text-txt">{app.generatedEmailSubject}</span>
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-border text-[12px]">
+              <span className="text-txt-dim shrink-0">{t('applications.emailSubject') || 'Objet'}: </span>
+              <input
+                value={emailSubjectDraft}
+                onChange={(e) => setEmailSubjectDraft(e.target.value)}
+                className="flex-1 bg-transparent font-semibold text-txt outline-none"
+              />
             </div>
-            <div className="p-5 text-[13px] text-txt leading-relaxed whitespace-pre-wrap">
-              {app.generatedEmailBody}
-            </div>
+            <textarea
+              value={emailBodyDraft}
+              onChange={(e) => setEmailBodyDraft(e.target.value)}
+              rows={8}
+              className="w-full p-5 text-[13px] text-txt leading-relaxed whitespace-pre-wrap resize-y outline-none bg-transparent"
+            />
           </div>
+        </div>
+
+        {/* Send email */}
+        <div className="mt-6 pt-6 border-t border-border">
+          <h3 className="text-[12px] font-bold text-txt-muted uppercase tracking-wider flex items-center gap-2 mb-3">
+            <PaperAirplaneIcon className="w-4 h-4 text-blue-500" />
+            {t('applications.sendEmailAction') || 'Envoyer par e-mail'}
+          </h3>
+
+          {app.emailSentAt && (
+            <div className="mb-4 inline-flex items-center gap-1.5 text-[12px] text-emerald-600 dark:text-emerald-400 font-semibold">
+              <CheckCircleIcon className="w-4 h-4" />
+              {t('applications.sentOn') || 'Envoyé le'} {fmtDate(app.emailSentAt, language)}
+            </div>
+          )}
+
+          <form onSubmit={handleSendEmail} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field
+                label={t('applications.recipientEmail') || "E-mail du destinataire"}
+                value={recipientEmail}
+                onChange={setRecipientEmail}
+                required
+                placeholder={t('applications.recipientEmailPlaceholder') || 'Ex. recrutement@entreprise.com'}
+              />
+              <div className="space-y-1.5">
+                <Field
+                  label={t('applications.senderEmail') || 'Votre e-mail (réponses)'}
+                  value={senderEmail}
+                  onChange={setSenderEmail}
+                  required
+                  placeholder={t('applications.senderEmailHint') || 'Votre adresse e-mail'}
+                />
+              </div>
+            </div>
+
+            {sendQuotaExceeded && (
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-start gap-3">
+                <LockClosedIcon className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <div className="text-[12px] text-amber-700 dark:text-amber-400">
+                  {t('applications.quotaExceeded') || 'Limite mensuelle atteinte.'}{' '}
+                  <Link href="/dashboard?view=pricing" className="font-bold underline">
+                    {t('applications.upgrade') || 'Passer à Pro'}
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {sendError && (
+              <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                {sendError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSending}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-60"
+            >
+              <PaperAirplaneIcon className={`w-4 h-4 ${isSending ? 'animate-pulse' : ''}`} />
+              {isSending ? (t('applications.sending') || 'Envoi en cours...') : (t('applications.sendEmailAction') || 'Envoyer par e-mail')}
+            </button>
+          </form>
         </div>
       </div>
     </motion.div>
@@ -480,8 +758,9 @@ export default function ApplicationsView({ drafts, subscription }: {
       <AnimatePresence mode="wait">
         {selected ? (
           <ApplicationDetail
-            key="detail"
+            key={selected.id}
             app={selected}
+            subscription={subscription}
             onBack={() => setSelected(null)}
             onDeleted={() => handleDeleted(selected.id)}
             onRegenerated={handleRegenerated}

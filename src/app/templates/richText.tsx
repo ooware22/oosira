@@ -4,6 +4,7 @@ import React from 'react';
  * Minimal inline markup for CV free-text fields (summary, descriptions).
  *
  * Grammar:
+ *   ***bold+italic***   → <strong><em>
  *   **bold**            → <strong>
  *   *italic*            → <em>
  *   "- " / "• " prefix  → <li> (consecutive lines group into one <ul>)
@@ -18,12 +19,18 @@ import React from 'react';
  * Plain text with none of these markers renders unchanged, so CVs saved before
  * the toolbar existed (including multi-line OCR imports) are unaffected apart
  * from their newlines finally being honoured.
+ *
+ * Marker matching runs across a whole paragraph (embedded `\n` included, only
+ * turned into `<br/>` at the very end) rather than per physical line — a
+ * bold/italic span that happens to contain a line break must still find its
+ * closing marker; splitting into lines first (as this used to do) stranded
+ * the opening and closing markers on different lines with neither matching.
  */
 
 export const BULLET_RE = /^\s*[-•]\s+/;
 
-/** Split a line into <strong>/<em>/text nodes. */
-function renderInline(line: string, keyPrefix: string): React.ReactNode[] {
+/** Split a (possibly multi-line) paragraph into <strong>/<em>/<br/>/text nodes. */
+function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   let buffer = '';
   let i = 0;
@@ -36,28 +43,38 @@ function renderInline(line: string, keyPrefix: string): React.ReactNode[] {
     }
   };
 
-  while (i < line.length) {
-    const ch = line[i];
+  while (i < text.length) {
+    const ch = text[i];
 
     // Escape: a backslash makes the next character literal.
-    if (ch === '\\' && i + 1 < line.length) {
-      buffer += line[i + 1];
+    if (ch === '\\' && i + 1 < text.length) {
+      buffer += text[i + 1];
       i += 2;
       continue;
     }
 
+    if (ch === '\n') {
+      flush();
+      nodes.push(<br key={`${keyPrefix}-br-${n++}`} />);
+      i += 1;
+      continue;
+    }
+
     if (ch === '*') {
-      const isBold = line[i + 1] === '*';
-      const marker = isBold ? '**' : '*';
-      const closeAt = findClosing(line, i + marker.length, marker);
+      const isTriple = text[i + 1] === '*' && text[i + 2] === '*';
+      const isBold = !isTriple && text[i + 1] === '*';
+      const marker = isTriple ? '***' : isBold ? '**' : '*';
+      const closeAt = findClosing(text, i + marker.length, marker);
       if (closeAt !== -1) {
         flush();
-        const inner = line.slice(i + marker.length, closeAt);
+        const inner = text.slice(i + marker.length, closeAt);
         const key = `${keyPrefix}-${n++}`;
         nodes.push(
-          isBold
-            ? <strong key={key}>{renderInline(inner, key)}</strong>
-            : <em key={key}>{renderInline(inner, key)}</em>,
+          isTriple
+            ? <strong key={key}><em>{renderInline(inner, key)}</em></strong>
+            : isBold
+              ? <strong key={key}>{renderInline(inner, key)}</strong>
+              : <em key={key}>{renderInline(inner, key)}</em>,
         );
         i = closeAt + marker.length;
         continue;
@@ -106,12 +123,7 @@ export function renderRichText(text: string | undefined): React.ReactNode {
     const k = `p-${key++}`;
     out.push(
       <p key={k} className="rt-p">
-        {paragraph.map((line, i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <br />}
-            {renderInline(line, `${k}-${i}`)}
-          </React.Fragment>
-        ))}
+        {renderInline(paragraph.join('\n'), k)}
       </p>,
     );
     paragraph = [];

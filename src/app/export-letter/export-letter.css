@@ -1,0 +1,24 @@
+.letter-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 14mm 0 15mm;
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+.letter-header {
+  page-break-inside: avoid;
+  margin-bottom: 2.5em;
+}
+
+.letter-body p {
+  orphans: 3;
+  widows: 3;
+  margin: 0 0 1em;
+  line-height: 1.6;
+}
+
+@page {
+  size: A4;
+  margin: 0 15mm;
+}

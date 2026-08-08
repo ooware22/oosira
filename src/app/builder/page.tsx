@@ -78,10 +78,8 @@ import {
 import { ongoingLabel } from "../templates/dateFormat";
 import { normalizeCandidate } from "../lib/cvData";
 import { mapLanguageLevel } from "../lib/languageLevel";
-import FormatToolbar, {
-  useFormatActions,
-  makeFormatKeyDown,
-} from "@/components/FormatToolbar";
+import FormatToolbar from "@/components/FormatToolbar";
+import RichTextField, { RichTextFieldHandle } from "@/components/RichTextField";
 import AutocompleteInput, {
   type RichSuggestion,
 } from "@/components/AutocompleteInput";
@@ -260,8 +258,11 @@ function TextArea({
   formatting?: boolean;
   formatLabels?: { bold: string; italic: string; bullet: string; hint?: string };
 }) {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const runFormat = useFormatActions(ref, value, onChange);
+  const { dir } = useLanguage();
+  const richRef = useRef<RichTextFieldHandle>(null);
+  const fieldClassName = `w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 font-body ${
+    isTemplateData ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
+  }`;
 
   return (
     <div className="space-y-1.5">
@@ -277,27 +278,31 @@ function TextArea({
         )}
         {formatting && (
           <div className="ms-auto">
-            <FormatToolbar
-              textareaRef={ref}
-              value={value}
-              onChange={onChange}
-              labels={formatLabels}
-            />
+            <FormatToolbar onFormat={(kind) => richRef.current?.runFormat(kind)} labels={formatLabels} />
           </div>
         )}
       </div>
-      <textarea
-        ref={ref}
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={formatting ? makeFormatKeyDown(runFormat) : undefined}
-        placeholder={placeholder}
-        rows={rows}
-        className={`w-full bg-surface border rounded-xl px-4 py-3 lg:py-3.5 text-sm lg:text-lg text-txt outline-none resize-y transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim font-body ${
-          isTemplateData ? 'border-amber-400/50 ring-1 ring-amber-400/30 bg-amber-500/5' : 'border-border'
-        }`}
-      />
+      {formatting ? (
+        <RichTextField
+          ref={richRef}
+          id={id}
+          dir={dir}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={`${fieldClassName} rich-text-field resize-y overflow-y-auto`}
+          style={{ minHeight: `${rows * 1.75}em` }}
+        />
+      ) : (
+        <textarea
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          rows={rows}
+          className={`${fieldClassName} resize-y placeholder:text-txt-dim`}
+        />
+      )}
     </div>
   );
 }

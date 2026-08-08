@@ -149,7 +149,9 @@ export async function apiFetch(
     }
 
     const message = data?.detail || data?.message || data?.email?.[0] || 'Request failed';
-    throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+    const apiError = new Error(typeof message === 'string' ? message : JSON.stringify(message)) as Error & { status?: number };
+    apiError.status = response.status;
+    throw apiError;
   }
 
   return data;

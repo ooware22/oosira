@@ -223,3 +223,14 @@
   0% { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
 }
+
+/* RichTextField (builder free-text fields with live bold/italic/bullets) */
+.rich-text-field:empty:before {
+  content: attr(data-placeholder);
+  color: var(--txt-dim);
+  pointer-events: none;
+}
+.rich-text-field p { margin: 0 0 0.75em; }
+.rich-text-field p:last-child { margin-bottom: 0; }
+.rich-text-field ul { margin: 0 0 0.75em; padding-inline-start: 1.4em; list-style: disc; }
+.rich-text-field li { margin: 0.15em 0; }

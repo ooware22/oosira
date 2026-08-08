@@ -12,6 +12,9 @@ export interface SubscriptionStatus {
   coverLettersThisMonth: number;
   coverLetterLimit: number;
   coverLettersRemaining: number | null;
+  applicationEmailsSentThisMonth: number;
+  applicationEmailLimit: number;
+  applicationEmailsRemaining: number | null;
   subscriptionActiveUntil: string | null;
 }
 
@@ -83,6 +86,8 @@ export function useSubscription() {
   const canOcr = isPro || !(subscription?.ocrTrialUsed ?? false);
   const canGenerateApplication =
     isPro || (subscription?.coverLettersRemaining ?? 1) > 0;
+  const canSendApplicationEmail =
+    isPro || (subscription?.applicationEmailsRemaining ?? 1) > 0;
 
   return {
     subscription,
@@ -93,6 +98,7 @@ export function useSubscription() {
     canDownload,
     canOcr,
     canGenerateApplication,
+    canSendApplicationEmail,
   };
 }
 
