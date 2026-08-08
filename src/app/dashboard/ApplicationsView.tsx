@@ -32,6 +32,7 @@ import {
   ChevronLeftIcon,
   BuildingOffice2Icon,
   ExclamationTriangleIcon,
+  LanguageIcon,
 } from '@heroicons/react/24/outline';
 
 interface JobApplication {
