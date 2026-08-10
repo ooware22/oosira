@@ -37,6 +37,7 @@ export default function AdminLoginPage() {
         id: data.id, name: data.name, email: data.email,
         isStaff: data.isStaff, isSuperuser: data.isSuperuser,
       }));
+      document.cookie = 'oosira_session=1; path=/; max-age=604800; SameSite=Lax';
       router.push('/admin/dashboard');
     } catch {
       setError('Network error. Is the backend running?');

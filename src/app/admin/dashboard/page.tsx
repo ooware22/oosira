@@ -85,6 +85,7 @@ export default function AdminDashboardPage() {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminRefreshToken');
     localStorage.removeItem('adminUser');
+    document.cookie = 'oosira_session=; path=/; max-age=0; SameSite=Lax';
     router.push('/admin');
   };
 

@@ -9,7 +9,7 @@ import type { NextRequest } from 'next/server';
  * from accessing protected HTML even if JS is disabled or intercepted.
  */
 
-const PROTECTED_ROUTES = ['/admin', '/dashboard'];
+const PROTECTED_ROUTES = ['/admin/dashboard', '/dashboard'];
 const AUTH_COOKIE_NAME = 'oosira_session'; // adjust to your actual cookie name
 const LOGIN_URL = '/login';
 
