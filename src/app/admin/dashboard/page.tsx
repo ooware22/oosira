@@ -9,10 +9,12 @@ import {
   UsersIcon, ChartBarIcon, ArrowRightOnRectangleIcon,
   MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, XMarkIcon,
   DocumentTextIcon, ArrowDownTrayIcon, SparklesIcon,
-  Bars3Icon, CheckCircleIcon, ShieldCheckIcon, CurrencyDollarIcon, PlusIcon
+  Bars3Icon, CheckCircleIcon, ShieldCheckIcon, CurrencyDollarIcon, PlusIcon,
+  CpuChipIcon
 } from '@heroicons/react/24/outline';
+import AiModelsPanel from '@/components/admin/AiModelsPanel';
 
-type AdminView = 'overview' | 'users' | 'pricing';
+type AdminView = 'overview' | 'users' | 'pricing' | 'ai';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -148,6 +150,7 @@ export default function AdminDashboardPage() {
     { id: 'overview', label: 'Overview', icon: ChartBarIcon },
     { id: 'users', label: 'Users', icon: UsersIcon },
     { id: 'pricing', label: 'Pricing Plans', icon: CurrencyDollarIcon },
+    { id: 'ai', label: 'AI Models', icon: CpuChipIcon },
   ];
 
   return (
@@ -256,7 +259,10 @@ export default function AdminDashboardPage() {
               <Bars3Icon className="w-5 h-5" />
             </button>
             <h2 className="text-[15px] font-bold text-txt">
-              {activeView === 'overview' ? 'Dashboard Overview' : activeView === 'users' ? 'User Management' : 'Pricing Plans'}
+              {activeView === 'overview' ? 'Dashboard Overview'
+                : activeView === 'users' ? 'User Management'
+                : activeView === 'pricing' ? 'Pricing Plans'
+                : 'AI Models'}
             </h2>
           </div>
           <ThemeToggle />
@@ -472,6 +478,11 @@ export default function AdminDashboardPage() {
                   ))}
                 </div>
               </motion.div>
+            )}
+
+            {/* ── AI MODELS ── */}
+            {activeView === 'ai' && (
+              <AiModelsPanel key="ai" apiBase={API_BASE} getToken={getToken} />
             )}
           </AnimatePresence>
         </div>
