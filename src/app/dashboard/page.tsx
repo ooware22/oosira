@@ -7,7 +7,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { useAuth, DraftCV } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
-import { Suspense, useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import type { FollowUpNotification } from '@/app/lib/applicationTypes';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchDashboardStats } from '@/store/slices/statsSlice';
@@ -611,6 +612,7 @@ function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [followUps, setFollowUps] = useState<FollowUpNotification[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [dismissedNotifs, setDismissedNotifs] = useState<string[]>([]);
   const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
@@ -642,6 +644,46 @@ function DashboardContent() {
     const updated = [...dismissedNotifs, id];
     setDismissedNotifs(updated);
     localStorage.setItem('oosira_dismissed_notifs', JSON.stringify(updated));
+  };
+
+  // Due follow-ups are derived server-side from the applications themselves,
+  // so there is nothing to schedule and nothing to keep in sync.
+  const loadFollowUps = useCallback(async () => {
+    try {
+      const data = await apiFetch('/applications/notifications/');
+      setFollowUps(data);
+    } catch {
+      // A quiet bell is the right failure mode here — an error banner over
+      // the whole dashboard because a reminder list didn't load would be
+      // worse than showing no reminders.
+      setFollowUps([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) loadFollowUps();
+  }, [isAuthenticated, loadFollowUps]);
+
+  /** Snooze or dismiss a due follow-up straight from the bell. */
+  const actOnFollowUp = async (e: React.MouseEvent, id: string, body: Record<string, unknown>) => {
+    e.stopPropagation();
+    // Drop it from the list immediately: the row is gone either way, and
+    // waiting on the round trip makes the click feel broken.
+    setFollowUps((prev) => prev.filter((f) => f.id !== id));
+    try {
+      await apiFetch(`/applications/${id}/follow-up/dismiss/`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+    } catch {
+      loadFollowUps(); // put it back if the server disagreed
+    }
+  };
+
+  const openApplication = (id: string) => {
+    setNotificationsOpen(false);
+    setActiveView('applications');
+    router.replace(`/dashboard?view=applications&app=${id}`);
   };
   
   const dispatch = useDispatch<AppDispatch>();
@@ -704,29 +746,17 @@ function DashboardContent() {
   });
   const completedCount = drafts.filter((d) => d.status === "completed").length;
 
-  let activeNotifications = drafts.filter(draft => {
+  // CV update reminders. No placeholder entries: the bell used to invent two
+  // fake applications ("Software Engineer - Google") whenever it was empty,
+  // which read as real data to anyone who hadn't written them.
+  const cvReminders = drafts.filter(draft => {
     if (!draft.reminderDate || dismissedNotifs.includes(draft.id)) return false;
     const reminderTime = new Date(draft.reminderDate).getTime();
     const now = new Date().getTime();
     return reminderTime - now <= 3 * 24 * 60 * 60 * 1000;
   });
 
-  // Populate with examples if there are no real notifications
-  if (activeNotifications.length === 0) {
-    const dummy1 = {
-      id: 'dummy-1',
-      title: 'Software Engineer - Google',
-      reminderDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    } as any;
-    const dummy2 = {
-      id: 'dummy-2',
-      title: 'Marketing Manager - Remote',
-      reminderDate: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-    } as any;
-    
-    if (!dismissedNotifs.includes('dummy-1')) activeNotifications.push(dummy1);
-    if (!dismissedNotifs.includes('dummy-2')) activeNotifications.push(dummy2);
-  }
+  const notificationCount = cvReminders.length + followUps.length;
   const draftCount = drafts.filter((d) => d.status === 'draft').length;
 
   // ── Sidebar Nav Items ──
@@ -937,7 +967,7 @@ function DashboardContent() {
                 className="relative p-2 rounded-xl hover:bg-surface2 text-txt-muted transition-colors"
               >
                 <BellIcon className="w-5 h-5" />
-                {activeNotifications.length > 0 && (
+                {notificationCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-bg" />
                 )}
               </button>
@@ -954,45 +984,94 @@ function DashboardContent() {
                     <div className="p-4 border-b border-border flex items-center justify-between">
                       <h3 className="font-bold text-txt">{t('dashboard.notificationsLabel') || "Notifications"}</h3>
                       <span className="text-[11px] font-medium bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full">
-                        {activeNotifications.length}
+                        {notificationCount}
                       </span>
                     </div>
                     <div className="max-h-80 overflow-y-auto p-2">
-                      {activeNotifications.length === 0 ? (
+                      {notificationCount === 0 ? (
                         <div className="text-center py-8 text-txt-dim text-sm">
                           {t('dashboard.noNotifications') || "No new notifications."}
                         </div>
                       ) : (
-                        activeNotifications.map(notification => (
-                          <div 
-                            key={notification.id}
-                            className="group relative p-3 mb-1 bg-surface2/50 hover:bg-surface2 rounded-xl transition-colors cursor-pointer flex gap-3"
-                            onClick={() => {
-                              router.push('/builder?id=' + notification.id);
-                              setNotificationsOpen(false);
-                            }}
-                          >
-                            <div className="w-10 h-10 shrink-0 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
-                              <BellIcon className="w-5 h-5" />
-                            </div>
-                            <div className="pr-6">
-                              <p className="text-sm text-txt font-medium leading-tight mb-1">
-                                {t('dashboard.updateReminderFor') || "Time to update your CV:"} <span className="font-bold text-blue-500">{notification.title}</span>
-                              </p>
-                              <p className="text-[11px] text-txt-muted">
-                                {t('dashboard.reminderDate') || "Reminder date:"} {new Date(notification.reminderDate!).toLocaleDateString()}
-                              </p>
-                            </div>
-                            
-                            <button
-                              onClick={(e) => handleDismissNotif(e, notification.id)}
-                              className="absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 text-txt-muted transition-all"
-                              title="Dismiss"
+                        <>
+                          {/* Applications still waiting for an answer */}
+                          {followUps.map(followUp => (
+                            <div
+                              key={followUp.id}
+                              className="group relative p-3 mb-1 bg-surface2/50 hover:bg-surface2 rounded-xl transition-colors cursor-pointer flex gap-3"
+                              onClick={() => openApplication(followUp.id)}
                             >
-                              <XMarkIcon className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))
+                              <div className="w-10 h-10 shrink-0 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+                                <BriefcaseIcon className="w-5 h-5" />
+                              </div>
+                              <div className="min-w-0 flex-1 pr-6">
+                                <p className="text-sm text-txt font-medium leading-tight mb-1">
+                                  {t('dashboard.followUpPending') || "Toujours sans réponse :"}{' '}
+                                  <span className="font-bold text-blue-500">{followUp.jobTitle}</span>
+                                  <span className="text-txt-muted"> · {followUp.companyName}</span>
+                                </p>
+                                <p className="text-[11px] text-txt-muted">
+                                  {followUp.daysSinceSent !== null
+                                    ? (t('dashboard.sentDaysAgo') || "Envoyée il y a {n} jours").replace('{n}', String(followUp.daysSinceSent))
+                                    : (t('dashboard.notSentYet') || "Pas encore envoyée")}
+                                </p>
+                                <div className="flex flex-wrap gap-1.5 mt-2">
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); openApplication(followUp.id); }}
+                                    className="px-2 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-[11px] font-bold hover:bg-blue-500/20 transition-colors"
+                                  >
+                                    {t('dashboard.followUpAction') || "Relancer"}
+                                  </button>
+                                  <button
+                                    onClick={(e) => actOnFollowUp(e, followUp.id, { snoozeDays: 7 })}
+                                    className="px-2 py-1 rounded-lg text-txt-muted text-[11px] font-bold hover:bg-surface2 transition-colors"
+                                  >
+                                    {t('dashboard.followUpSnooze') || "Reporter 7 j"}
+                                  </button>
+                                </div>
+                              </div>
+                              <button
+                                onClick={(e) => actOnFollowUp(e, followUp.id, {})}
+                                className="absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 text-txt-muted transition-all"
+                                title={t('dashboard.dismiss') || "Dismiss"}
+                              >
+                                <XMarkIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+
+                          {/* CV update reminders */}
+                          {cvReminders.map(notification => (
+                            <div
+                              key={notification.id}
+                              className="group relative p-3 mb-1 bg-surface2/50 hover:bg-surface2 rounded-xl transition-colors cursor-pointer flex gap-3"
+                              onClick={() => {
+                                router.push('/builder?id=' + notification.id);
+                                setNotificationsOpen(false);
+                              }}
+                            >
+                              <div className="w-10 h-10 shrink-0 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
+                                <BellIcon className="w-5 h-5" />
+                              </div>
+                              <div className="pr-6">
+                                <p className="text-sm text-txt font-medium leading-tight mb-1">
+                                  {t('dashboard.updateReminderFor') || "Time to update your CV:"} <span className="font-bold text-blue-500">{notification.title}</span>
+                                </p>
+                                <p className="text-[11px] text-txt-muted">
+                                  {t('dashboard.reminderDate') || "Reminder date:"} {new Date(notification.reminderDate!).toLocaleDateString()}
+                                </p>
+                              </div>
+
+                              <button
+                                onClick={(e) => handleDismissNotif(e, notification.id)}
+                                className="absolute top-2 right-2 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500 text-txt-muted transition-all"
+                                title={t('dashboard.dismiss') || "Dismiss"}
+                              >
+                                <XMarkIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </>
                       )}
                     </div>
                   </motion.div>
@@ -1136,7 +1215,12 @@ function DashboardContent() {
 
             {/* ═════════ APPLICATIONS VIEW ═════════ */}
             {activeView === 'applications' && (
-              <ApplicationsView key="applications" drafts={drafts} subscription={sub} />
+              <ApplicationsView
+                key="applications"
+                drafts={drafts}
+                subscription={sub}
+                initialAppId={searchParams?.get('app') || null}
+              />
             )}
 
             {/* ═════════ ANALYTICS VIEW ═════════ */}

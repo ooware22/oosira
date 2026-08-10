@@ -8,11 +8,16 @@ import FormatToolbar from '@/components/FormatToolbar';
 import RichTextField, { RichTextFieldHandle } from '@/components/RichTextField';
 import SpellCheckModal from '@/components/SpellCheckModal';
 import PaginatedCV from '@/components/PaginatedCV';
+import SendApplicationWizard from '@/components/SendApplicationWizard';
+import {
+  APPLICATION_STATUSES, ApplicationStatus, StatusPill, StatusSelect, STATUS_LABEL_KEY,
+} from '@/components/ApplicationStatus';
 import { getLayoutBuilder } from '@/app/templates';
 import { CVStyleConfig, styleToCSSVars } from '@/app/templates/styleConfig';
 import { normalizeCandidate } from '@/app/lib/cvData';
+import { JobApplication } from '@/app/lib/applicationTypes';
 import { useLanguage } from '@/app/i18n/LanguageContext';
-import { DraftCV, useAuth } from '@/app/auth/AuthContext';
+import { DraftCV } from '@/app/auth/AuthContext';
 import { useSubscription, invalidateSubscriptionCache } from '@/app/hooks/useSubscription';
 import {
   BriefcaseIcon,
@@ -30,34 +35,38 @@ import {
   XMarkIcon,
   LockClosedIcon,
   ChevronLeftIcon,
+  ChevronDownIcon,
   BuildingOffice2Icon,
   ExclamationTriangleIcon,
   LanguageIcon,
+  ClockIcon,
+  CalendarDaysIcon,
+  BellAlertIcon,
 } from '@heroicons/react/24/outline';
-
-interface JobApplication {
-  id: string;
-  cvId: string;
-  cvTitle: string;
-  jobTitle: string;
-  companyName: string;
-  jobOfferText: string;
-  language: string;
-  generatedCoverLetter: string;
-  generatedEmailSubject: string;
-  generatedEmailBody: string;
-  recipientEmail: string;
-  senderEmail: string;
-  emailSentAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
 
 const LANGUAGES: { id: string; label: string }[] = [
   { id: 'fr', label: 'Français' },
   { id: 'en', label: 'English' },
   { id: 'ar', label: 'العربية' },
 ];
+
+/** Timeline verbs, keyed by the backend's ApplicationEvent.kind values. */
+const EVENT_LABEL_KEY: Record<string, string> = {
+  created: 'applications.eventCreated',
+  regenerated: 'applications.eventRegenerated',
+  edited: 'applications.eventEdited',
+  sent: 'applications.eventSent',
+  scheduled: 'applications.eventScheduled',
+  schedule_cancelled: 'applications.eventScheduleCancelled',
+  pdf_downloaded: 'applications.eventPdfDownloaded',
+  follow_up_set: 'applications.eventFollowUpSet',
+  follow_up_cleared: 'applications.eventFollowUpCleared',
+  follow_up_snoozed: 'applications.eventFollowUpSnoozed',
+  follow_up_dismissed: 'applications.eventFollowUpDismissed',
+  relance_generated: 'applications.eventRelanceGenerated',
+  relance_sent: 'applications.eventRelanceSent',
+  status_changed: 'applications.eventStatusChanged',
+};
 
 function fmtDate(iso: string, locale: string) {
   try {
@@ -67,20 +76,44 @@ function fmtDate(iso: string, locale: string) {
   }
 }
 
-/** Same shape Django's validate_email accepts, kept deliberately simple: it
- *  catches the typos that matter (missing @, missing domain, no TLD, spaces)
- *  without rejecting valid-but-unusual addresses. The server validates too. */
-const EMAIL_RE = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
-
-function isValidEmail(value: string): boolean {
-  return EMAIL_RE.test(value.trim());
+function fmtDateTime(iso: string, locale: string) {
+  try {
+    return new Date(iso).toLocaleString(locale, {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+  } catch {
+    return iso;
+  }
 }
 
-/** Mirrors the backend's slugify_filename closely enough for a prefilled
- *  default — the server sanitizes whatever is actually submitted. */
-function slugFilename(text: string): string {
-  return (text || 'Document').trim().replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'Document';
+/**
+ * The variable part of a timeline line, built from the event's structured
+ * `detail`. Kept separate from the verb so both stay translatable: the server
+ * never sends a rendered sentence.
+ */
+function eventDetailSuffix(
+  event: { kind: string; detail: Record<string, unknown> },
+  t: (key: string) => string,
+): string {
+  const d = event.detail || {};
+  switch (event.kind) {
+    case 'sent':
+    case 'relance_sent':
+    case 'scheduled':
+      return d.to ? `→ ${String(d.to)}` : '';
+    case 'status_changed':
+      return d.toStatus
+        ? `→ ${t(STATUS_LABEL_KEY[d.toStatus as ApplicationStatus]) || String(d.toStatus)}`
+        : '';
+    case 'follow_up_snoozed':
+      return d.days ? `(+${String(d.days)} j)` : '';
+    default:
+      return '';
+  }
 }
+
+// Email validation and attachment-name slugging now live with the code that
+// needs them: src/app/lib/preSendChecks.ts and SendApplicationWizard.
 
 // ── Small local field primitives (mirroring FormField's visual language,
 //    which is private to dashboard/page.tsx and can't be imported here) ──
@@ -246,7 +279,23 @@ function ApplicationCard({ app, onOpen, onPreviewCv, onDelete, delay }: {
           <TrashIcon className="w-4 h-4" />
         </button>
       </div>
-      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px] text-txt-dim">
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <StatusPill status={app.status} label={t(STATUS_LABEL_KEY[app.status]) || app.status} />
+        {app.scheduledSendAt && (
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
+            <ClockIcon className="w-3 h-3" />
+            {fmtDate(app.scheduledSendAt, language)}
+          </span>
+        )}
+        {app.followUpAt && !app.followUpHandledAt && (
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
+            <BellAlertIcon className="w-3 h-3" />
+            {fmtDate(app.followUpAt, language)}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 pt-3 border-t border-border/60 flex items-center justify-between text-[11px] text-txt-dim">
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onPreviewCv(); }}
@@ -256,15 +305,7 @@ function ApplicationCard({ app, onOpen, onPreviewCv, onDelete, delay }: {
           <DocumentTextIcon className="w-3 h-3 shrink-0" />
           {app.cvTitle}
         </button>
-        <span className="flex items-center gap-2">
-          {app.emailSentAt && (
-            <span className="inline-flex items-center gap-1 text-emerald-500 font-semibold">
-              <CheckCircleIcon className="w-3 h-3" />
-              {t('applications.sentBadge') || 'Envoyé'}
-            </span>
-          )}
-          {fmtDate(app.updatedAt, language)}
-        </span>
+        <span>{fmtDate(app.updatedAt, language)}</span>
       </div>
     </motion.div>
   );
@@ -280,23 +321,16 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
   onPreviewCv: () => void;
 }) {
   const { t, language } = useLanguage();
-  const { user } = useAuth();
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
 
-  const [recipientEmail, setRecipientEmail] = useState(app.recipientEmail || '');
-  const [senderEmail, setSenderEmail] = useState(app.senderEmail || user?.email || '');
-  const [letterFilename, setLetterFilename] = useState(`Lettre_de_motivation_${slugFilename(app.companyName)}.pdf`);
-  const [cvFilename, setCvFilename] = useState(`CV_${slugFilename(app.cvTitle)}.pdf`);
-  const [sendCopyToMe, setSendCopyToMe] = useState(true);
-  const [recipientTouched, setRecipientTouched] = useState(false);
-  const [senderTouched, setSenderTouched] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [sendError, setSendError] = useState<string | null>(null);
-  const [sendQuotaExceeded, setSendQuotaExceeded] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
+  const [lifecycleBusy, setLifecycleBusy] = useState(false);
+  const [lifecycleError, setLifecycleError] = useState<string | null>(null);
+  const [showTimeline, setShowTimeline] = useState(false);
 
   const [coverLetterDraft, setCoverLetterDraft] = useState(app.generatedCoverLetter);
   const [emailSubjectDraft, setEmailSubjectDraft] = useState(app.generatedEmailSubject);
@@ -454,48 +488,86 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
     }
   };
 
-  const recipientError = recipientTouched && !isValidEmail(recipientEmail)
-    ? (t('applications.invalidRecipientEmail') || 'Adresse e-mail invalide.')
-    : null;
-  const senderError = senderTouched && !isValidEmail(senderEmail)
-    ? (t('applications.invalidSenderEmail') || 'Adresse e-mail invalide.')
-    : null;
-  const canSend = isValidEmail(recipientEmail) && isValidEmail(senderEmail);
-
-  const handleSendEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isSending) return;
-    // Surface any bad address instead of firing a request that will 400.
-    setRecipientTouched(true);
-    setSenderTouched(true);
-    if (!canSend) return;
-    setIsSending(true);
-    setSendError(null);
-    setSendQuotaExceeded(false);
+  /** One wrapper for the small life-cycle POSTs — they all take no body worth
+   *  speaking of, return the updated application, and share error handling. */
+  const lifecycleCall = async (path: string, body?: Record<string, unknown>) => {
+    setLifecycleBusy(true);
+    setLifecycleError(null);
     try {
-      await flushPendingEdits();
-      const updated = await apiFetch(`/applications/${app.id}/send-email/`, {
+      const updated = await apiFetch(`/applications/${app.id}/${path}`, {
         method: 'POST',
-        body: JSON.stringify({
-          recipientEmail,
-          senderEmail,
-          coverLetterFilename: letterFilename,
-          cvFilename,
-          sendCopyToMe,
-        }),
+        body: JSON.stringify(body || {}),
       });
-      subscription.refresh();
       onRegenerated(updated);
+      return updated as JobApplication;
     } catch (err: any) {
-      if (err.status === 402) {
-        setSendQuotaExceeded(true);
-      } else {
-        setSendError(err.message || t('applications.sendError') || 'Failed to send the email.');
-      }
+      setLifecycleError(err.message || 'Action failed');
+      return null;
     } finally {
-      setIsSending(false);
+      setLifecycleBusy(false);
     }
   };
+
+  const handleStatusChange = (next: ApplicationStatus) => lifecycleCall('status/', { status: next });
+
+  const handleClearFollowUp = () => lifecycleCall('follow-up/', { followUpAt: null });
+
+  const handleSnooze = (days: number) => lifecycleCall('follow-up/dismiss/', { snoozeDays: days });
+
+  const handleDismissFollowUp = () => lifecycleCall('follow-up/dismiss/');
+
+  const handleCancelSchedule = async () => {
+    const updated = await lifecycleCall('cancel-schedule/');
+    if (updated) {
+      // The quota was given back, so the counter the header shows is stale.
+      invalidateSubscriptionCache();
+      subscription.refresh();
+    }
+  };
+
+  const handleGenerateRelance = async () => {
+    const updated = await lifecycleCall('relance/');
+    if (updated) subscription.refresh();
+  };
+
+  const handleSendRelance = async () => {
+    const updated = await lifecycleCall('send-email/', { kind: 'followUp' });
+    if (updated) {
+      invalidateSubscriptionCache();
+      subscription.refresh();
+    }
+  };
+
+  // Must mirror the server's notification query exactly (see
+  // ApplicationNotificationsView): a reminder is only "due" for an
+  // application that is actually waiting on a reply. Without the status
+  // check, a draft that was never sent showed "this application is still
+  // waiting for an answer" — which nobody was ever waiting to answer.
+  const followUpDue = Boolean(
+    app.followUpAt
+    && !app.followUpHandledAt
+    && new Date(app.followUpAt) <= new Date()
+    && (app.status === 'sent' || app.status === 'followed_up'),
+  );
+
+  /**
+   * A retrying send is resolved by the background worker, which has no way to
+   * tell this page. Without polling, "nous réessayons automatiquement" stays
+   * on screen forever — long after the mail was delivered or gave up — and
+   * the only way out is a manual reload.
+   */
+  useEffect(() => {
+    if (app.sendState !== 'retrying') return;
+    const timer = window.setInterval(async () => {
+      try {
+        const fresh = await apiFetch(`/applications/${app.id}/`);
+        if (fresh.sendState !== 'retrying') onRegenerated(fresh);
+      } catch {
+        /* transient — the next tick tries again */
+      }
+    }, 15_000);
+    return () => window.clearInterval(timer);
+  }, [app.sendState, app.id, onRegenerated]);
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -510,7 +582,15 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
       <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-3xl p-6 sm:p-8 mb-6">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-bold text-txt">{app.jobTitle}</h2>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-xl font-bold text-txt">{app.jobTitle}</h2>
+              <StatusSelect
+                status={app.status}
+                labelFor={(s) => t(STATUS_LABEL_KEY[s]) || s}
+                onChange={handleStatusChange}
+                disabled={lifecycleBusy}
+              />
+            </div>
             <p className="text-[13px] text-txt-muted flex items-center gap-1.5 mt-1">
               <BuildingOffice2Icon className="w-4 h-4" /> {app.companyName}
               <span className="text-txt-dim">·</span>
@@ -524,7 +604,26 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
               </button>
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* No longer disabled while a send is scheduled: the attachments
+                are rendered when the mail goes out, so the application stays
+                editable right up to the moment it leaves. */}
+            <button
+              onClick={() => setShowWizard(true)}
+              disabled={app.sendState === 'scheduled' || app.sendState === 'retrying'}
+              title={app.sendState === 'scheduled'
+                ? (t('applications.cancelScheduleFirst') || 'Annulez l’envoi programmé pour en programmer un autre.')
+                : undefined}
+              className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white font-bold text-[12px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 overflow-hidden disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 z-0" />
+              <span className="relative z-10 flex items-center gap-2">
+                <PaperAirplaneIcon className="w-4 h-4" />
+                {app.emailSentAt
+                  ? (t('applications.sendAgain') || 'Renvoyer')
+                  : (t('applications.sendEmailAction') || 'Envoyer par e-mail')}
+              </span>
+            </button>
             <button
               onClick={() => setShowSpellCheck(true)}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors"
@@ -573,6 +672,180 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
         {saveError && (
           <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
             {saveError}
+          </div>
+        )}
+
+        {lifecycleError && (
+          <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            {lifecycleError}
+          </div>
+        )}
+
+        {/* Scheduled send. Editing stays open — the PDFs are rendered when the
+            mail actually goes out, so late changes are included. */}
+        {app.scheduledSendAt && (
+          <div className="mb-6 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              <ClockIcon className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <div className="text-[12px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                <span className="font-bold">
+                  {t('applications.scheduledBanner') || 'Envoi programmé'}
+                </span>{' '}
+                — {fmtDateTime(app.scheduledSendAt, language)}
+                <p className="mt-1 opacity-90">
+                  {t('applications.scheduleLiveHint')
+                    || 'Vous pouvez continuer à modifier votre lettre : les PDF sont générés au moment de l’envoi.'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleCancelSchedule}
+              disabled={lifecycleBusy}
+              className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 text-[11px] font-bold hover:bg-amber-500/25 transition-colors disabled:opacity-60"
+            >
+              {t('applications.cancelSchedule') || 'Annuler l’envoi'}
+            </button>
+          </div>
+        )}
+
+        {/* A send still being retried in the background. */}
+        {app.sendState === 'retrying' && (
+          <div className="mb-6 rounded-xl bg-blue-500/10 border border-blue-500/20 px-4 py-3.5 flex items-start gap-3">
+            <ArrowPathIcon className="w-4 h-4 text-blue-500 shrink-0 mt-0.5 animate-spin" />
+            <p className="text-[12px] text-blue-700 dark:text-blue-400 leading-relaxed">
+              {t('applications.sendRetrying')
+                || 'L’envoi n’a pas abouti du premier coup. Nous réessayons automatiquement.'}
+            </p>
+          </div>
+        )}
+
+        {/* A send that gave up. The quota was refunded, so retrying costs the
+            user nothing they haven't already got back. */}
+        {app.sendState === 'failed' && (
+          <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              <ExclamationTriangleIcon className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+              <div className="text-[12px] text-red-600 dark:text-red-400 leading-relaxed min-w-0">
+                <span className="font-bold">
+                  {t('applications.sendFailedTitle') || 'L’envoi a échoué'}
+                </span>
+                {app.sendError && <p className="mt-1 opacity-90 break-words">{app.sendError}</p>}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowWizard(true)}
+              className="shrink-0 px-3 py-1.5 rounded-lg bg-red-500/15 text-red-700 dark:text-red-300 text-[11px] font-bold hover:bg-red-500/25 transition-colors"
+            >
+              {t('applications.retry') || 'Réessayer'}
+            </button>
+          </div>
+        )}
+
+        {/* Sent confirmation */}
+        {app.emailSentAt && !app.scheduledSendAt && (
+          <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px]">
+            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+              <CheckCircleIcon className="w-4 h-4" />
+              {t('applications.sentOn') || 'Envoyé le'} {fmtDate(app.emailSentAt, language)}
+            </span>
+            {app.recipientEmail && <span className="text-txt-muted truncate">{app.recipientEmail}</span>}
+            {app.followUpSentAt && (
+              <span className="text-amber-600 dark:text-amber-400">
+                {t('applications.relanceSentOn') || 'Relancé le'} {fmtDate(app.followUpSentAt, language)}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Follow-up reminder */}
+        {app.followUpAt && !app.followUpHandledAt && (
+          <div className={`mb-6 rounded-xl px-4 py-3.5 border ${
+            followUpDue
+              ? 'bg-blue-500/10 border-blue-500/25'
+              : 'bg-surface2/60 border-border'
+          }`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-start gap-3 min-w-0">
+                {followUpDue
+                  ? <BellAlertIcon className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                  : <CalendarDaysIcon className="w-4 h-4 text-txt-muted shrink-0 mt-0.5" />}
+                <div className="text-[12px] leading-relaxed min-w-0">
+                  <span className={`font-bold ${followUpDue ? 'text-blue-600 dark:text-blue-400' : 'text-txt'}`}>
+                    {followUpDue
+                      ? (t('applications.followUpDueTitle') || 'Cette candidature attend toujours une réponse')
+                      : (t('applications.followUpPlanned') || 'Suivi prévu')}
+                  </span>{' '}
+                  <span className="text-txt-muted">— {fmtDateTime(app.followUpAt, language)}</span>
+                  {app.followUpNote && <p className="text-txt-dim mt-0.5 truncate">{app.followUpNote}</p>}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {followUpDue && (
+                  <button
+                    onClick={() => handleSnooze(7)}
+                    disabled={lifecycleBusy}
+                    className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-txt-muted hover:bg-surface2 transition-colors disabled:opacity-60"
+                  >
+                    {t('applications.snooze7') || 'Reporter 7 j'}
+                  </button>
+                )}
+                <button
+                  onClick={followUpDue ? handleDismissFollowUp : handleClearFollowUp}
+                  disabled={lifecycleBusy}
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-bold text-txt-muted hover:bg-surface2 transition-colors disabled:opacity-60"
+                >
+                  {followUpDue
+                    ? (t('applications.dismiss') || 'Ignorer')
+                    : (t('applications.cancelFollowUp') || 'Annuler le rappel')}
+                </button>
+              </div>
+            </div>
+
+            {/* The relance: the actual answer to "do you want to resend it?" */}
+            {followUpDue && (
+              <div className="mt-3 pt-3 border-t border-blue-500/20">
+                {app.followUpBody ? (
+                  <>
+                    <p className="text-[11px] font-bold text-txt-muted uppercase tracking-wider mb-2">
+                      {t('applications.relancePreview') || 'Relance proposée'}
+                    </p>
+                    <div className="rounded-xl bg-surface2/70 border border-border p-4 mb-3">
+                      <p className="text-[12px] font-semibold text-txt mb-2">{app.followUpSubject}</p>
+                      <p className="text-[12px] text-txt-muted whitespace-pre-wrap leading-relaxed line-clamp-6">
+                        {app.followUpBody}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={handleSendRelance}
+                        disabled={lifecycleBusy}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[11px] font-bold hover:bg-blue-500/25 transition-colors disabled:opacity-60"
+                      >
+                        <PaperAirplaneIcon className="w-3.5 h-3.5" />
+                        {t('applications.sendRelance') || 'Envoyer la relance'}
+                      </button>
+                      <button
+                        onClick={handleGenerateRelance}
+                        disabled={lifecycleBusy}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-bold text-txt-muted hover:bg-surface2 transition-colors disabled:opacity-60"
+                      >
+                        <ArrowPathIcon className={`w-3.5 h-3.5 ${lifecycleBusy ? 'animate-spin' : ''}`} />
+                        {t('applications.regenerate') || 'Régénérer'}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <button
+                    onClick={handleGenerateRelance}
+                    disabled={lifecycleBusy}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[11px] font-bold hover:bg-blue-500/25 transition-colors disabled:opacity-60"
+                  >
+                    <SparklesIcon className={`w-3.5 h-3.5 ${lifecycleBusy ? 'animate-pulse' : ''}`} />
+                    {t('applications.generateRelance') || 'Rédiger une relance'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -666,101 +939,72 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
           </div>
         </div>
 
-        {/* Send email */}
-        <div className="mt-6 pt-6 border-t border-border">
-          <h3 className="text-[12px] font-bold text-txt-muted uppercase tracking-wider flex items-center gap-2 mb-3">
-            <PaperAirplaneIcon className="w-4 h-4 text-blue-500" />
-            {t('applications.sendEmailAction') || 'Envoyer par e-mail'}
-          </h3>
-
-          {app.emailSentAt && (
-            <div className="mb-4 inline-flex items-center gap-1.5 text-[12px] text-emerald-600 dark:text-emerald-400 font-semibold">
-              <CheckCircleIcon className="w-4 h-4" />
-              {t('applications.sentOn') || 'Envoyé le'} {fmtDate(app.emailSentAt, language)}
-            </div>
-          )}
-
-          <form onSubmit={handleSendEmail} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field
-                label={t('applications.recipientEmail') || "E-mail du destinataire"}
-                value={recipientEmail}
-                onChange={setRecipientEmail}
-                onBlur={() => setRecipientTouched(true)}
-                error={recipientError}
-                required
-                type="email"
-                placeholder={t('applications.recipientEmailPlaceholder') || 'Ex. recrutement@entreprise.com'}
-              />
-              <Field
-                label={t('applications.senderEmail') || 'Votre e-mail (réponses)'}
-                value={senderEmail}
-                onChange={setSenderEmail}
-                onBlur={() => setSenderTouched(true)}
-                error={senderError}
-                required
-                type="email"
-                placeholder={t('applications.senderEmailHint') || 'Votre adresse e-mail'}
-              />
-            </div>
-
-            {/* Attachment names, editable before sending */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field
-                label={t('applications.coverLetterFilename') || 'Nom du fichier de la lettre'}
-                value={letterFilename}
-                onChange={setLetterFilename}
-                placeholder="Lettre_de_motivation.pdf"
-              />
-              <Field
-                label={t('applications.cvFilename') || 'Nom du fichier du CV'}
-                value={cvFilename}
-                onChange={setCvFilename}
-                placeholder="CV.pdf"
-              />
-            </div>
-
-            <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
-              <input
-                type="checkbox"
-                checked={sendCopyToMe}
-                onChange={(e) => setSendCopyToMe(e.target.checked)}
-                className="w-4 h-4 rounded border-border accent-blue-600 cursor-pointer"
-              />
-              <span className="text-[12px] text-txt-muted">
-                {t('applications.sendCopyToMe') || 'Recevoir une copie dans ma boîte mail'}
-              </span>
-            </label>
-
-            {sendQuotaExceeded && (
-              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 flex items-start gap-3">
-                <LockClosedIcon className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                <div className="text-[12px] text-amber-700 dark:text-amber-400">
-                  {t('applications.quotaExceeded') || 'Limite mensuelle atteinte.'}{' '}
-                  <Link href="/dashboard?view=pricing" className="font-bold underline">
-                    {t('applications.upgrade') || 'Passer à Pro'}
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {sendError && (
-              <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
-                {sendError}
-              </div>
-            )}
-
+        {/* Timeline */}
+        {app.events?.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-border">
             <button
-              type="submit"
-              disabled={isSending}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-60"
+              type="button"
+              onClick={() => setShowTimeline((v) => !v)}
+              className="w-full flex items-center justify-between gap-2 text-[12px] font-bold text-txt-muted uppercase tracking-wider hover:text-txt transition-colors"
             >
-              <PaperAirplaneIcon className={`w-4 h-4 ${isSending ? 'animate-pulse' : ''}`} />
-              {isSending ? (t('applications.sending') || 'Envoi en cours...') : (t('applications.sendEmailAction') || 'Envoyer par e-mail')}
+              <span className="flex items-center gap-2">
+                <ClockIcon className="w-4 h-4 text-blue-500" />
+                {t('applications.timeline') || 'Historique'}
+                <span className="text-txt-dim font-semibold normal-case tracking-normal">
+                  ({app.events.length})
+                </span>
+              </span>
+              <ChevronDownIcon className={`w-4 h-4 transition-transform ${showTimeline ? 'rotate-180' : ''}`} />
             </button>
-          </form>
-        </div>
+
+            {showTimeline && (
+              <ol className="mt-4 space-y-0">
+                {/* Newest first: the recent history is what anyone actually
+                    opens this for. */}
+                {[...app.events].reverse().map((event, i, all) => (
+                  <li key={event.id} className="flex gap-3">
+                    <div className="flex flex-col items-center shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-blue-500/60 mt-1.5" />
+                      {i < all.length - 1 && <span className="w-px flex-1 bg-border my-1" />}
+                    </div>
+                    <div className="pb-4 min-w-0">
+                      <p className="text-[12px] text-txt leading-snug">
+                        {t(EVENT_LABEL_KEY[event.kind]) || event.kind}
+                        {eventDetailSuffix(event, t) && (
+                          <span className="text-txt-muted"> {eventDetailSuffix(event, t)}</span>
+                        )}
+                      </p>
+                      <p className="text-[11px] text-txt-dim mt-0.5">
+                        {fmtDateTime(event.createdAt, language)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        )}
       </div>
+
+      <AnimatePresence>
+        {showWizard && (
+          <SendApplicationWizard
+            app={app}
+            subscription={subscription}
+            // The drafts stay owned here, so what the wizard previews is
+            // exactly what the detail view shows — one source of truth.
+            coverLetter={coverLetterDraft}
+            emailSubject={emailSubjectDraft}
+            emailBody={emailBodyDraft}
+            onCoverLetterChange={setCoverLetterDraft}
+            onEmailSubjectChange={setEmailSubjectDraft}
+            onEmailBodyChange={setEmailBodyDraft}
+            flushPendingEdits={flushPendingEdits}
+            onClose={() => setShowWizard(false)}
+            onUpdated={onRegenerated}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showSpellCheck && (
@@ -965,9 +1209,11 @@ function NewApplicationModal({ drafts, subscription, onClose, onCreated }: {
 }
 
 // ── Main view ──
-export default function ApplicationsView({ drafts, subscription }: {
+export default function ApplicationsView({ drafts, subscription, initialAppId }: {
   drafts: DraftCV[];
   subscription: ReturnType<typeof useSubscription>;
+  /** Opened straight from a follow-up notification in the dashboard bell. */
+  initialAppId?: string | null;
 }) {
   const { t } = useLanguage();
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -976,6 +1222,8 @@ export default function ApplicationsView({ drafts, subscription }: {
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState<JobApplication | null>(null);
   const [previewCv, setPreviewCv] = useState<{ id: string; title: string } | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'all'>('all');
+  const consumedInitialId = useRef<string | null>(null);
 
   // A failed fetch must never render as the empty state — "you have no
   // applications" and "we couldn't load your applications" are very
@@ -987,16 +1235,45 @@ export default function ApplicationsView({ drafts, subscription }: {
     try {
       const data = await apiFetch('/applications/');
       setApplications(data);
+      // Deep link from the notification bell. Guarded so re-opening the list
+      // after going Back doesn't yank the user into the detail again.
+      if (initialAppId && consumedInitialId.current !== initialAppId) {
+        consumedInitialId.current = initialAppId;
+        const match = (data as JobApplication[]).find((a) => a.id === initialAppId);
+        if (match) setSelected(match);
+      }
     } catch (err: any) {
       setLoadError(err.message || t('applications.loadError') || 'Failed to load applications');
     } finally {
       setIsLoading(false);
     }
-  }, [t]);
+  }, [t, initialAppId]);
 
   useEffect(() => {
     loadApplications();
   }, [loadApplications]);
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: applications.length };
+    for (const s of APPLICATION_STATUSES) counts[s] = 0;
+    for (const a of applications) counts[a.status] = (counts[a.status] || 0) + 1;
+    return counts;
+  }, [applications]);
+
+  const visible = useMemo(
+    () => (statusFilter === 'all' ? applications : applications.filter((a) => a.status === statusFilter)),
+    [applications, statusFilter],
+  );
+
+  /** Response rate over applications that actually went out — counting drafts
+   *  in the denominator would punish the user for work in progress. */
+  const stats = useMemo(() => {
+    const sent = applications.filter((a) => a.emailSentAt).length;
+    const answered = applications.filter(
+      (a) => a.status === 'interview' || a.status === 'offer' || a.status === 'rejected',
+    ).length;
+    return { sent, answered, rate: sent ? Math.round((answered / sent) * 100) : null };
+  }, [applications]);
 
   const handleCreated = (app: JobApplication) => {
     setApplications((prev) => [app, ...prev]);
@@ -1009,10 +1286,13 @@ export default function ApplicationsView({ drafts, subscription }: {
     setSelected(null);
   };
 
-  const handleRegenerated = (updated: JobApplication) => {
+  // Stable identity: the detail view polls on this while a send is retrying,
+  // and a fresh function each render would restart that timer before it ever
+  // fired. Both setters are stable, so it has no dependencies.
+  const handleRegenerated = useCallback((updated: JobApplication) => {
     setApplications((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
     setSelected(updated);
-  };
+  }, []);
 
   return (
     <motion.div
@@ -1035,19 +1315,59 @@ export default function ApplicationsView({ drafts, subscription }: {
           />
         ) : (
           <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-[13px] text-txt-muted">
-                {applications.length} {t('applications.count') || 'candidature(s)'}
-              </p>
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-x-4 gap-y-1 flex-wrap text-[13px] text-txt-muted">
+                <span>{applications.length} {t('applications.count') || 'candidature(s)'}</span>
+                {stats.sent > 0 && (
+                  <>
+                    <span className="text-txt-dim">·</span>
+                    <span>{stats.sent} {t('applications.statSent') || 'envoyées'}</span>
+                    {stats.rate !== null && (
+                      <>
+                        <span className="text-txt-dim">·</span>
+                        <span>
+                          {stats.rate}% {t('applications.statResponseRate') || 'de réponses'}
+                        </span>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
               <button
                 onClick={() => setShowModal(true)}
-                className="group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium text-[13px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 overflow-hidden"
+                className="group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium text-[13px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/20 overflow-hidden shrink-0"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 z-0" />
                 <PlusIcon className="w-4 h-4 relative z-10" />
                 <span className="relative z-10">{t('applications.newButton') || 'Nouvelle candidature'}</span>
               </button>
             </div>
+
+            {/* Status filters. Empty buckets are hidden so the row doesn't
+                become a wall of zeros for someone with three applications. */}
+            {applications.length > 0 && (
+              <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1 -mx-1 px-1">
+                {(['all', ...APPLICATION_STATUSES] as const)
+                  .filter((key) => key === 'all' || statusFilter === key || statusCounts[key] > 0)
+                  .map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setStatusFilter(key)}
+                      className={`shrink-0 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all border ${
+                        statusFilter === key
+                          ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
+                          : 'bg-surface2 text-txt-muted border-transparent hover:border-border'
+                      }`}
+                    >
+                      {key === 'all'
+                        ? (t('applications.filterAll') || 'Toutes')
+                        : (t(STATUS_LABEL_KEY[key]) || key)}
+                      <span className="ms-1.5 text-txt-dim font-semibold">{statusCounts[key] || 0}</span>
+                    </button>
+                  ))}
+              </div>
+            )}
 
             {isLoading ? (
               <div className="text-center py-20">
@@ -1081,9 +1401,16 @@ export default function ApplicationsView({ drafts, subscription }: {
                   {t('applications.newButton') || 'Nouvelle candidature'}
                 </button>
               </div>
+            ) : visible.length === 0 ? (
+              <div className="text-center py-16 bg-surface/50 border border-dashed border-border rounded-3xl">
+                <BriefcaseIcon className="w-10 h-10 mx-auto text-txt-dim mb-3" />
+                <p className="text-txt-muted text-sm">
+                  {t('applications.noneInStatus') || 'Aucune candidature dans ce statut.'}
+                </p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {applications.map((app, i) => (
+                {visible.map((app, i) => (
                   <ApplicationCard
                     key={app.id}
                     app={app}

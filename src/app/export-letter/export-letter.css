@@ -1,34 +1,6 @@
-.letter-page {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 14mm 0 15mm;
-  background: #ffffff;
-  color: #1a1a1a;
-}
-
-.letter-header {
-  page-break-inside: avoid;
-  margin-bottom: 2.5em;
-}
-
-.letter-body p {
-  orphans: 3;
-  widows: 3;
-  margin: 0 0 1em;
-  line-height: 1.6;
-}
-
-/* Tailwind's preflight strips list markers/indent, so restore them here —
-   otherwise bulleted letters print as unmarked flush-left lines. */
-.letter-body ul {
-  margin: 0 0 1em;
-  padding-inline-start: 1.4em;
-  list-style: disc;
-}
-.letter-body li {
-  margin: 0.2em 0;
-  break-inside: avoid;
-}
+/* The letter's visual layout lives in letter-document.css so the in-app
+   preview can share it; only the print geometry belongs to this route. */
+@import '../letter-document.css';
 
 @page {
   size: A4;

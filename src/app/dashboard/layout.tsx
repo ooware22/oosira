@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 // The CV preview overlay in "Mes candidatures" renders real templates, which
 // need the same stylesheet the builder and export routes load.
 import '../cv-templates.css';
+// Likewise the send wizard previews the cover letter with the same layout the
+// exported PDF uses, so it needs the letter stylesheet too.
+import '../letter-document.css';
 
 export const metadata: Metadata = {
   title: 'Tableau de bord',

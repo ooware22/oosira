@@ -149,8 +149,14 @@ export async function apiFetch(
     }
 
     const message = data?.detail || data?.message || data?.email?.[0] || 'Request failed';
-    const apiError = new Error(typeof message === 'string' ? message : JSON.stringify(message)) as Error & { status?: number };
+    const apiError = new Error(typeof message === 'string' ? message : JSON.stringify(message)) as Error & {
+      status?: number; data?: any;
+    };
     apiError.status = response.status;
+    // Keep the parsed body: several endpoints return a `field` key alongside
+    // `detail` so the UI can mark the offending input rather than showing a
+    // generic banner. Without this it was thrown away.
+    apiError.data = data;
     throw apiError;
   }
 
