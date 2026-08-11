@@ -614,6 +614,11 @@ function DashboardContent() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [followUps, setFollowUps] = useState<FollowUpNotification[]>([]);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  // The applications badge starts from the dashboard stats, which are loaded
+  // whether or not that tab has ever been opened. Once ApplicationsView is
+  // mounted it owns the list, so it reports its own count back and the badge
+  // follows a create or delete without waiting for a stats refetch.
+  const [applicationCount, setApplicationCount] = useState<number | null>(null);
   const [dismissedNotifs, setDismissedNotifs] = useState<string[]>([]);
   const [displayMode, setDisplayMode] = useState<'grid' | 'list'>('grid');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'draft'>('all');
@@ -769,7 +774,7 @@ function DashboardContent() {
   ];
 
   return (
-    <div className="h-screen bg-bg text-txt font-body flex relative overflow-hidden selection:bg-txt selection:text-bg">
+    <div className="h-dvh bg-bg text-txt font-body flex relative overflow-hidden selection:bg-txt selection:text-bg">
 
       {/* ═══════════ SIDEBAR ═══════════ */}
       {/* Mobile overlay */}
@@ -787,7 +792,7 @@ function DashboardContent() {
 
       <aside className={`
         fixed lg:static inset-y-0 left-0 rtl:left-auto rtl:right-0 z-50
-        w-[260px] h-screen shrink-0 bg-surface/95 backdrop-blur-xl border-r rtl:border-r-0 rtl:border-l border-border
+        w-[260px] h-dvh shrink-0 bg-surface/95 backdrop-blur-xl border-r rtl:border-r-0 rtl:border-l border-border
         flex flex-col overflow-hidden
         transform transition-transform duration-300 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full lg:translate-x-0 lg:rtl:translate-x-0'}
@@ -825,7 +830,7 @@ function DashboardContent() {
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === item.id;
@@ -841,9 +846,11 @@ function DashboardContent() {
               >
                 <Icon className={`w-[18px] h-[18px] ${isActive ? 'text-blue-500' : ''}`} />
                 <span>{item.label}</span>
-                {item.id === 'cvs' && (
+                {(item.id === 'cvs' || item.id === 'applications') && (
                   <span className={`${dir === 'rtl' ? 'mr-auto' : 'ml-auto'} text-[10px] font-bold bg-surface2 text-txt-muted px-2 py-0.5 rounded-full`}>
-                    {drafts.length}
+                    {item.id === 'cvs'
+                      ? drafts.length
+                      : applicationCount ?? stats.data?.quickStats.totalApplications ?? 0}
                   </span>
                 )}
               </button>
@@ -852,7 +859,12 @@ function DashboardContent() {
         </nav>
 
         {/* Plan Badge & User */}
-        <div className="px-4 pb-5 space-y-3">
+        {/* Lifted clear of the bottom edge on mobile. A phone browser's URL
+            bar sits over the last strip of the viewport, which was hiding the
+            sign-out row and swallowing taps on it; the safe-area inset covers
+            the iOS home indicator on top of that. Desktop keeps its original
+            spacing. */}
+        <div className="px-4 pb-[calc(8rem+env(safe-area-inset-bottom))] lg:pb-5 space-y-3 shrink-0">
           {/* Home link */}
           <Link
             href="/"
@@ -915,7 +927,7 @@ function DashboardContent() {
       </aside>
 
       {/* ═══════════ MAIN CONTENT ═══════════ */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col h-dvh overflow-hidden">
 
         {/* ── Top Bar ── */}
         <header className="shrink-0 z-30 bg-bg/80 backdrop-blur-xl border-b border-border px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
@@ -1220,6 +1232,7 @@ function DashboardContent() {
                 drafts={drafts}
                 subscription={sub}
                 initialAppId={searchParams?.get('app') || null}
+                onCountChange={setApplicationCount}
               />
             )}
 

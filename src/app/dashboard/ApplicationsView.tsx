@@ -1209,11 +1209,13 @@ function NewApplicationModal({ drafts, subscription, onClose, onCreated }: {
 }
 
 // ── Main view ──
-export default function ApplicationsView({ drafts, subscription, initialAppId }: {
+export default function ApplicationsView({ drafts, subscription, initialAppId, onCountChange }: {
   drafts: DraftCV[];
   subscription: ReturnType<typeof useSubscription>;
   /** Opened straight from a follow-up notification in the dashboard bell. */
   initialAppId?: string | null;
+  /** Reports the list size up to the sidebar badge. */
+  onCountChange?: (count: number) => void;
 }) {
   const { t } = useLanguage();
   const [applications, setApplications] = useState<JobApplication[]>([]);
@@ -1252,6 +1254,14 @@ export default function ApplicationsView({ drafts, subscription, initialAppId }:
   useEffect(() => {
     loadApplications();
   }, [loadApplications]);
+
+  // Held back until the list has actually loaded: reporting the initial empty
+  // array would blink the sidebar badge to 0 every time this tab is opened,
+  // and a failed fetch must not be read as "you have no applications".
+  useEffect(() => {
+    if (isLoading || loadError) return;
+    onCountChange?.(applications.length);
+  }, [applications.length, isLoading, loadError, onCountChange]);
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { all: applications.length };

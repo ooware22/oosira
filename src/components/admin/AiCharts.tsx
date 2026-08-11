@@ -219,17 +219,18 @@ export function OutcomeDonut({ data }: { data: { outcome: string; count: number 
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
 
-  let offset = 0;
-  const segments = data.map(entry => {
-    const fraction = total ? entry.count / total : 0;
-    const segment = {
+  // Each arc starts where every arc before it ended. Computed as a prefix sum
+  // rather than a running counter: a variable reassigned during render is both
+  // a lint error and a real hazard, since React may re-run this body.
+  const fractions = data.map(entry => (total ? entry.count / total : 0));
+  const segments = data.map((entry, index) => {
+    const start = fractions.slice(0, index).reduce((sum, f) => sum + f, 0);
+    return {
       ...entry,
-      dash: fraction * circumference,
-      offset: -offset * circumference,
-      pct: total ? Math.round(fraction * 100) : 0,
+      dash: fractions[index] * circumference,
+      offset: -start * circumference,
+      pct: total ? Math.round(fractions[index] * 100) : 0,
     };
-    offset += fraction;
-    return segment;
   });
 
   return (

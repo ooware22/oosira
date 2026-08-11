@@ -3,6 +3,7 @@ import { apiFetch } from '@/api/apiClient';
 
 interface QuickStats {
   totalCvs: number;
+  totalApplications: number;
   completedCvs: number;
   draftCvs: number;
   totalDownloads: number;
