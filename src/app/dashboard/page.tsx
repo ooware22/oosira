@@ -14,7 +14,6 @@ import { RootState, AppDispatch } from '@/store';
 import { fetchDashboardStats } from '@/store/slices/statsSlice';
 import {
   DocumentTextIcon,
-  Cog6ToothIcon,
   UserCircleIcon,
   ChartBarIcon,
   PlusIcon,
@@ -39,7 +38,6 @@ import {
   MoonIcon,
   GlobeAltIcon,
   SwatchIcon,
-  ShieldCheckIcon,
   KeyIcon,
   LockClosedIcon,
   Squares2X2Icon,
@@ -47,8 +45,11 @@ import {
   FunnelIcon,
   HomeIcon,
   BriefcaseIcon,
+  EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 import { useSubscription } from '@/app/hooks/useSubscription';
+import { useMailAccounts } from '@/app/hooks/useMailAccounts';
+import AnalyticsView from '@/components/dashboard/AnalyticsView';
 import ApplicationsView from './ApplicationsView';
 
 // ════════════════════════════════════════════════════════════
@@ -115,6 +116,114 @@ function ProfileSettingsForm({ user, refreshUser }: { user: any, refreshUser: ()
   );
 }
 
+/**
+ * The Gmail account applications are sent from.
+ *
+ * This is a real, already-built setting that had nowhere to live: the only
+ * way to connect or disconnect a mailbox was from inside the send wizard,
+ * which meant a user who wanted to check or revoke it had to start an
+ * application they did not intend to send.
+ */
+function MailboxSection() {
+  const { t } = useLanguage();
+  const { accounts, googleConfigured, loading, error, connectGoogle, disconnect } = useMailAccounts();
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const handleConnect = async () => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      await connectGoogle();
+    } catch (err: any) {
+      setActionError(
+        err?.message === 'popup-blocked'
+          ? (t('dashboard.mailboxPopupBlocked') || 'Autorisez les fenêtres pop-up pour connecter votre boîte mail.')
+          : (err?.message || 'Connection failed'),
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDisconnect = async (id: string, address: string) => {
+    if (!window.confirm(
+      (t('dashboard.mailboxDisconnectConfirm')
+        || 'Déconnecter cette boîte mail ? Vous ne pourrez plus envoyer de candidatures depuis') + ` ${address}.`,
+    )) return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      await disconnect(id);
+    } catch (err: any) {
+      setActionError(err?.message || 'Disconnect failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-[15px] font-bold text-txt flex items-center gap-2">
+          <EnvelopeIcon className="w-5 h-5 text-blue-500" />
+          {t('dashboard.mailbox') || 'Boîte mail d\'envoi'}
+        </h3>
+      </div>
+      <p className="text-[12px] text-txt-muted mb-4">
+        {t('dashboard.mailboxDesc')
+          || 'Vos candidatures partent de votre propre adresse Gmail. Le recruteur voit votre e-mail et vous répond directement.'}
+      </p>
+
+      {loading ? (
+        <p className="text-[13px] text-txt-dim">{t('dashboard.loading') || 'Chargement...'}</p>
+      ) : accounts.length > 0 ? (
+        <div className="space-y-2">
+          {accounts.map((account) => (
+            <div key={account.id} className="flex items-center gap-3 bg-surface2 border border-border rounded-xl px-4 py-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[13px] font-semibold text-txt truncate">{account.emailAddress}</p>
+                <p className="text-[11px] text-txt-muted">
+                  {t('dashboard.mailboxConnectedOn') || 'Connectée le'}{' '}
+                  {new Date(account.connectedAt).toLocaleDateString()}
+                </p>
+              </div>
+              <button
+                onClick={() => handleDisconnect(account.id, account.emailAddress)}
+                disabled={busy}
+                className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-txt-muted hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 shrink-0"
+              >
+                {t('dashboard.mailboxDisconnect') || 'Déconnecter'}
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : googleConfigured ? (
+        <button
+          onClick={handleConnect}
+          disabled={busy}
+          className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors disabled:opacity-50"
+        >
+          {busy
+            ? (t('dashboard.mailboxConnecting') || 'Connexion...')
+            : (t('dashboard.mailboxConnect') || 'Connecter Gmail')}
+        </button>
+      ) : (
+        // No OAuth client on this server. Offering a button that can only
+        // fail is worse than saying so.
+        <p className="text-[12px] text-amber-600 dark:text-amber-400">
+          {t('dashboard.mailboxUnavailable') || "L'envoi d'e-mails n'est pas encore disponible sur ce serveur."}
+        </p>
+      )}
+
+      {(actionError || error) && (
+        <p className="mt-3 text-[12px] text-red-500">{actionError || error}</p>
+      )}
+    </div>
+  );
+}
+
 function PasswordChangeForm() {
   const { t } = useLanguage();
   const [currentPassword, setCurrentPassword] = useState('');
@@ -178,7 +287,11 @@ function PasswordChangeForm() {
   );
 }
 
-type DashboardView = 'cvs' | 'applications' | 'settings' | 'profile' | 'analytics' | 'pricing';
+type DashboardView = 'cvs' | 'applications' | 'account' | 'analytics' | 'pricing';
+
+/** Settings and Profile used to be two tabs; they are now one. Old links and
+ *  bookmarks still carry ?view=settings or ?view=profile. */
+const LEGACY_VIEWS: Record<string, DashboardView> = { settings: 'account', profile: 'account' };
 
 // ── Stat Card ──
 function StatCard({ icon: Icon, label, value, trend, color }: {
@@ -607,7 +720,8 @@ function DashboardContent() {
   const { user, isAuthenticated, isHydrating, logout, drafts, deleteDraft, duplicateDraft, refreshUser } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialView = (searchParams?.get('view') as DashboardView) || 'cvs';
+  const requestedView = searchParams?.get('view') || '';
+  const initialView = (LEGACY_VIEWS[requestedView] || requestedView || 'cvs') as DashboardView;
   const [activeView, setActiveView] = useState<DashboardView>(initialView);
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -769,8 +883,7 @@ function DashboardContent() {
     { id: 'cvs', label: t('dashboard.tabCVs') || 'My CVs', icon: DocumentTextIcon },
     { id: 'applications', label: t('dashboard.tabApplications') || 'Mes candidatures', icon: BriefcaseIcon },
     { id: 'analytics', label: t('dashboard.tabAnalytics') || 'Analytics', icon: ChartBarIcon },
-    { id: 'settings', label: t('dashboard.tabSettings') || 'Settings', icon: Cog6ToothIcon },
-    { id: 'profile', label: t('dashboard.tabProfile') || 'Profile', icon: UserCircleIcon },
+    { id: 'account', label: t('dashboard.tabAccount') || 'Mon compte', icon: UserCircleIcon },
   ];
 
   return (
@@ -943,16 +1056,14 @@ function DashboardContent() {
                 {activeView === 'cvs' && (t('dashboard.tabCVs') || 'My CVs')}
                 {activeView === 'applications' && (t('dashboard.tabApplications') || 'Mes candidatures')}
                 {activeView === 'analytics' && (t('dashboard.tabAnalytics') || 'Analytics')}
-                {activeView === 'settings' && (t('dashboard.tabSettings') || 'Settings')}
-                {activeView === 'profile' && (t('dashboard.tabProfile') || 'Profile')}
+                {activeView === 'account' && (t('dashboard.tabAccount') || 'Mon compte')}
                 {activeView === 'pricing' && (t('nav.pricing') || 'Pricing')}
               </h1>
               <p className="text-[12px] text-txt-muted hidden sm:block">
                 {activeView === 'cvs' && `${drafts.length} CVs · ${completedCount} ${t('dashboard.completed') || 'completed'}`}
                 {activeView === 'applications' && (t('dashboard.applicationsDesc') || 'Générez des lettres de motivation sur mesure')}
                 {activeView === 'analytics' && (t('dashboard.analyticsDesc') || 'Track your CV performance')}
-                {activeView === 'settings' && (t('dashboard.settingsDesc') || 'Manage your preferences')}
-                {activeView === 'profile' && (t('dashboard.profileDesc') || 'Your personal information')}
+                {activeView === 'account' && (t('dashboard.accountDesc') || 'Vos informations, votre boîte mail et vos préférences')}
                 {activeView === 'pricing' && (t('pricing.subtitle') || 'Upgrade your plan to unlock premium features')}
               </p>
             </div>
@@ -1237,385 +1348,32 @@ function DashboardContent() {
             )}
 
             {/* ═════════ ANALYTICS VIEW ═════════ */}
-            {activeView === 'analytics' && (() => {
-              const sd = stats.data;
-              const trends = sd?.monthlyTrends || [];
-              const maxTrend = Math.max(...trends.map(t => t.downloads + t.activity), 1);
-              const tUsage = sd?.templateUsage || [];
-              const totalTpl = tUsage.reduce((s, t) => s + (t.count || 0), 0) || 1;
-              // Donut arc helper
-              const donutArcs = (() => {
-                let cum = 0;
-                return tUsage.map((t) => {
-                  const pct = (t.count || 0) / totalTpl;
-                  const start = cum;
-                  cum += pct;
-                  return { ...t, start, end: cum, pct };
-                });
-              })();
-              const arcPath = (start: number, end: number, r: number, cx: number, cy: number) => {
-                const s = start * 2 * Math.PI - Math.PI / 2;
-                const e = end * 2 * Math.PI - Math.PI / 2;
-                const large = end - start > 0.5 ? 1 : 0;
-                return `M ${cx + r * Math.cos(s)} ${cy + r * Math.sin(s)} A ${r} ${r} 0 ${large} 1 ${cx + r * Math.cos(e)} ${cy + r * Math.sin(e)}`;
-              };
+            {activeView === 'analytics' && <AnalyticsView key="analytics" />}
 
-              return (
+            {/* ═════════ ACCOUNT VIEW ═════════
+                Profile and Settings used to be two tabs showing one subject.
+                Merged here, and stripped back to the controls that are
+                actually wired to something: everything below either writes to
+                the API or persists a real client preference. The toggles that
+                were removed (2FA, notification e-mails, auto-save, analytics
+                sharing, PDF paper size, CV preview scale) had no storage and
+                no endpoint behind them — they reset on reload and promised
+                behaviour the product does not have. */}
+            {activeView === 'account' && (
               <motion.div
-                key="analytics"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                {/* ── Stat Cards ── */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard icon={EyeIcon} label={t('dashboard.statViews') || "Profile Views"} value={sd?.quickStats.totalViews.toString() || "0"} color="bg-gradient-to-br from-blue-600 to-blue-500" />
-                  <StatCard icon={ArrowDownTrayIcon} label={t('dashboard.statDownloads') || "Downloads"} value={sd?.quickStats.totalDownloads.toString() || "0"} color="bg-gradient-to-br from-emerald-600 to-emerald-500" />
-                  <StatCard icon={ShareIcon} label={t('dashboard.shared') || "Shared"} value={sd?.quickStats.sharedLinks.toString() || "0"} color="bg-gradient-to-br from-purple-600 to-purple-500" />
-                  <StatCard icon={ArrowTrendingUpIcon} label={t('dashboard.statSuccess') || "Score"} value={`${sd?.quickStats.profileScore || 0}/100`} color="bg-gradient-to-br from-amber-600 to-amber-500" />
-                </div>
-
-                {/* ── Charts Row ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-
-                  {/* Monthly Trends — Area Chart */}
-                  <div className="lg:col-span-3 bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                    <div className="flex items-center justify-between mb-5">
-                      <h3 className="text-[15px] font-bold text-txt">{t('dashboard.viewsOverTime') || 'Monthly Trends'}</h3>
-                      <div className="flex items-center gap-4 text-[10px] font-medium">
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500" />Downloads</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" />Activity</span>
-                      </div>
-                    </div>
-                    <div className="relative h-44">
-                      <svg viewBox="0 0 500 160" className="w-full h-full" preserveAspectRatio="none">
-                        {/* Grid lines */}
-                        {[0, 40, 80, 120].map(y => (
-                          <line key={y} x1="0" y1={y} x2="500" y2={y} stroke="currentColor" className="text-border" strokeWidth="0.5" strokeDasharray="4 4" />
-                        ))}
-                        {/* Downloads area */}
-                        <defs>
-                          <linearGradient id="dlGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-                            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-                          </linearGradient>
-                          <linearGradient id="actGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                          </linearGradient>
-                        </defs>
-                        {trends.length > 0 && (
-                          <>
-                            {/* Activity area fill */}
-                            <path
-                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.activity / maxTrend) * 130}`).join(' L ')} L 500 140 L 0 140 Z`}
-                              fill="url(#actGrad)"
-                            />
-                            {/* Activity line */}
-                            <path
-                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.activity / maxTrend) * 130}`).join(' L ')}`}
-                              fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                            />
-                            {/* Downloads area fill */}
-                            <path
-                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.downloads / maxTrend) * 130}`).join(' L ')} L 500 140 L 0 140 Z`}
-                              fill="url(#dlGrad)"
-                            />
-                            {/* Downloads line */}
-                            <path
-                              d={`M ${trends.map((t, i) => `${(i / (trends.length - 1 || 1)) * 500} ${140 - (t.downloads / maxTrend) * 130}`).join(' L ')}`}
-                              fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                            />
-                            {/* Dots */}
-                            {trends.map((t, i) => (
-                              <g key={i}>
-                                <circle cx={(i / (trends.length - 1 || 1)) * 500} cy={140 - (t.downloads / maxTrend) * 130} r="4" fill="#3b82f6" stroke="var(--color-surface, #fff)" strokeWidth="2" />
-                                <circle cx={(i / (trends.length - 1 || 1)) * 500} cy={140 - (t.activity / maxTrend) * 130} r="3" fill="#10b981" stroke="var(--color-surface, #fff)" strokeWidth="1.5" />
-                              </g>
-                            ))}
-                          </>
-                        )}
-                      </svg>
-                    </div>
-                    <div className="flex justify-between mt-2 text-[10px] text-txt-dim font-medium px-1">
-                      {trends.map(t => <span key={t.month}>{t.month}</span>)}
-                    </div>
-                  </div>
-
-                  {/* Template Usage — Donut Chart */}
-                  <div className="lg:col-span-2 bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                    <h3 className="text-[15px] font-bold text-txt mb-4">{t('dashboard.overview') || 'Templates'}</h3>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-28 h-28 shrink-0">
-                        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                          {donutArcs.length > 0 ? donutArcs.map((arc, i) => (
-                            <path
-                              key={i}
-                              d={arcPath(arc.start, arc.end - 0.005, 38, 50, 50)}
-                              fill="none"
-                              stroke={arc.color}
-                              strokeWidth="12"
-                              strokeLinecap="round"
-                            />
-                          )) : (
-                            <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" className="text-surface2" strokeWidth="12" />
-                          )}
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-lg font-bold text-txt">{totalTpl}</span>
-                          <span className="text-[9px] text-txt-dim uppercase tracking-wider">CVs</span>
-                        </div>
-                      </div>
-                      <div className="flex-1 space-y-2.5 min-w-0">
-                        {tUsage.slice(0, 5).map((tmpl) => (
-                          <div key={tmpl.name} className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: tmpl.color }} />
-                            <span className="text-[11px] text-txt truncate flex-1">{tmpl.name}</span>
-                            <span className="text-[10px] font-bold text-txt-muted tabular-nums">{tmpl.pct}%</span>
-                          </div>
-                        ))}
-                        {tUsage.length === 0 && <p className="text-[11px] text-txt-dim">No CVs yet</p>}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Weekly Activity Bar Chart ── */}
-                <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-txt mb-4">Weekly Activity</h3>
-                  <div className="flex items-end gap-2 h-32">
-                    {sd?.weeklyActivity.map((activity, i) => {
-                      const maxVal = Math.max(...(sd?.weeklyActivity.map(a => a.value) || [1]));
-                      const hPct = maxVal > 0 && activity.value > 0 ? (activity.value / maxVal) * 100 : 0;
-                      return (
-                        <motion.div
-                          key={i}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${hPct}%` }}
-                          transition={{ delay: i * 0.08 + 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                          className="flex-1 bg-gradient-to-t from-blue-600 to-cyan-400 rounded-lg relative group cursor-pointer hover:from-blue-500 hover:to-cyan-300 transition-all min-h-[4px]"
-                        >
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-txt opacity-0 group-hover:opacity-100 transition bg-surface px-1.5 py-0.5 rounded shadow">{activity.value}</div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                  <div className="flex justify-between mt-3 text-[10px] text-txt-dim font-medium">
-                    {sd?.weeklyActivity.map(a => <span key={a.day}>{a.day}</span>)}
-                  </div>
-                </div>
-
-                {/* ── Per-CV Performance Table ── */}
-                {(sd?.cvPerformance?.length || 0) > 0 && (
-                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-border/50">
-                      <h3 className="text-[15px] font-bold text-txt">CV Performance</h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-[12px]">
-                        <thead>
-                          <tr className="text-txt-dim text-[10px] uppercase tracking-wider border-b border-border/50">
-                            <th className="text-start px-6 py-3 font-semibold">CV</th>
-                            <th className="text-start px-4 py-3 font-semibold hidden sm:table-cell">Template</th>
-                            <th className="text-center px-4 py-3 font-semibold">Downloads</th>
-                            <th className="text-center px-4 py-3 font-semibold hidden md:table-cell">Views</th>
-                            <th className="text-center px-4 py-3 font-semibold hidden lg:table-cell">Completion</th>
-                            <th className="text-end px-6 py-3 font-semibold">Last Active</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {sd?.cvPerformance.map((cv, i) => (
-                            <motion.tr
-                              key={cv.id}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: i * 0.03 }}
-                              className="border-b border-border/30 hover:bg-surface2/50 transition-colors cursor-pointer"
-                              onClick={() => router.push(`/builder?id=${cv.id}`)}
-                            >
-                              <td className="px-6 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-7 h-9 rounded-sm shrink-0 flex items-center justify-center" style={{ background: cv.previewColor }}>
-                                    <div className="w-3 h-0.5 bg-white/40 rounded-full" />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <p className="font-semibold text-txt truncate max-w-[200px]">{cv.title}</p>
-                                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${cv.status === 'completed' ? 'text-emerald-500 bg-emerald-500/10' : cv.status === 'shared' ? 'text-blue-500 bg-blue-500/10' : 'text-amber-500 bg-amber-500/10'}`}>{cv.status}</span>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3 text-txt-muted hidden sm:table-cell">{cv.templateName}</td>
-                              <td className="px-4 py-3 text-center font-bold text-txt">{cv.downloads}</td>
-                              <td className="px-4 py-3 text-center text-txt-muted hidden md:table-cell">{cv.views}</td>
-                              <td className="px-4 py-3 hidden lg:table-cell">
-                                <div className="flex items-center justify-center gap-2">
-                                  <div className="w-16 h-1.5 bg-surface2 rounded-full overflow-hidden">
-                                    <div className={`h-full rounded-full ${cv.completion === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${cv.completion}%` }} />
-                                  </div>
-                                  <span className="text-[10px] text-txt-dim">{cv.completion}%</span>
-                                </div>
-                              </td>
-                              <td className="px-6 py-3 text-end text-txt-dim">{cv.lastActive}</td>
-                            </motion.tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Recent Activity Timeline ── */}
-                <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-txt mb-4">Recent Activity</h3>
-                  <div className="space-y-1">
-                    {sd?.recentActivity.map((item, i) => {
-                      let ActIcon = PlusIcon;
-                      let iconCls = 'text-emerald-500 bg-emerald-500/10';
-                      if (item.type === 'downloaded') { ActIcon = ArrowDownTrayIcon; iconCls = 'text-blue-500 bg-blue-500/10'; }
-                      else if (item.type === 'edited') { ActIcon = PencilSquareIcon; iconCls = 'text-amber-500 bg-amber-500/10'; }
-                      else if (item.type === 'shared') { ActIcon = ShareIcon; iconCls = 'text-purple-500 bg-purple-500/10'; }
-                      else if (item.type === 'duplicated') { ActIcon = DocumentDuplicateIcon; iconCls = 'text-cyan-500 bg-cyan-500/10'; }
-                      else if (item.type === 'deleted') { ActIcon = TrashIcon; iconCls = 'text-red-500 bg-red-500/10'; }
-                      return (
-                        <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 + 0.1 }}
-                          className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-surface2/50 transition-colors"
-                        >
-                          <div className={`p-2 rounded-lg shrink-0 ${iconCls}`}><ActIcon className="w-3.5 h-3.5" /></div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[12px] text-txt"><span className="font-semibold">{item.action}</span> <span className="text-txt-muted">{item.cv}</span></p>
-                          </div>
-                          <span className="text-[10px] text-txt-dim shrink-0 tabular-nums">{item.time}</span>
-                        </motion.div>
-                      );
-                    }) || <div className="text-sm text-txt-dim py-4 text-center">No recent activity.</div>}
-                  </div>
-                </div>
-              </motion.div>
-            );
-            })()}
-
-            {/* ═════════ SETTINGS VIEW ═════════ */}
-            {activeView === 'settings' && (
-              <motion.div
-                key="settings"
+                key="account"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
                 className="max-w-3xl space-y-6"
               >
-                {/* Appearance */}
-                <SettingsSection
-                  icon={SwatchIcon}
-                  title={t('dashboard.appearance') || "Appearance"}
-                  description={t('dashboard.themeLanguage') || "Customize how Sira looks"}
-                >
-                  <SettingsRow label="Theme" description="">
-                    <ThemeToggle />
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.language') || "Language"} description="">
-                    <LanguageToggle />
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.cvPreviewScale') || "CV Preview Scale"} description={t('dashboard.cvPreviewScaleDesc') || "Default zoom level for CV previews"}>
-                    <select defaultValue="100%" className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
-                      <option value="75%">75%</option>
-                      <option value="100%">100%</option>
-                      <option value="125%">125%</option>
-                      <option value="150%">150%</option>
-                    </select>
-                  </SettingsRow>
-                </SettingsSection>
-
-                {/* Privacy */}
-                <SettingsSection
-                  icon={ShieldCheckIcon}
-                  title={t('dashboard.securitySettings') || "Privacy & Security"}
-                  description=""
-                >
-                  <SettingsRow label={t('dashboard.twoFactor') || "Two-Factor Authentication"} description={t('dashboard.enableTwoFactor') || "Add an extra layer of security"}>
-                    <ToggleSwitch defaultChecked={false} />
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.shareAnalytics') || "Share Analytics"} description="">
-                    <ToggleSwitch defaultChecked={true} />
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.autoSaveDrafts') || "Auto-save Drafts"} description="">
-                    <ToggleSwitch defaultChecked={true} />
-                  </SettingsRow>
-                </SettingsSection>
-
-                {/* Notifications */}
-                <SettingsSection
-                  icon={BellIcon}
-                  title={t('dashboard.notificationsLabel') || "Notifications"}
-                  description={t('dashboard.notificationsDesc') || "Manage your notification preferences"}
-                >
-                  <SettingsRow label={t('dashboard.emailNotifications') || "Email Notifications"} description={t('dashboard.emailNotificationsDesc') || "Receive updates about your account"}>
-                    <ToggleSwitch defaultChecked={true} />
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.newTemplateAlerts') || "New Template Alerts"} description={t('dashboard.newTemplateAlertsDesc') || "Be notified when new templates are available"}>
-                    <ToggleSwitch defaultChecked={true} />
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.tipsTutorials') || "Tips & Tutorials"} description={t('dashboard.tipsTutorialsDesc') || "Receive helpful CVs tips and guides"}>
-                    <ToggleSwitch defaultChecked={false} />
-                  </SettingsRow>
-                </SettingsSection>
-
-                {/* Export & Data */}
-                <SettingsSection
-                  icon={ArrowDownTrayIcon}
-                  title={t('dashboard.dataExport') || "Data & Export"}
-                  description={t('dashboard.dataExportDesc') || "Manage your data and export options"}
-                >
-                  <SettingsRow label={t('dashboard.defaultPdfSize') || "Default PDF Size"} description={t('dashboard.defaultPdfSizeDesc') || "Choose default paper size for exports"}>
-                    <select defaultValue="A4" className="bg-surface2 border border-border rounded-xl px-3 py-2 text-[12px] text-txt outline-none focus:border-blue-500 transition min-w-[120px]">
-                      <option value="A4">A4</option>
-                      <option value="Letter">Letter</option>
-                      <option value="Legal">Legal</option>
-                    </select>
-                  </SettingsRow>
-                  <SettingsRow label={t('dashboard.exportAllCvs') || "Export all CVs"} description={t('dashboard.exportAllCvsDesc') || "Download all your CVs as a ZIP archive"}>
-                    <button className="px-4 py-2 bg-surface2 border border-border rounded-xl text-[12px] font-medium text-txt hover:border-blue-500/40 transition-colors">
-                      {t('dashboard.export') || "Export"}
-                    </button>
-                  </SettingsRow>
-                </SettingsSection>
-
-                {/* Danger Zone */}
-                <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6">
-                  <h3 className="text-[15px] font-bold text-red-500 mb-1">{t('dashboard.dangerZone') || 'Danger Zone'}</h3>
-                  <p className="text-[12px] text-txt-muted mb-4">{t('dashboard.deleteAccountDesc') || 'Irreversible actions for your account'}</p>
-                  <div className="flex flex-wrap gap-3">
-                    <button className="px-4 py-2.5 bg-surface border border-red-500/20 rounded-xl text-[12px] font-medium text-red-500 hover:bg-red-500/10 transition-colors">
-                      {t('dashboard.delete') || 'Delete All CVs'}
-                    </button>
-                    <button className="px-4 py-2.5 bg-red-500 text-white rounded-xl text-[12px] font-medium hover:bg-red-600 transition-colors">
-                      {t('dashboard.deleteAccount') || 'Delete Account'}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* ═════════ PROFILE VIEW ═════════ */}
-            {activeView === 'profile' && (
-              <motion.div
-                key="profile"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3 }}
-                className="max-w-3xl space-y-6"
-              >
-                {/* Profile Header */}
+                {/* Identity */}
                 <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl overflow-hidden">
-                  {/* Banner */}
                   <div className="h-28 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 relative">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')]" />
                   </div>
 
-                  {/* Avatar & Info */}
                   <div className="px-6 pb-6 relative">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-400 flex items-center justify-center text-white font-bold text-[28px] border-4 border-surface -mt-10 shadow-xl">
                       {user.name.charAt(0)}
@@ -1623,7 +1381,7 @@ function DashboardContent() {
                     <div className="mt-3">
                       <h2 className="text-xl font-bold text-txt">{user.name}</h2>
                       <p className="text-[13px] text-txt-muted">{user.email}</p>
-                      <div className="flex items-center gap-3 mt-2">
+                      <div className="flex items-center gap-3 mt-2 flex-wrap">
                         <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
                           sub.isPro
                             ? 'text-blue-600 dark:text-blue-400 bg-blue-500/10'
@@ -1632,17 +1390,45 @@ function DashboardContent() {
                           {sub.isPro && <SparklesIcon className="w-3 h-3" />}
                           {sub.isPro ? (t('dashboard.proPlan') || 'Pro Plan') : (t('dashboard.basicPlan') || 'Basic Plan')}
                         </span>
-                        <span className="text-[11px] text-txt-dim">{t('dashboard.memberSince') || "Member since Nov 2025"}</span>
+                        {/* The real signup date. This used to read "Member
+                            since Nov 2025" for everyone, hardcoded. */}
+                        {user.joinedAt && (
+                          <span className="text-[11px] text-txt-dim">
+                            {t('dashboard.memberSince') || 'Membre depuis'}{' '}
+                            {new Date(user.joinedAt).toLocaleDateString(dir === 'rtl' ? 'ar' : undefined, {
+                              month: 'long', year: 'numeric',
+                            })}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Personal Info Form */}
+                {/* PUT /api/users/profile/ */}
                 <ProfileSettingsForm user={user} refreshUser={refreshUser} />
 
-                {/* Password Change */}
+                {/* GET/DELETE /api/mail-accounts/ + the Google OAuth flow */}
+                <MailboxSection />
+
+                {/* PUT /api/users/password/ */}
                 <PasswordChangeForm />
+
+                {/* Theme and language are the two preferences that genuinely
+                    persist, both client-side — there is no server column for
+                    either, and both survive a reload. */}
+                <SettingsSection
+                  icon={SwatchIcon}
+                  title={t('dashboard.appearance') || 'Appearance'}
+                  description={t('dashboard.themeLanguage') || 'Customize how Sira looks'}
+                >
+                  <SettingsRow label={t('dashboard.theme') || 'Theme'} description="">
+                    <ThemeToggle />
+                  </SettingsRow>
+                  <SettingsRow label={t('dashboard.language') || 'Language'} description="">
+                    <LanguageToggle />
+                  </SettingsRow>
+                </SettingsSection>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1742,22 +1528,6 @@ function SettingsRow({ label, description, children }: {
       </div>
       {children}
     </div>
-  );
-}
-
-function ToggleSwitch({ defaultChecked }: { defaultChecked: boolean }) {
-  const [checked, setChecked] = useState(defaultChecked);
-  return (
-    <button
-      onClick={() => setChecked(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${checked ? 'bg-gradient-to-r from-blue-600 to-cyan-500' : 'bg-surface2 border border-border'}`}
-    >
-      <motion.div
-        animate={{ x: checked ? 20 : 2 }}
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        className={`absolute top-1 w-4 h-4 rounded-full shadow-sm ${checked ? 'bg-white' : 'bg-txt-dim'}`}
-      />
-    </button>
   );
 }
 

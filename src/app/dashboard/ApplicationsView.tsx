@@ -312,11 +312,13 @@ function ApplicationCard({ app, onOpen, onPreviewCv, onDelete, delay }: {
 }
 
 // ── Detail / result panel ──
-function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated, onPreviewCv }: {
+function ApplicationDetail({ app, subscription, onBack, onRequestDelete, onRegenerated, onPreviewCv }: {
   app: JobApplication;
   subscription: ReturnType<typeof useSubscription>;
   onBack: () => void;
-  onDeleted: () => void;
+  /** Opens the confirmation dialog. Deleting itself is the parent's job, so
+   *  both entry points go through one dialog and one request. */
+  onRequestDelete: () => void;
   onRegenerated: (updated: JobApplication) => void;
   onPreviewCv: () => void;
 }) {
@@ -341,10 +343,20 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
   const [emailSaved, setEmailSaved] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // The proposed relance is edited in place before it goes out, like the
+  // letter and the email. `relanceAction` tells the two buttons apart so the
+  // spinner appears on the one that was actually pressed.
+  const [relanceSubjectDraft, setRelanceSubjectDraft] = useState(app.followUpSubject || '');
+  const [relanceBodyDraft, setRelanceBodyDraft] = useState(app.followUpBody || '');
+  const [isSavingRelance, setIsSavingRelance] = useState(false);
+  const [relanceSaved, setRelanceSaved] = useState(false);
+  const [relanceAction, setRelanceAction] = useState<'send' | 'generate' | null>(null);
+
   const [showSpellCheck, setShowSpellCheck] = useState(false);
 
   const letterFieldRef = useRef<RichTextFieldHandle>(null);
   const emailFieldRef = useRef<RichTextFieldHandle>(null);
+  const relanceFieldRef = useRef<RichTextFieldHandle>(null);
   const formatLabels = useMemo(
     () => ({
       bold: t('builder.fmtBold'),
@@ -360,6 +372,8 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
   // content under the user, so it resets the drafts explicitly below.
   const letterDirty = coverLetterDraft !== app.generatedCoverLetter;
   const emailDirty = emailSubjectDraft !== app.generatedEmailSubject || emailBodyDraft !== app.generatedEmailBody;
+  const relanceDirty = relanceSubjectDraft !== (app.followUpSubject || '')
+    || relanceBodyDraft !== (app.followUpBody || '');
 
   /**
    * Push any unsaved edits before an action that reads the server's copy.
@@ -434,15 +448,6 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
       setError(err.message || t('applications.generateError') || 'Generation failed');
     } finally {
       setIsRegenerating(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await apiFetch(`/applications/${app.id}/`, { method: 'DELETE' });
-      onDeleted();
-    } catch (err: any) {
-      setError(err.message || 'Delete failed');
     }
   };
 
@@ -525,16 +530,65 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
     }
   };
 
+  const saveRelance = async () => {
+    const updated = await apiFetch(`/applications/${app.id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        followUpSubject: relanceSubjectDraft,
+        followUpBody: relanceBodyDraft,
+      }),
+    });
+    onRegenerated(updated);
+    return updated as JobApplication;
+  };
+
+  const handleSaveRelance = async () => {
+    setIsSavingRelance(true);
+    setSaveError(null);
+    try {
+      await saveRelance();
+      setRelanceSaved(true);
+      setTimeout(() => setRelanceSaved(false), 1800);
+    } catch (err: any) {
+      setSaveError(err.message || 'Save failed');
+    } finally {
+      setIsSavingRelance(false);
+    }
+  };
+
   const handleGenerateRelance = async () => {
-    const updated = await lifecycleCall('relance/');
-    if (updated) subscription.refresh();
+    setRelanceAction('generate');
+    try {
+      const updated = await lifecycleCall('relance/');
+      if (updated) {
+        // Regenerating replaces the text under the user, so the drafts have
+        // to follow it. Without this the old draft stays on screen and would
+        // be what actually gets sent.
+        setRelanceSubjectDraft(updated.followUpSubject || '');
+        setRelanceBodyDraft(updated.followUpBody || '');
+        subscription.refresh();
+      }
+    } finally {
+      setRelanceAction(null);
+    }
   };
 
   const handleSendRelance = async () => {
-    const updated = await lifecycleCall('send-email/', { kind: 'followUp' });
-    if (updated) {
-      invalidateSubscriptionCache();
-      subscription.refresh();
+    setRelanceAction('send');
+    try {
+      // The server sends the stored follow-up, not what is on screen, so any
+      // unsaved edit has to be pushed first — otherwise the recruiter would
+      // receive the previous version of a letter the user just rewrote.
+      if (relanceDirty) await saveRelance();
+      const updated = await lifecycleCall('send-email/', { kind: 'followUp' });
+      if (updated) {
+        invalidateSubscriptionCache();
+        subscription.refresh();
+      }
+    } catch (err: any) {
+      setLifecycleError(err.message || 'Action failed');
+    } finally {
+      setRelanceAction(null);
     }
   };
 
@@ -648,7 +702,7 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
               {isRegenerating ? (t('applications.generating') || 'Génération...') : (t('applications.regenerate') || 'Régénérer')}
             </button>
             <button
-              onClick={handleDelete}
+              onClick={onRequestDelete}
               className="p-2 rounded-xl text-txt-muted hover:bg-red-500/10 hover:text-red-500 transition-colors"
               title={t('applications.delete') || 'Delete'}
             >
@@ -806,30 +860,75 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
               <div className="mt-3 pt-3 border-t border-blue-500/20">
                 {app.followUpBody ? (
                   <>
-                    <p className="text-[11px] font-bold text-txt-muted uppercase tracking-wider mb-2">
-                      {t('applications.relancePreview') || 'Relance proposée'}
-                    </p>
-                    <div className="rounded-xl bg-surface2/70 border border-border p-4 mb-3">
-                      <p className="text-[12px] font-semibold text-txt mb-2">{app.followUpSubject}</p>
-                      <p className="text-[12px] text-txt-muted whitespace-pre-wrap leading-relaxed line-clamp-6">
-                        {app.followUpBody}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <p className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">
+                        {t('applications.relancePreview') || 'Relance proposée'}
                       </p>
+                      <div className="flex items-center gap-1">
+                        <FormatToolbar
+                          onFormat={(kind) => relanceFieldRef.current?.runFormat(kind)}
+                          labels={formatLabels}
+                        />
+                        {(relanceDirty || relanceSaved) && (
+                          <button
+                            type="button"
+                            onClick={handleSaveRelance}
+                            disabled={isSavingRelance || !relanceDirty}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors disabled:opacity-60 ${
+                              relanceSaved ? 'text-emerald-500' : 'text-blue-600 dark:text-blue-400 hover:bg-blue-500/10'
+                            }`}
+                          >
+                            {relanceSaved ? <CheckCircleIcon className="w-3.5 h-3.5" /> : null}
+                            {relanceSaved
+                              ? (t('applications.saved') || 'Enregistré !')
+                              : isSavingRelance
+                                ? (t('applications.saving') || 'Enregistrement...')
+                                : (t('applications.save') || 'Enregistrer')}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {/* bg-surface, not surface2: this is the email itself, and
+                        it reads as a sheet of paper on the tinted banner —
+                        white in light mode, the dark panel colour in dark. */}
+                    <div className="rounded-xl bg-surface border border-border overflow-hidden mb-3">
+                      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border text-[12px]">
+                        <span className="text-txt-dim shrink-0">
+                          {t('applications.emailSubject') || 'Objet'}:
+                        </span>
+                        <input
+                          value={relanceSubjectDraft}
+                          onChange={(e) => setRelanceSubjectDraft(e.target.value)}
+                          className="flex-1 bg-transparent font-semibold text-txt outline-none"
+                        />
+                      </div>
+                      <RichTextField
+                        ref={relanceFieldRef}
+                        value={relanceBodyDraft}
+                        onChange={setRelanceBodyDraft}
+                        className="rich-text-field w-full p-4 text-[12px] text-txt leading-relaxed resize-y overflow-y-auto outline-none bg-transparent"
+                        style={{ minHeight: '9em' }}
+                      />
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={handleSendRelance}
-                        disabled={lifecycleBusy}
+                        disabled={lifecycleBusy || isSavingRelance}
                         className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[11px] font-bold hover:bg-blue-500/25 transition-colors disabled:opacity-60"
                       >
-                        <PaperAirplaneIcon className="w-3.5 h-3.5" />
-                        {t('applications.sendRelance') || 'Envoyer la relance'}
+                        {relanceAction === 'send'
+                          ? <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" />
+                          : <PaperAirplaneIcon className="w-3.5 h-3.5" />}
+                        {relanceAction === 'send'
+                          ? (t('applications.sending') || 'Envoi en cours...')
+                          : (t('applications.sendRelance') || 'Envoyer la relance')}
                       </button>
                       <button
                         onClick={handleGenerateRelance}
-                        disabled={lifecycleBusy}
+                        disabled={lifecycleBusy || isSavingRelance}
                         className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-bold text-txt-muted hover:bg-surface2 transition-colors disabled:opacity-60"
                       >
-                        <ArrowPathIcon className={`w-3.5 h-3.5 ${lifecycleBusy ? 'animate-spin' : ''}`} />
+                        <ArrowPathIcon className={`w-3.5 h-3.5 ${relanceAction === 'generate' ? 'animate-spin' : ''}`} />
                         {t('applications.regenerate') || 'Régénérer'}
                       </button>
                     </div>
@@ -840,7 +939,7 @@ function ApplicationDetail({ app, subscription, onBack, onDeleted, onRegenerated
                     disabled={lifecycleBusy}
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 text-[11px] font-bold hover:bg-blue-500/25 transition-colors disabled:opacity-60"
                   >
-                    <SparklesIcon className={`w-3.5 h-3.5 ${lifecycleBusy ? 'animate-pulse' : ''}`} />
+                    <SparklesIcon className={`w-3.5 h-3.5 ${relanceAction === 'generate' ? 'animate-pulse' : ''}`} />
                     {t('applications.generateRelance') || 'Rédiger une relance'}
                   </button>
                 )}
@@ -1225,6 +1324,9 @@ export default function ApplicationsView({ drafts, subscription, initialAppId, o
   const [selected, setSelected] = useState<JobApplication | null>(null);
   const [previewCv, setPreviewCv] = useState<{ id: string; title: string } | null>(null);
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | 'all'>('all');
+  const [pendingDelete, setPendingDelete] = useState<JobApplication | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const consumedInitialId = useRef<string | null>(null);
 
   // A failed fetch must never render as the empty state — "you have no
@@ -1296,6 +1398,28 @@ export default function ApplicationsView({ drafts, subscription, initialAppId, o
     setSelected(null);
   };
 
+  /**
+   * Deleting an application takes its letter, its email and its history with
+   * it, and there is no undo — so both entry points (the card and the detail
+   * header) now open the same confirmation instead of firing immediately.
+   */
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await apiFetch(`/applications/${pendingDelete.id}/`, { method: 'DELETE' });
+      handleDeleted(pendingDelete.id);
+      setPendingDelete(null);
+    } catch (err: any) {
+      // The dialog stays open on failure: closing it would look like the
+      // delete succeeded when the application is still there.
+      setDeleteError(err.message || t('applications.deleteError') || 'Delete failed');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Stable identity: the detail view polls on this while a send is retrying,
   // and a fresh function each render would restart that timer before it ever
   // fired. Both setters are stable, so it has no dependencies.
@@ -1319,7 +1443,7 @@ export default function ApplicationsView({ drafts, subscription, initialAppId, o
             app={selected}
             subscription={subscription}
             onBack={() => setSelected(null)}
-            onDeleted={() => handleDeleted(selected.id)}
+            onRequestDelete={() => setPendingDelete(selected)}
             onRegenerated={handleRegenerated}
             onPreviewCv={() => setPreviewCv({ id: selected.cvId, title: selected.cvTitle })}
           />
@@ -1427,11 +1551,7 @@ export default function ApplicationsView({ drafts, subscription, initialAppId, o
                     delay={i}
                     onOpen={() => setSelected(app)}
                     onPreviewCv={() => setPreviewCv({ id: app.cvId, title: app.cvTitle })}
-                    onDelete={() => {
-                      apiFetch(`/applications/${app.id}/`, { method: 'DELETE' })
-                        .then(() => handleDeleted(app.id))
-                        .catch(() => { /* leave the card in place on failure */ });
-                    }}
+                    onDelete={() => setPendingDelete(app)}
                   />
                 ))}
               </div>
@@ -1458,6 +1578,74 @@ export default function ApplicationsView({ drafts, subscription, initialAppId, o
             cvTitle={previewCv.title}
             onClose={() => setPreviewCv(null)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Delete confirmation */}
+      <AnimatePresence>
+        {pendingDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            // Dismissing by clicking away is fine, but not mid-request: the
+            // delete would still land with no dialog left to report it.
+            onClick={() => { if (!isDeleting) { setPendingDelete(null); setDeleteError(null); } }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-surface border border-border rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+            >
+              <div className="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
+                <TrashIcon className="w-6 h-6 text-red-500" />
+              </div>
+              <h3 className="text-[16px] font-bold text-txt mb-1">
+                {t('applications.confirmDelete') || 'Supprimer cette candidature ?'}
+              </h3>
+
+              {/* Naming the application matters: the trash icon on a card is
+                  small and the grid is dense, so "which one did I click?" is
+                  a real question at this moment. */}
+              <p className="text-[13px] font-semibold text-txt mb-1 truncate">
+                {pendingDelete.jobTitle}
+                <span className="text-txt-muted font-normal"> — {pendingDelete.companyName}</span>
+              </p>
+              <p className="text-[13px] text-txt-muted mb-5">
+                {t('applications.confirmDeleteSub')
+                  || 'Cette action est irréversible. La lettre de motivation, l\'e-mail et l\'historique seront définitivement supprimés.'}
+              </p>
+
+              {deleteError && (
+                <div className="mb-4 rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-[12px] text-red-600 dark:text-red-400">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => { setPendingDelete(null); setDeleteError(null); }}
+                  disabled={isDeleting}
+                  className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:bg-surface transition disabled:opacity-60"
+                >
+                  {t('applications.cancel') || 'Annuler'}
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-red-500 text-white rounded-xl text-[13px] font-medium hover:bg-red-600 transition disabled:opacity-60"
+                >
+                  {isDeleting && <ArrowPathIcon className="w-3.5 h-3.5 animate-spin" />}
+                  {isDeleting
+                    ? (t('applications.deleting') || 'Suppression...')
+                    : (t('applications.delete') || 'Supprimer')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
