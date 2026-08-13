@@ -166,7 +166,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="h-screen bg-bg text-txt font-body flex relative overflow-hidden selection:bg-txt selection:text-bg">
+    <div className="h-dvh bg-bg text-txt font-body flex relative overflow-hidden selection:bg-txt selection:text-bg">
 
       {/* Mobile overlay — same as main dashboard */}
       <AnimatePresence>
@@ -182,7 +182,7 @@ export default function AdminDashboardPage() {
       {/* ═══════════ SIDEBAR — matches main dashboard exactly ═══════════ */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-[260px] h-screen shrink-0 bg-surface/95 backdrop-blur-xl border-r border-border
+        w-[260px] h-dvh shrink-0 bg-surface/95 backdrop-blur-xl border-r border-border
         flex flex-col overflow-hidden
         transform transition-transform duration-300 ease-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -216,7 +216,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Nav links — same style as main dashboard */}
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeView === item.id;
@@ -241,8 +241,13 @@ export default function AdminDashboardPage() {
           })}
         </nav>
 
-        {/* User row — same style as main dashboard */}
-        <div className="px-4 pb-5 space-y-3">
+        {/* User row — same style as main dashboard.
+            Lifted clear of the bottom edge on mobile: a phone browser's URL
+            bar sits over the last strip of the viewport, which was hiding the
+            sign-out row and swallowing taps on it; the safe-area inset covers
+            the iOS home indicator on top of that. Desktop keeps its original
+            spacing. */}
+        <div className="px-4 pb-[calc(8rem+env(safe-area-inset-bottom))] lg:pb-5 space-y-3 shrink-0">
           <div className="flex items-center gap-3 px-1">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-400 flex items-center justify-center text-white font-bold text-[13px] shrink-0">
               {adminUser.name?.charAt(0) || 'A'}
@@ -263,7 +268,7 @@ export default function AdminDashboardPage() {
       </aside>
 
       {/* ═══════════ MAIN CONTENT ═══════════ */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col h-dvh overflow-hidden">
         {/* Top bar — same as main dashboard */}
         <div className="h-16 shrink-0 border-b border-border bg-surface/60 backdrop-blur-xl flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
