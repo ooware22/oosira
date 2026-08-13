@@ -8,10 +8,11 @@ import { useState, useEffect } from 'react';
 import {
   UsersIcon, ChartBarIcon, ArrowRightOnRectangleIcon,
   MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, XMarkIcon,
-  DocumentTextIcon, ArrowDownTrayIcon, SparklesIcon,
+  DocumentTextIcon, SparklesIcon,
   Bars3Icon, CheckCircleIcon, ShieldCheckIcon, CurrencyDollarIcon, PlusIcon,
   CpuChipIcon
 } from '@heroicons/react/24/outline';
+import AdminOverview from '@/components/admin/AdminOverview';
 import AiModelsPanel from '@/components/admin/AiModelsPanel';
 
 type AdminView = 'overview' | 'users' | 'pricing' | 'ai';
@@ -274,62 +275,8 @@ export default function AdminDashboardPage() {
           <AnimatePresence mode="wait">
 
             {/* ── OVERVIEW ── */}
-            {activeView === 'overview' && stats && (
-              <motion.div key="overview" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.3 }}>
-                {/* Stat cards — same card style as main dashboard */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                  {[
-                    { label: 'Total Users', value: stats.totalUsers, icon: UsersIcon, color: 'from-blue-600 to-cyan-400', shadow: 'shadow-blue-500/20' },
-                    { label: 'Pro Users', value: stats.proUsers, icon: SparklesIcon, color: 'from-purple-600 to-pink-400', shadow: 'shadow-purple-500/20' },
-                    { label: 'Total CVs', value: stats.totalCvs, icon: DocumentTextIcon, color: 'from-emerald-600 to-teal-400', shadow: 'shadow-emerald-500/20' },
-                    { label: 'Downloads', value: stats.totalDownloads, icon: ArrowDownTrayIcon, color: 'from-amber-500 to-orange-400', shadow: 'shadow-amber-500/20' },
-                  ].map((s, i) => (
-                    <div key={i} className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-5 hover:border-blue-500/20 transition-all duration-300 group">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">{s.label}</span>
-                        <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center shadow-lg ${s.shadow}`}>
-                          <s.icon className="w-4 h-4 text-white" />
-                        </div>
-                      </div>
-                      <p className="text-3xl font-extrabold text-txt">{s.value}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Secondary stats */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-5">
-                    <span className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">New (7 days)</span>
-                    <p className="text-2xl font-extrabold text-txt mt-2">{stats.newUsers7d}</p>
-                  </div>
-                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-5">
-                    <span className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">New (30 days)</span>
-                    <p className="text-2xl font-extrabold text-txt mt-2">{stats.newUsers30d}</p>
-                  </div>
-                  <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-5">
-                    <span className="text-[11px] font-bold text-txt-muted uppercase tracking-wider">Staff Members</span>
-                    <p className="text-2xl font-extrabold text-txt mt-2">{stats.staffUsers}</p>
-                  </div>
-                </div>
-
-                {/* Weekly chart — same bar chart style as main dashboard */}
-                <div className="bg-surface/80 backdrop-blur-xl border border-border rounded-2xl p-6">
-                  <h3 className="text-[13px] font-bold text-txt mb-5">Weekly Signups</h3>
-                  <div className="flex items-end justify-between gap-2 h-32">
-                    {(stats.weeklySignups || []).map((d: any, i: number) => {
-                      const max = Math.max(...(stats.weeklySignups || []).map((x: any) => x.value), 1);
-                      const pct = (d.value / max) * 100;
-                      return (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                          <span className="text-[10px] font-bold text-txt-muted">{d.value}</span>
-                          <div className="w-full rounded-t-lg bg-gradient-to-t from-blue-600 to-cyan-400 transition-all duration-500" style={{ height: `${Math.max(pct, 4)}%` }} />
-                          <span className="text-[10px] text-txt-dim">{d.day}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </motion.div>
+            {activeView === 'overview' && (
+              <AdminOverview key="overview" apiBase={API_BASE} getToken={getToken} />
             )}
 
             {/* ── USERS ── */}
