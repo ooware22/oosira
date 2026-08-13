@@ -66,13 +66,19 @@ export function DailyRequestsChart({ data }: { data: DailyPoint[] }) {
 
   return (
     <div>
-      <div className="flex items-end gap-1.5 h-40">
+      {/* items-stretch, not items-end: the segments below size themselves in
+          percent, and a percentage height only resolves against a parent with
+          a definite one. Under `items-end` each column shrank to its content,
+          so every bar computed to zero height and the chart rendered blank —
+          while the fixed-height zero-day stub still showed, which made it look
+          like the data was missing rather than the layout. */}
+      <div className="flex items-stretch gap-1.5 h-40">
         {data.map(point => (
           <div key={point.date} className="flex-1 flex flex-col items-center gap-1.5 min-w-0 group">
             <span className="text-[10px] font-bold text-txt-muted opacity-0 group-hover:opacity-100 transition-opacity">
               {point.requests}
             </span>
-            <div className="w-full flex flex-col-reverse justify-start flex-1 rounded-t-md overflow-hidden">
+            <div className="w-full flex flex-col-reverse justify-start flex-1 min-h-0 rounded-t-md overflow-hidden">
               {providers.map(provider => {
                 const value = point.byProvider[provider]?.requests || 0;
                 if (!value) return null;
