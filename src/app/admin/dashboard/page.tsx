@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/Toggles';
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
   UsersIcon, ChartBarIcon, ArrowRightOnRectangleIcon,
   MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, XMarkIcon,
@@ -50,7 +50,17 @@ export default function AdminDashboardPage() {
     fetchPlans();
   }, [router]);
 
-  const getToken = () => localStorage.getItem('adminToken') || '';
+  /**
+   * Stable identity, deliberately.
+   *
+   * The panels below take this as a prop and list it in their fetch effects'
+   * dependencies. As a plain arrow function it was a new value on every
+   * render, so each successful fetch set state, re-rendered, produced a new
+   * function, and re-ran the effect — an unbounded request loop against the
+   * admin API. Reading localStorage on call keeps it always current, so
+   * nothing is stale despite the empty dependency list.
+   */
+  const getToken = useCallback(() => localStorage.getItem('adminToken') || '', []);
 
   const fetchPlans = async () => {
     try {
