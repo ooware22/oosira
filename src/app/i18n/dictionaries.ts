@@ -336,6 +336,20 @@ export const dictionaries = {
       basicPlan: "Basic Plan",
       basicPlanDesc: "5 downloads/mo. 1 free OCR.",
       proPlan: "Pro Plan",
+      // Plan names, keyed by the code returned in effectivePlan.
+      plan: {
+        decouverte: "Découverte",
+        essentiel: "Essentiel",
+        carriere: "Carrière",
+      },
+      // Credit counter. Phrased as what is left, never as an X/Y pair, so
+      // there is nothing to misread as "used".
+      creditsAiLeft: "applications left",
+      creditsDailyLeft: "left today",
+      creditsDailyEmpty: "daily limit reached · more tomorrow",
+      creditsLifetimeSpent: "your free application is used",
+      creditsPdfLeft: "PDF exports left",
+      creditsUnlimited: "No limits on your plan",
       memberSince: "Member since Nov 2025",
       personalInformation: "Personal Information",
       firstName: "First Name",
@@ -636,17 +650,28 @@ export const dictionaries = {
       pro: "Pro",
       proDesc: "Everything you need to stand out.",
       mostPopular: "Most Popular",
-      billedYearly: "Billed 4800 DA yearly",
+      // No price or billing period here: both come from the plans table via
+      // GET /subscriptions/plans/. A hardcoded "4800 DA yearly" lived here and
+      // disagreed with what was actually charged.
       unlimitedPdf: "Unlimited PDF downloads",
       aiOcr: "AI-powered OCR Resume Import",
       premiumTemplates: "All premium templates unlocked",
       advancedColors: "Advanced color palettes & customization",
       prioritySupport: "Priority support",
       upgradePro: "Upgrade to Pro",
+      // Button copy: named per plan rather than generic, since "Upgrade to
+      // Pro" stopped meaning anything once the catalogue became three named
+      // plans. "choose" is a prefix — the button text is built as
+      // `${choose} ${planName}`, e.g. "Choose Essentiel".
+      choose: "Choose",
+      getStarted: "Get Started",
+      // Shown, disabled, on any plan ranked below the one already active —
+      // buying it would extend the subscription while quietly downgrading
+      // its limits, which is never what clicking it means to do.
+      includedInPlan: "Included in your plan",
       downgrade: "Downgrade",
       confirmDowngrade: "Are you sure you want to downgrade to the Basic plan? You will lose access to Pro features.",
-      downgradeSuccess: "You have been downgraded to the Basic plan.",
-      month: "/ month"
+      downgradeSuccess: "You have been downgraded to the Basic plan."
     }
   },
   fr: {
@@ -984,6 +1009,17 @@ export const dictionaries = {
       basicPlan: "Plan Basique",
       basicPlanDesc: "5 téléchargements/mois. 1 OCR gratuit.",
       proPlan: "Plan Pro",
+      plan: {
+        decouverte: "Découverte",
+        essentiel: "Essentiel",
+        carriere: "Carrière",
+      },
+      creditsAiLeft: "candidatures disponibles",
+      creditsDailyLeft: "restante(s) aujourd'hui",
+      creditsDailyEmpty: "limite du jour atteinte · de nouveau demain",
+      creditsLifetimeSpent: "votre candidature offerte est utilisée",
+      creditsPdfLeft: "exports PDF disponibles",
+      creditsUnlimited: "Aucune limite sur votre formule",
       memberSince: "Membre depuis Nov 2025",
       personalInformation: "Informations Personnelles",
       firstName: "Prénom",
@@ -1284,17 +1320,18 @@ export const dictionaries = {
       pro: "Pro",
       proDesc: "Tout ce dont vous avez besoin pour vous démarquer.",
       mostPopular: "Plus Populaire",
-      billedYearly: "Facturé 4800 DA par an",
       unlimitedPdf: "Téléchargements PDF illimités",
       aiOcr: "Importation de CV par l'IA (OCR)",
       premiumTemplates: "Tous les modèles premium débloqués",
       advancedColors: "Palettes de couleurs avancées & personnalisation",
       prioritySupport: "Support prioritaire",
       upgradePro: "Passer à Pro",
+      choose: "Choisir",
+      getStarted: "Commencer",
+      includedInPlan: "Inclus dans votre formule",
       downgrade: "Rétrograder",
       confirmDowngrade: "Êtes-vous sûr de vouloir rétrograder au plan Basique ? Vous perdrez l'accès aux fonctionnalités Pro.",
-      downgradeSuccess: "Vous avez été rétrogradé au plan Basique.",
-      month: "/ mois"
+      downgradeSuccess: "Vous avez été rétrogradé au plan Basique."
     }
   },
   ar: {
@@ -1632,6 +1669,17 @@ export const dictionaries = {
       basicPlan: "الخطة الأساسية",
       basicPlanDesc: "5 تنزيلات/شهرياً. 1 استيراد ذكاء اصطناعي مجاني.",
       proPlan: "الخطة الاحترافية",
+      plan: {
+        decouverte: "الاكتشاف",
+        essentiel: "الأساسي",
+        carriere: "المسار المهني",
+      },
+      creditsAiLeft: "ترشيحات متاحة",
+      creditsDailyLeft: "متبقية اليوم",
+      creditsDailyEmpty: "بلغت حد اليوم · المزيد غدًا",
+      creditsLifetimeSpent: "لقد استخدمت ترشيحك المجاني",
+      creditsPdfLeft: "عمليات تصدير PDF متاحة",
+      creditsUnlimited: "لا حدود في صيغتك",
       memberSince: "عضو منذ نوف 2025",
       personalInformation: "المعلومات الشخصية",
       firstName: "الاسم الأول",
@@ -1932,17 +1980,18 @@ export const dictionaries = {
       pro: "الاحترافية",
       proDesc: "كل ما تحتاجه للتميز.",
       mostPopular: "الأكثر شيوعاً",
-      billedYearly: "يتم فوترة 4800 د.ج سنوياً",
       unlimitedPdf: "تنزيلات PDF غير محدودة",
       aiOcr: "استيراد السيرة الذاتية المدعوم بالذكاء الاصطناعي",
       premiumTemplates: "فتح جميع القوالب المميزة",
       advancedColors: "لوحات ألوان متقدمة وتخصيص",
       prioritySupport: "دعم ذو أولوية",
       upgradePro: "الترقية إلى الاحترافية",
+      choose: "اختر",
+      getStarted: "ابدأ الآن",
+      includedInPlan: "مشمول في صيغتك",
       downgrade: "الرجوع للأساسي",
       confirmDowngrade: "هل أنت متأكد من الرجوع إلى الخطة الأساسية؟ ستفقد الوصول إلى الميزات الاحترافية.",
-      downgradeSuccess: "تم الرجوع إلى الخطة الأساسية.",
-      month: "/ شهر"
+      downgradeSuccess: "تم الرجوع إلى الخطة الأساسية."
     }
   }
 };

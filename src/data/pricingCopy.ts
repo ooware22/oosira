@@ -1,16 +1,13 @@
 /**
- * Fallback pricing copy, shown whenever `GET /subscriptions/plans/` is
- * unreachable. Shared by `src/app/pricing/page.tsx` and
- * `src/components/landing/LandingContent.tsx` — they used to each hardcode
- * their own near-duplicate copy of this, which had already drifted apart
- * (different wording, and both listed "premium templates" / "advanced color
- * palettes" as Pro-only even though every user already has all 5 templates
- * and all 20 palettes — nothing in the app actually gates them).
+ * Shapes for the plan catalogue returned by `GET /subscriptions/plans/`.
  *
- * The bullets below only claim what `useSubscription` actually enforces:
- * PDF download quota and OCR import quota. If the backend `PlanFeature` rows
- * (edited via Django admin) still list the old claims, update them there —
- * this file only controls what's shown when that fetch fails.
+ * Types only, deliberately. This file used to also export FALLBACK_PLANS with
+ * hardcoded amounts, shown whenever that fetch failed — and those amounts drifted:
+ * it advertised 350 DA/month above the line "Facturé 4800 DA par an" (350 × 12 is
+ * 4200), while the backend charged something else again. A price that lives in
+ * two places is a price that will eventually disagree with itself, so the plans
+ * table is now the only one. When the fetch fails, surfaces show a loading or
+ * error state rather than a number nobody can be sure of.
  */
 
 export interface PricingFeature {
@@ -21,10 +18,13 @@ export interface PricingFeature {
 }
 
 export interface PricingPlan {
-  code: 'free' | 'pro';
+  code: string;
   price_da: number;
+  /** Days of access bought; null on the free plan, which never expires. */
+  duration_days: number | null;
   is_popular: boolean;
   icon_type: 'document' | 'sparkles';
+  order: number;
   name_en: string;
   name_fr: string;
   name_ar: string;
@@ -37,44 +37,17 @@ export interface PricingPlan {
   features: PricingFeature[];
 }
 
-export const FALLBACK_PLANS: PricingPlan[] = [
-  {
-    code: 'free',
-    price_da: 0,
-    is_popular: false,
-    icon_type: 'document',
-    name_en: 'Basic',
-    name_fr: 'Basique',
-    name_ar: 'أساسي',
-    desc_en: 'Perfect for starting your job search.',
-    desc_fr: "Parfait pour commencer votre recherche d'emploi.",
-    desc_ar: 'مثالي لبدء البحث عن عمل.',
-    features: [
-      { text_en: 'Build professional CVs', text_fr: 'Créer des CV professionnels', text_ar: 'بناء سير ذاتية احترافية', is_included: true },
-      { text_en: 'All templates and color palettes', text_fr: 'Tous les modèles et palettes de couleurs', text_ar: 'جميع القوالب ولوحات الألوان', is_included: true },
-      { text_en: '5 PDF downloads per month', text_fr: '5 téléchargements PDF par mois', text_ar: '5 تنزيلات PDF شهرياً', is_included: true },
-      { text_en: '1 free AI (OCR) import trial', text_fr: "1 essai gratuit d'importation par IA (OCR)", text_ar: 'تجربة واحدة مجانية للاستيراد بالذكاء الاصطناعي (OCR)', is_included: true },
-    ],
-  },
-  {
-    code: 'pro',
-    price_da: 350,
-    is_popular: true,
-    icon_type: 'sparkles',
-    name_en: 'Pro',
-    name_fr: 'Pro',
-    name_ar: 'برو',
-    desc_en: 'For frequent applications and unlimited exports.',
-    desc_fr: 'Pour les candidatures fréquentes et les exports illimités.',
-    desc_ar: 'للتقديمات المتكررة والتصدير غير المحدود.',
-    billed_text_en: 'Billed 4800 DA yearly',
-    billed_text_fr: 'Facturé 4800 DA par an',
-    billed_text_ar: 'يتم فوترتها 4800 دج سنويا',
-    features: [
-      { text_en: 'Unlimited PDF downloads', text_fr: 'Téléchargements PDF illimités', text_ar: 'تنزيلات PDF غير محدودة', is_included: true },
-      { text_en: 'Unlimited AI (OCR) resume import', text_fr: 'Importation illimitée de CV par IA (OCR)', text_ar: 'استيراد غير محدود للسيرة الذاتية بالذكاء الاصطناعي (OCR)', is_included: true },
-      { text_en: 'All templates and color palettes', text_fr: 'Tous les modèles et palettes de couleurs', text_ar: 'جميع القوالب ولوحات الألوان', is_included: true },
-      { text_en: 'Priority support', text_fr: 'Support prioritaire', text_ar: 'دعم ذو أولوية', is_included: true },
-    ],
-  },
-];
+/** Pick the field for the active language, falling back through fr then en. */
+export function planField(
+  plan: Record<string, unknown> | null | undefined,
+  base: string,
+  language: string,
+): string {
+  if (!plan) return '';
+  return (
+    (plan[`${base}_${language}`] as string) ||
+    (plan[`${base}_fr`] as string) ||
+    (plan[`${base}_en`] as string) ||
+    ''
+  );
+}

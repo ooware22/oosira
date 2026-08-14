@@ -326,7 +326,7 @@ function BuilderPageContent() {
   const dispatch = useDispatch<AppDispatch>();
   const {
     subscription,
-    isPro,
+    isPaid,
     canDownload,
     canOcr,
     refresh: refreshSubscription,
@@ -653,10 +653,10 @@ function BuilderPageContent() {
     if (isAuthenticated && !canOcr) {
       const msg =
         language === "fr"
-          ? "Vous avez d\u00e9j\u00e0 utilis\u00e9 votre essai OCR gratuit. Passez \u00e0 Pro pour des importations illimit\u00e9es."
+          ? "Vous avez d\u00e9j\u00e0 utilis\u00e9 votre import de CV. Choisissez une formule pour des imports illimit\u00e9s."
           : language === "ar"
-            ? "\u0644\u0642\u062f \u0627\u0633\u062a\u062e\u062f\u0645\u062a \u062a\u062c\u0631\u0628\u062a\u0643 \u0627\u0644\u0645\u062c\u0627\u0646\u064a\u0629. \u0642\u0645 \u0628\u0627\u0644\u062a\u0631\u0642\u064a\u0629 \u0625\u0644\u0649 Pro \u0644\u0627\u0633\u062a\u064a\u0631\u0627\u062f \u063a\u064a\u0631 \u0645\u062d\u062f\u0648\u062f."
-            : "You have already used your free OCR trial. Upgrade to Pro for unlimited imports.";
+            ? "\u0644\u0642\u062f \u0627\u0633\u062a\u062e\u062f\u0645\u062a \u0627\u0633\u062a\u064a\u0631\u0627\u062f \u0627\u0644\u0633\u064a\u0631\u0629 \u0627\u0644\u0630\u0627\u062a\u064a\u0629. \u0627\u062e\u062a\u0631 \u0635\u064a\u063a\u0629 \u0644\u0627\u0633\u062a\u064a\u0631\u0627\u062f \u063a\u064a\u0631 \u0645\u062d\u062f\u0648\u062f."
+            : "You have already used your CV import. Choose a plan for unlimited imports.";
       if (confirm(msg)) router.push("/dashboard?view=pricing");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
@@ -1396,14 +1396,17 @@ function BuilderPageContent() {
     }));
   };
   const handlePrint = async () => {
-    // Quota gate – block free users who exhausted 5 downloads
+    // Quota gate. The count comes from the plan rather than being written into
+    // the sentence — it used to say "5" in all three languages, which stopped
+    // being true the moment the plans changed.
     if (isAuthenticated && !canDownload) {
+      const limit = subscription?.pdfDownloadLimit ?? 0;
       const msg =
         language === "fr"
-          ? "Vous avez atteint votre limite de 5 téléchargements ce mois-ci. Passez à Pro pour des téléchargements illimités."
+          ? `Vous avez utilisé vos ${limit} téléchargements ce mois-ci. Choisissez une formule pour des téléchargements illimités.`
           : language === "ar"
-            ? "لقد وصلت إلى حد 5 تنزيلات هذا الشهر. قم بالترقية إلى Pro للتنزيلات غير المحدودة."
-            : "You have reached your 5 downloads limit this month. Upgrade to Pro for unlimited downloads.";
+            ? `لقد استخدمت ${limit} تنزيلات هذا الشهر. اختر صيغة للحصول على تنزيلات غير محدودة.`
+            : `You have used your ${limit} downloads this month. Choose a plan for unlimited downloads.`;
       if (confirm(msg)) {
         router.push("/dashboard?view=pricing");
       }
@@ -1961,7 +1964,7 @@ function BuilderPageContent() {
                 </motion.div>
 
                 {/* Import OCR Resume */}
-                {!isPro ? (
+                {!isPaid ? (
                   <motion.div
                     key="import-trial"
                     variants={fadeUp}

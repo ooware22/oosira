@@ -4,38 +4,40 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import InfoPageShell from '@/components/InfoPageShell';
-import { FALLBACK_PLANS } from '@/data/pricingCopy';
+import { planField } from '@/data/pricingCopy';
+import PlanIcon from '@/components/PlanIcon';
 import {
   CheckCircleIcon,
   XMarkIcon,
-  SparklesIcon,
-  SwatchIcon,
 } from '@heroicons/react/24/outline';
 
 const TRANSLATIONS: Record<string, any> = {
   fr: {
-    subtitle: "Débloquez les outils professionnels et des modèles illimités pour propulser votre carrière.",
-    free: 'Gratuit', pro: 'Pro',
-    month: '/ mois', popular: 'Plus Populaire',
-    subscribe: "S'abonner", basic: 'Commencer',
+    subtitle: "Choisissez la formule adaptée à votre recherche. Paiement unique, sans reconduction.",
+    free: 'Gratuit',
+    popular: 'Recommandé',
+    subscribe: 'Choisir cette formule', basic: 'Commencer',
     processing: 'Traitement...',
     faq: 'Questions fréquentes',
+    plansUnavailable: "Les formules ne sont pas disponibles pour le moment. Réessayez dans un instant.",
   },
   en: {
-    subtitle: "Unlock professional tools and unlimited templates to boost your career.",
-    free: 'Free', pro: 'Pro',
-    month: '/ month', popular: 'Most Popular',
-    subscribe: 'Subscribe', basic: 'Get Started',
+    subtitle: 'Pick the plan that fits your search. One-off payment, no auto-renewal.',
+    free: 'Free',
+    popular: 'Recommended',
+    subscribe: 'Choose this plan', basic: 'Get Started',
     processing: 'Processing...',
     faq: 'FAQ',
+    plansUnavailable: 'Plans are unavailable right now. Please try again in a moment.',
   },
   ar: {
-    subtitle: "افتح الأدوات الاحترافية وقوالب غير محدودة لتطوير مسيرتك المهنية.",
-    free: 'مجاني', pro: 'برو',
-    month: '/ شهرياً', popular: 'الأكثر شيوعاً',
-    subscribe: 'اشترك الآن', basic: 'ابدأ مجاناً',
+    subtitle: 'اختر الصيغة المناسبة لبحثك. دفعة واحدة، بدون تجديد تلقائي.',
+    free: 'مجاني',
+    popular: 'موصى به',
+    subscribe: 'اختر هذه الصيغة', basic: 'ابدأ مجاناً',
     processing: 'جاري المعالجة...',
     faq: 'الأسئلة الشائعة',
+    plansUnavailable: 'الصيغ غير متاحة حالياً. يرجى المحاولة بعد قليل.',
   },
 };
 
@@ -43,30 +45,34 @@ export default function PricingPage() {
   const { language } = useLanguage();
   const tr = TRANSLATIONS[language] || TRANSLATIONS.fr;
   const [plans, setPlans] = useState<any[]>([]);
+  const [plansState, setPlansState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const getField = (obj: any, base: string) =>
-    obj?.[`${base}_${language}`] || obj?.[`${base}_fr`] || obj?.[`${base}_en`] || '';
+  const getField = (obj: any, base: string) => planField(obj, base, language);
 
   useEffect(() => {
     async function fetchPlans() {
       try {
         const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
         const res = await fetch(`${API}/subscriptions/plans/`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            data.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-            setPlans(data);
-          }
-        }
-      } catch { /* use fallback */ }
+        if (!res.ok) throw new Error(String(res.status));
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error('empty');
+        data.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+        setPlans(data);
+        setPlansState('ready');
+      } catch {
+        // No hardcoded prices to fall back on any more — showing a stale number
+        // is worse than showing none, because the checkout would charge the
+        // real one.
+        setPlansState('error');
+      }
     }
     fetchPlans();
   }, []);
 
-  const handleUpgrade = async (planCode: string) => {
-    if (planCode === 'free') { window.location.href = '/builder'; return; }
+  const handleUpgrade = async (planCode: string, priceDa: number) => {
+    if (!priceDa) { window.location.href = '/builder'; return; }
     const token = localStorage.getItem('oosira_token');
     if (!token) { window.location.href = '/login?redirect=pricing'; return; }
     setIsCheckingOut(true);
@@ -75,7 +81,7 @@ export default function PricingPage() {
       const res = await fetch(`${API}/subscriptions/checkout/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ billing_cycle: 'yearly', locale: language }),
+        body: JSON.stringify({ plan_code: planCode, locale: language }),
       });
       const data = await res.json();
       if (data.checkout_url) window.location.href = data.checkout_url;
@@ -87,13 +93,27 @@ export default function PricingPage() {
     }
   };
 
-  const displayPlans = plans.length > 0 ? plans : FALLBACK_PLANS;
+  const displayPlans = plans;
 
   return (
     <InfoPageShell title={language === 'ar' ? 'اختر خطتك' : language === 'en' ? 'Choose Your Plan' : 'Choisissez votre forfait'}>
       <p className="!text-[16px] !text-txt-muted !mb-12 text-center">{tr.subtitle}</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose !mb-14 max-w-3xl mx-auto">
+      {plansState === 'loading' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose !mb-14 max-w-5xl mx-auto">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-[420px] rounded-3xl bg-surface border border-border animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {plansState === 'error' && (
+        <p className="not-prose !mb-14 text-center text-[13px] text-txt-muted">
+          {tr.plansUnavailable}
+        </p>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 not-prose !mb-14 max-w-5xl mx-auto">
         {displayPlans.map((plan: any) => {
           const isPopular = plan.is_popular;
           const hasPrice = plan.price_da > 0;
@@ -114,19 +134,22 @@ export default function PricingPage() {
 
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  {plan.icon_type === 'sparkles'
-                    ? <SparklesIcon className="w-5 h-5 text-blue-500" />
-                    : <SwatchIcon className="w-5 h-5 text-emerald-500" />}
+                  <PlanIcon
+                    type={plan.icon_type}
+                    className={`w-5 h-5 shrink-0 ${isPopular ? 'text-blue-500' : 'text-emerald-500'}`}
+                  />
                   <h3 className="font-bold text-[18px] text-txt">{getField(plan, 'name')}</h3>
                 </div>
 
                 <p className="text-[13px] text-txt-muted mb-5 leading-relaxed">{getField(plan, 'desc')}</p>
 
+                {/* No "/ month" suffix: these are one-off purchases with a
+                    fixed period of access, not a recurring subscription. The
+                    period is stated in billed_text below. */}
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-4xl font-black text-txt">
                     {hasPrice ? `${plan.price_da} DA` : tr.free}
                   </span>
-                  {hasPrice && <span className="text-[13px] text-txt-muted">{tr.month}</span>}
                 </div>
 
                 {hasPrice ? (
@@ -150,7 +173,7 @@ export default function PricingPage() {
               </div>
 
               <button
-                onClick={() => handleUpgrade(plan.code)}
+                onClick={() => handleUpgrade(plan.code, plan.price_da)}
                 className={`w-full py-3.5 rounded-xl font-bold text-[14px] transition-all duration-300 active:scale-[0.98] cursor-pointer ${
                   !hasPrice
                     ? 'text-txt bg-black/5 dark:bg-white/5 border border-border hover:bg-black/10 dark:hover:bg-white/10'

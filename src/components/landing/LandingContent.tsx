@@ -32,7 +32,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
-import { FALLBACK_PLANS } from '@/data/pricingCopy';
+import PlanIcon from '@/components/PlanIcon';
 
 const fadeUpVariant = {
   hidden: { opacity: 0, y: 20 },
@@ -233,8 +233,10 @@ export default function LandingContent() {
     return obj[field] || obj[`${baseField}_fr`] || obj[`${baseField}_en`] || '';
   };
 
-  const handleUpgrade = async (planCode: string) => {
-    if (planCode === 'free') {
+  const handleUpgrade = async (planCode: string, priceDa: number) => {
+    // Priced at zero means the free plan, whatever it happens to be called —
+    // matching on a code would break the moment the catalogue is renamed.
+    if (!priceDa) {
       window.location.href = '/builder';
       return;
     }
@@ -252,7 +254,7 @@ export default function LandingContent() {
           Authorization: `Bearer ${localStorage.getItem('oosira_token')}`,
         },
         body: JSON.stringify({
-          billing_cycle: 'yearly',
+          plan_code: planCode,
           locale: language === 'ar' ? 'ar' : language === 'fr' ? 'fr' : 'en',
         }),
       });
@@ -1032,8 +1034,8 @@ export default function LandingContent() {
                 </p>
 
                 {/* Plans Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-7">
-                  {(plans.length > 0 ? plans : FALLBACK_PLANS).map((plan: any) => {
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-7">
+                  {plans.map((plan: any) => {
                     const isPopular = plan.is_popular;
                     const hasPrice = plan.price_da > 0;
                     return (
@@ -1052,11 +1054,10 @@ export default function LandingContent() {
                         )}
                         <div>
                           <div className="flex items-center gap-1.5 mb-2.5">
-                            {plan.icon_type === 'sparkles' ? (
-                              <SparklesIcon className="w-5 h-5 text-blue-500" />
-                            ) : (
-                              <SwatchIcon className="w-5 h-5 text-emerald-500" />
-                            )}
+                            <PlanIcon
+                              type={plan.icon_type}
+                              className={`w-5 h-5 shrink-0 ${isPopular ? 'text-blue-500' : 'text-emerald-500'}`}
+                            />
                             <h3 className="font-bold text-[16px] text-txt">{getLocalizedField(plan, 'name')}</h3>
                           </div>
                           
@@ -1064,15 +1065,12 @@ export default function LandingContent() {
                             {getLocalizedField(plan, 'desc')}
                           </p>
 
+                          {/* No "/ month": these are one-off purchases with a
+                              fixed period of access, stated in billed_text. */}
                           <div className="flex items-baseline gap-1 mb-1">
                             <span className="text-3xl font-black text-txt">
                               {hasPrice ? `${plan.price_da} DA` : (language === 'ar' ? 'مجاني' : (language === 'fr' ? 'Gratuit' : 'Free'))}
                             </span>
-                            {hasPrice && (
-                              <span className="text-[12px] text-txt-muted">
-                                {language === 'ar' ? '/ شهرياً' : (language === 'fr' ? '/ mois' : '/ month')}
-                              </span>
-                            )}
                           </div>
 
                           {hasPrice ? (
@@ -1101,7 +1099,7 @@ export default function LandingContent() {
 
                         {/* Button below card */}
                         <button
-                          onClick={() => handleUpgrade(plan.code)}
+                          onClick={() => handleUpgrade(plan.code, plan.price_da)}
                           className={`w-full py-3 rounded-xl font-bold text-[13px] transition-all duration-300 active:scale-[0.98] cursor-pointer ${
                             !hasPrice
                               ? 'text-txt bg-black/5 dark:bg-white/5 border border-border hover:bg-black/10 dark:hover:bg-white/10'

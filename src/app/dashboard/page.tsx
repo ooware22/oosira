@@ -47,7 +47,8 @@ import {
   BriefcaseIcon,
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
-import { useSubscription } from '@/app/hooks/useSubscription';
+import { useSubscription, type SubscriptionStatus } from '@/app/hooks/useSubscription';
+import PlanIcon from '@/components/PlanIcon';
 import { useMailAccounts } from '@/app/hooks/useMailAccounts';
 import AnalyticsView from '@/components/dashboard/AnalyticsView';
 import ApplicationsView from './ApplicationsView';
@@ -554,12 +555,65 @@ function CVCard({ draft, onEdit, onDuplicate, onDelete, delay, displayMode = 'gr
 
 
 // ── Pricing View ──
+/**
+ * What the user has left, stated as a count of what remains.
+ *
+ * Format follows the spec's rule: a number plus what it is plus when it comes
+ * back — "2 candidatures disponibles · +3 demain". A bare progress bar or an
+ * X/Y pair leaves the reader guessing which half is spent.
+ */
+function CreditSummary({ subscription, t }: { subscription: SubscriptionStatus; t: (k: string) => string }) {
+  const lines: string[] = [];
+
+  const ai = subscription.coverLettersRemaining;
+  if (ai !== null) {
+    lines.push(`${ai} ${t('dashboard.creditsAiLeft')}`);
+    if (ai === 0 && subscription.coverLettersAreLifetime) {
+      lines.push(t('dashboard.creditsLifetimeSpent'));
+    }
+  }
+
+  // Only worth mentioning once it actually bites — a daily cap the user is
+  // nowhere near is noise.
+  const daily = subscription.dailyGenerationsRemaining;
+  if (daily !== null && ai !== 0 && daily <= 1) {
+    lines.push(
+      daily === 0
+        ? t('dashboard.creditsDailyEmpty')
+        : `${daily} ${t('dashboard.creditsDailyLeft')}`,
+    );
+  }
+
+  const pdf = subscription.pdfDownloadsRemaining;
+  if (pdf !== null) {
+    lines.push(`${pdf} ${t('dashboard.creditsPdfLeft')}`);
+  }
+
+  if (!lines.length) {
+    return (
+      <p className="text-[11px] text-txt-muted leading-relaxed">
+        {t('dashboard.creditsUnlimited')}
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-[11px] text-txt-muted leading-relaxed">
+      {lines.join(' · ')}
+    </p>
+  );
+}
+
 function PricingView({ subscription }: { subscription: ReturnType<typeof useSubscription> }) {
   const { t, language } = useLanguage();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [plans, setPlans] = useState<any[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
-  const currentPlan = subscription.subscription?.effectivePlan || 'free';
+  const currentPlan = subscription.subscription?.effectivePlan || 'decouverte';
+  // `order` is the catalogue's own rank (1 = Découverte … 3 = Carrière), so a
+  // plan ranked below the active one is a downgrade — buying it would extend
+  // the subscription while quietly shrinking the limits that time comes with.
+  const currentPlanOrder = plans.find(p => p.code === currentPlan)?.order ?? null;
 
   useEffect(() => {
     async function fetchPlans() {
@@ -581,6 +635,11 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
 
   const handleUpgrade = async (planCode: string) => {
     if (currentPlan === planCode || isCheckingOut) return;
+    // Mirrors the disabled button below; kept here too since this is the
+    // function that actually spends money, and the button's own state could
+    // in principle lag the fetch. The backend refuses this independently.
+    const targetOrder = plans.find(p => p.code === planCode)?.order;
+    if (currentPlanOrder != null && targetOrder != null && targetOrder < currentPlanOrder) return;
     setIsCheckingOut(true);
     try {
       const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
@@ -591,7 +650,7 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
           Authorization: `Bearer ${localStorage.getItem('oosira_token')}`,
         },
         body: JSON.stringify({
-          billing_cycle: 'yearly',
+          plan_code: planCode,
           locale: language === 'ar' ? 'ar' : language === 'fr' ? 'fr' : 'en',
         }),
       });
@@ -615,7 +674,7 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       transition={{ duration: 0.3 }}
-      className="max-w-5xl mx-auto"
+      className="max-w-6xl mx-auto"
     >
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h2 className="text-3xl md:text-4xl font-bold text-txt mb-4 tracking-tight">
@@ -627,18 +686,21 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
 
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      {/* Three across from lg up, at max-w-6xl rather than 5xl — the catalogue
+          grew from two plans to three, and the narrower container left each
+          card cramped once a third one had to fit on the same row. */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {isLoadingPlans ? (
-          <div className="col-span-2 text-center text-txt-muted py-12">
+          <div className="lg:col-span-3 text-center text-txt-muted py-12">
             <span className="inline-block w-8 h-8 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></span>
           </div>
         ) : plans.length === 0 ? (
-          <div className="col-span-2 text-center text-txt-muted py-12">No plans available at the moment.</div>
+          <div className="lg:col-span-3 text-center text-txt-muted py-12">No plans available at the moment.</div>
         ) : (
           plans.map((plan) => (
-            <div 
-              key={plan.code} 
-              className={`rounded-3xl bg-surface p-8 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col ${plan.is_popular ? 'border-2 shadow-2xl border-blue-500 shadow-blue-500/10' : 'border border-border hover:border-blue-500/30 group'}`}
+            <div
+              key={plan.code}
+              className={`rounded-3xl bg-surface p-6 shadow-sm transition-all duration-300 relative overflow-hidden flex flex-col ${plan.is_popular ? 'border-2 shadow-2xl border-blue-500 shadow-blue-500/10' : 'border border-border hover:border-blue-500/30 group'}`}
             >
               {plan.is_popular && (
                 <div className="absolute top-0 right-0 rtl:left-0 rtl:right-auto bg-blue-500 text-white px-4 py-1 rounded-bl-xl rtl:rounded-br-xl rtl:rounded-bl-none font-bold text-sm tracking-wider uppercase">
@@ -648,18 +710,18 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
               
               <div className="mb-8">
                 <h3 className="text-2xl font-bold text-txt flex items-center gap-2">
-                  {plan.icon_type === 'sparkles' ? (
-                    <SparklesIcon className={`w-6 h-6 ${plan.is_popular ? 'text-blue-500' : 'text-txt-muted'}`} />
-                  ) : (
-                    <DocumentTextIcon className={`w-6 h-6 ${plan.is_popular ? 'text-blue-500' : 'text-txt-muted'}`} />
-                  )}
+                  <PlanIcon
+                    type={plan.icon_type}
+                    className={`w-6 h-6 shrink-0 ${plan.is_popular ? 'text-blue-500' : 'text-txt-muted'}`}
+                  />
                   {plan[`name_${language}`] || plan.name_en}
                 </h3>
                 <p className="text-txt-muted mt-2 text-sm">{plan[`desc_${language}`] || plan.desc_en}</p>
                 
+                {/* No "/ month": one-off purchases with a fixed period of
+                    access, which billed_text states below. */}
                 <div className="mt-6 flex items-baseline gap-2">
                   <span className="text-5xl font-extrabold text-txt">{plan.price_da > 0 ? `${plan.price_da} DA` : (t('pricing.free') || "Free")}</span>
-                  {plan.price_da > 0 && <span className="text-txt-muted font-medium">{t('pricing.month') || "/ month"}</span>}
                 </div>
                 {plan.price_da > 0 && <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-2 font-medium">{plan[`billed_text_${language}`] || plan.billed_text_en}</p>}
               </div>
@@ -679,30 +741,46 @@ function PricingView({ subscription }: { subscription: ReturnType<typeof useSubs
                 ))}
               </ul>
 
-              <button
-                onClick={() => handleUpgrade(plan.code)}
-                disabled={currentPlan === plan.code || (plan.price_da === 0 && currentPlan !== 'free') || (isCheckingOut && currentPlan !== plan.code)}
-                className={`mt-auto w-full py-4 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-70 ${
-                  currentPlan === plan.code || (plan.price_da === 0 && currentPlan !== 'free')
-                    ? 'text-txt-muted bg-surface2 border border-border cursor-default' 
-                    : plan.is_popular 
-                      ? 'text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'
-                      : 'text-white bg-emerald-500 hover:bg-emerald-600'
-                }`}
-              >
-                {isCheckingOut ? (
-                  <span className="inline-flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {t('pricing.processing') || "Processing..."}
-                  </span>
-                ) : currentPlan === plan.code ? (
-                  t('pricing.currentPlan') || "Current Plan"
-                ) : plan.price_da === 0 ? (
-                  t('pricing.basic') || "Basic"
-                ) : (
-                  t('pricing.upgradePro') || "Upgrade"
-                )}
-              </button>
+              {(() => {
+                const isCurrent = currentPlan === plan.code;
+                // Ranked below the plan already active — buying it would add
+                // time at the cost of shrinking the limits that time comes
+                // with, which is never what clicking it is asking for. The
+                // backend refuses this independently; this only keeps the
+                // button from inviting the click.
+                const isLowerTier = !isCurrent && currentPlanOrder != null && plan.order < currentPlanOrder;
+                const isMuted = isCurrent || isLowerTier;
+                const planName = plan[`name_${language}`] || plan.name_en;
+
+                return (
+                  <button
+                    onClick={() => handleUpgrade(plan.code)}
+                    disabled={isMuted || (isCheckingOut && !isCurrent)}
+                    className={`mt-auto w-full py-4 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-70 ${
+                      isMuted
+                        ? 'text-txt-muted bg-surface2 border border-border cursor-default'
+                        : plan.is_popular
+                          ? 'text-white bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'
+                          : 'text-white bg-emerald-500 hover:bg-emerald-600'
+                    }`}
+                  >
+                    {isCheckingOut && !isCurrent ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        {t('pricing.processing') || "Processing..."}
+                      </span>
+                    ) : isCurrent ? (
+                      t('pricing.currentPlan') || "Current Plan"
+                    ) : isLowerTier ? (
+                      t('pricing.includedInPlan') || "Included in your plan"
+                    ) : plan.price_da === 0 ? (
+                      t('pricing.getStarted') || "Get Started"
+                    ) : (
+                      `${t('pricing.choose') || 'Choose'} ${planName}`
+                    )}
+                  </button>
+                );
+              })()}
             </div>
           ))
         )}
@@ -808,6 +886,12 @@ function DashboardContent() {
   const dispatch = useDispatch<AppDispatch>();
   const stats = useSelector((state: RootState) => state.stats);
   const sub = useSubscription();
+
+  // The status endpoint returns a plan code; the display names live in the
+  // dictionaries so Arabic gets a real translation rather than a French word.
+  const planLabel = t(
+    `dashboard.plan.${sub.subscription?.effectivePlan || 'decouverte'}`,
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -992,30 +1076,24 @@ function DashboardContent() {
           {/* Plan badge */}
           <button onClick={() => { setActiveView('pricing'); setSidebarOpen(false); }} className="w-full text-left block bg-surface2 border border-border rounded-xl p-3.5 hover:border-blue-500/40 transition-colors group">
             <div className="flex items-center gap-2 mb-1.5">
-              {sub.isPro ? (
-                <SparklesIcon className="w-4 h-4 text-blue-500 transition-colors" />
-              ) : (
-                <DocumentTextIcon className="w-4 h-4 text-txt-muted group-hover:text-blue-500 transition-colors" />
-              )}
+              <PlanIcon
+                type={sub.subscription?.planIcon}
+                className={`w-4 h-4 shrink-0 transition-colors ${
+                  sub.isPaid ? 'text-blue-500' : 'text-txt-muted group-hover:text-blue-500'
+                }`}
+              />
               <span className={`text-[12px] font-bold uppercase tracking-wider transition-colors ${
-                sub.isPro ? 'text-blue-500' : 'text-txt-muted group-hover:text-blue-500'
-              }`}>{sub.isPro ? (t('dashboard.proPlan') || 'Pro Plan') : (t('dashboard.basicPlan') || 'Basic Plan')}</span>
+                sub.isPaid ? 'text-blue-500' : 'text-txt-muted group-hover:text-blue-500'
+              }`}>{planLabel}</span>
             </div>
-            {sub.isPro ? (
-              <p className="text-[11px] text-txt-muted leading-relaxed">{t('pricing.unlimitedPdf') || 'Unlimited downloads'}</p>
-            ) : (
-              <>
-                <p className="text-[11px] text-txt-muted leading-relaxed">
-                  {sub.subscription ? `${sub.subscription.pdfDownloadsRemaining}/${sub.subscription.pdfDownloadLimit}` : '5/5'}
-                  {' '}{t('dashboard.statDownloads') || 'downloads left'}
-                </p>
-                <div className="mt-1.5 h-1 bg-surface rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full transition-all duration-500"
-                    style={{ width: `${sub.subscription ? ((sub.subscription.pdfDownloadsRemaining / sub.subscription.pdfDownloadLimit) * 100) : 100}%` }}
-                  />
-                </div>
-              </>
+            {/* Say what is left, in words. The old badge rendered "3/5
+                Téléchargements", which reads as 3 of 5 used when 3 is what
+                remains — and fell back to a literal "5/5" with a full bar
+                whenever the status fetch failed, so an exhausted user saw a
+                full allowance. Nothing is shown at all until the real numbers
+                arrive. */}
+            {sub.subscription && (
+              <CreditSummary subscription={sub.subscription} t={t} />
             )}
           </button>
 
@@ -1383,12 +1461,12 @@ function DashboardContent() {
                       <p className="text-[13px] text-txt-muted">{user.email}</p>
                       <div className="flex items-center gap-3 mt-2 flex-wrap">
                         <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
-                          sub.isPro
+                          sub.isPaid
                             ? 'text-blue-600 dark:text-blue-400 bg-blue-500/10'
                             : 'text-txt-muted bg-surface2'
                         }`}>
-                          {sub.isPro && <SparklesIcon className="w-3 h-3" />}
-                          {sub.isPro ? (t('dashboard.proPlan') || 'Pro Plan') : (t('dashboard.basicPlan') || 'Basic Plan')}
+                          <PlanIcon type={sub.subscription?.planIcon} className="w-3 h-3 shrink-0" />
+                          {planLabel}
                         </span>
                         {/* The real signup date. This used to read "Member
                             since Nov 2025" for everyone, hardcoded. */}

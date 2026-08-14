@@ -8,12 +8,12 @@ import { useCallback, useState, useEffect } from 'react';
 import {
   UsersIcon, ChartBarIcon, ArrowRightOnRectangleIcon,
   MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, XMarkIcon,
-  DocumentTextIcon, SparklesIcon,
   Bars3Icon, CheckCircleIcon, ShieldCheckIcon, CurrencyDollarIcon, PlusIcon,
   CpuChipIcon
 } from '@heroicons/react/24/outline';
 import AdminOverview from '@/components/admin/AdminOverview';
 import AiModelsPanel from '@/components/admin/AiModelsPanel';
+import PlanIcon, { PLAN_ICON_TYPES } from '@/components/PlanIcon';
 
 type AdminView = 'overview' | 'users' | 'pricing' | 'ai';
 
@@ -389,7 +389,15 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-txt">Subscription Plans</h3>
                   <button
-                    onClick={() => setEditingPlan({ code: '', price_da: 0, features: [], is_popular: false })}
+                    onClick={() => setEditingPlan({
+                      code: '', price_da: 0, features: [], is_popular: false,
+                      // Nulls, not zeroes: a new plan starts unlimited and is
+                      // narrowed deliberately. Defaulting to 0 would ship a
+                      // plan that grants nothing.
+                      duration_days: null, ai_monthly_limit: null, ai_daily_limit: null,
+                      pdf_monthly_limit: null, ocr_lifetime_limit: null,
+                      ai_resets_monthly: true, is_active: true,
+                    })}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-blue-500/20"
                   >
                     <PlusIcon className="w-5 h-5" /> Add Plan
@@ -407,7 +415,7 @@ export default function AdminDashboardPage() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h4 className="text-lg font-bold text-txt flex items-center gap-2">
-                            {p.icon_type === 'sparkles' ? <SparklesIcon className="w-5 h-5 text-blue-500" /> : <DocumentTextIcon className="w-5 h-5 text-txt-muted" />}
+                            <PlanIcon type={p.icon_type} className="w-5 h-5 text-blue-500" />
                             {p.name_en}
                           </h4>
                           <p className="text-sm text-txt-muted mt-1">{p.desc_en}</p>
@@ -540,6 +548,80 @@ export default function AdminDashboardPage() {
                   <div className="space-y-1.5">
                     <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Price (DA)</label>
                     <input type="number" required value={editingPlan.price_da} onChange={e => setEditingPlan({ ...editingPlan, price_da: parseInt(e.target.value) || 0 })} className="w-full bg-surface2 border border-border rounded-xl px-4 py-2.5 text-[13px] text-txt outline-none focus:border-blue-500" />
+                  </div>
+                </div>
+
+                {/* What the plan grants. These sit next to the price on
+                    purpose: they used to be FREE_* constants in settings.py
+                    while this form edited only the marketing copy, so the
+                    advertised offer and the enforced one drifted apart.
+                    Blank means unlimited — distinct from 0, which means none. */}
+                <div className="space-y-3 border border-border rounded-xl p-4 bg-surface2/40">
+                  <div className="flex items-baseline justify-between">
+                    <h4 className="font-bold text-sm text-txt">Entitlements</h4>
+                    <span className="text-[10px] text-txt-dim">blank = unlimited · 0 = none</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {([
+                      ['duration_days', 'Access (days)'],
+                      ['ai_monthly_limit', 'AI / month'],
+                      ['ai_daily_limit', 'AI / day'],
+                      ['pdf_monthly_limit', 'PDF / month'],
+                      ['ocr_lifetime_limit', 'OCR / lifetime'],
+                    ] as const).map(([field, label]) => (
+                      <div key={field} className="space-y-1.5">
+                        <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{label}</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={editingPlan[field] ?? ''}
+                          onChange={e => setEditingPlan({
+                            ...editingPlan,
+                            [field]: e.target.value === '' ? null : parseInt(e.target.value),
+                          })}
+                          placeholder="∞"
+                          className="w-full bg-surface2 border border-border rounded-xl px-3 py-2 text-[13px] text-txt outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    ))}
+                    <div className="space-y-1.5">
+                      <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">AI resets</label>
+                      <button
+                        type="button"
+                        onClick={() => setEditingPlan({ ...editingPlan, ai_resets_monthly: !editingPlan.ai_resets_monthly })}
+                        className={`w-full px-3 py-2 rounded-xl text-[12px] font-bold border transition-colors ${
+                          editingPlan.ai_resets_monthly
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                            : 'bg-amber-500/10 border-amber-500/30 text-amber-500'
+                        }`}
+                      >
+                        {editingPlan.ai_resets_monthly ? 'Monthly' : 'Lifetime'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Picked from the icons that actually exist, rather than
+                      typed: a free-text icon_type silently renders the
+                      fallback when it does not match. */}
+                  <div className="space-y-1.5 pt-1">
+                    <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">Icon</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {PLAN_ICON_TYPES.map((icon) => (
+                        <button
+                          key={icon}
+                          type="button"
+                          title={icon}
+                          onClick={() => setEditingPlan({ ...editingPlan, icon_type: icon })}
+                          className={`p-2.5 rounded-xl border transition-colors ${
+                            editingPlan.icon_type === icon
+                              ? 'bg-blue-500/10 border-blue-500/40 text-blue-500'
+                              : 'bg-surface2 border-border text-txt-muted hover:text-txt'
+                          }`}
+                        >
+                          <PlanIcon type={icon} className="w-5 h-5" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
