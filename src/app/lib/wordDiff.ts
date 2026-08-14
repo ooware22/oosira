@@ -67,7 +67,23 @@ export function hasChanges(original: string, corrected: string): boolean {
   return original !== corrected;
 }
 
-/** Number of changed words, for a "N corrections" summary. */
+/**
+ * Number of corrections, for a "N corrections" summary. A single substitution
+ * is one "removed" segment immediately followed by one "added" segment, so
+ * counting segments would count each correction twice — this counts clusters
+ * of consecutive non-same segments instead, which is one per edit.
+ */
 export function countChanges(segments: DiffSegment[]): number {
-  return segments.filter((s) => s.type !== 'same' && s.text.trim() !== '').length;
+  let count = 0;
+  let inEdit = false;
+  for (const seg of segments) {
+    const isEdit = seg.type !== 'same' && seg.text.trim() !== '';
+    if (isEdit) {
+      if (!inEdit) count++;
+      inEdit = true;
+    } else {
+      inEdit = false;
+    }
+  }
+  return count;
 }

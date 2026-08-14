@@ -8,7 +8,7 @@ import { diffWords, countChanges, DiffSegment } from '@/app/lib/wordDiff';
 import {
   CheckCircleIcon,
   XMarkIcon,
-  SparklesIcon,
+  LanguageIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
@@ -115,7 +115,7 @@ export default function SpellCheckModal({ fields, language, onApply, onClose }: 
       >
         <div className="flex items-center justify-between px-6 py-5 border-b border-border shrink-0">
           <h2 className="text-[16px] font-bold text-txt flex items-center gap-2">
-            <SparklesIcon className="w-5 h-5 text-blue-500" />
+            <LanguageIcon className="w-5 h-5 text-blue-500" />
             {t('spellcheck.title') || "Correction de l'orthographe"}
           </h2>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted">
