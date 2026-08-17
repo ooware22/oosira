@@ -367,7 +367,9 @@ export default function SendApplicationWizard({
           <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
         </Link>
       </div>
-      <div className="rounded-2xl bg-surface2/40 border border-border p-4 flex justify-center overflow-auto">
+      {/* flex-col, same fix as CvPreviewOverlay in ApplicationsView.tsx: a
+          flex row laid multi-page CVs out side by side instead of stacked. */}
+      <div className="rounded-2xl bg-surface2/40 border border-border p-4 flex flex-col items-center gap-4 overflow-auto">
         {cvError ? (
           <p className="text-sm text-red-600 dark:text-red-400 py-10">{cvError}</p>
         ) : !cv ? (

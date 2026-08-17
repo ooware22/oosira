@@ -228,7 +228,13 @@ function CvPreviewOverlay({ cvId, cvTitle, onClose }: {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto p-6 bg-surface2/40 flex justify-center">
+        {/* flex-col: PaginatedCV renders one sibling div per sheet, and a
+            flex row (the default) laid a 2-page CV out side by side instead
+            of stacked — items-center for the horizontal centering that
+            justify-center was doing before, since justify-center now
+            controls the vertical axis and clips the top of an overflowing
+            column instead of scrolling to it. */}
+        <div className="flex-1 overflow-auto p-6 bg-surface2/40 flex flex-col items-center gap-6">
           {error ? (
             <div className="text-sm text-red-600 dark:text-red-400 py-10">{error}</div>
           ) : !layout ? (
