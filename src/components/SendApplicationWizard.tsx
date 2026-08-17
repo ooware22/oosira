@@ -367,24 +367,32 @@ export default function SendApplicationWizard({
           <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
         </Link>
       </div>
-      {/* flex-col, same fix as CvPreviewOverlay in ApplicationsView.tsx: a
-          flex row laid multi-page CVs out side by side instead of stacked. */}
-      <div className="rounded-2xl bg-surface2/40 border border-border p-4 flex flex-col items-center gap-4 overflow-auto">
-        {cvError ? (
-          <p className="text-sm text-red-600 dark:text-red-400 py-10">{cvError}</p>
-        ) : !cv ? (
-          <div className="py-20">
-            <span className="inline-block w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-          </div>
-        ) : (
-          <PaginatedCV
-            layout={getLayoutBuilder(cv.templateId)(normalizeCandidate(cv.cvData), cv.styleConfig, t, language)}
-            cssVars={styleToCSSVars(cv.styleConfig) as React.CSSProperties}
-            dir={language === 'ar' ? 'rtl' : 'ltr'}
-            chrome={false}
-            scale={0.62}
-          />
-        )}
+      {/* PaginatedCV renders one sibling div per sheet; flex-col stacks them
+          instead of the default row. Centering is mx-auto + width:fit-content
+          on the inner wrapper, not the outer flex's items-center — that
+          doesn't collapse to 0 on overflow, so on a phone (narrower than one
+          scaled sheet) the centered content extends equally past both edges
+          and the left half becomes unreachable by scrolling. Auto margins on
+          a block element do collapse to 0 on overflow, keeping the top-left
+          corner at scroll position zero. */}
+      <div className="rounded-2xl bg-surface2/40 border border-border p-4 overflow-auto">
+        <div className="flex flex-col gap-4 mx-auto" style={{ width: 'fit-content' }}>
+          {cvError ? (
+            <p className="text-sm text-red-600 dark:text-red-400 py-10">{cvError}</p>
+          ) : !cv ? (
+            <div className="py-20">
+              <span className="inline-block w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            </div>
+          ) : (
+            <PaginatedCV
+              layout={getLayoutBuilder(cv.templateId)(normalizeCandidate(cv.cvData), cv.styleConfig, t, language)}
+              cssVars={styleToCSSVars(cv.styleConfig) as React.CSSProperties}
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
+              chrome={false}
+              scale={0.62}
+            />
+          )}
+        </div>
       </div>
     </>
   );

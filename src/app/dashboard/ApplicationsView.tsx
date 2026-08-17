@@ -228,28 +228,34 @@ function CvPreviewOverlay({ cvId, cvTitle, onClose }: {
           </div>
         </div>
 
-        {/* flex-col: PaginatedCV renders one sibling div per sheet, and a
-            flex row (the default) laid a 2-page CV out side by side instead
-            of stacked — items-center for the horizontal centering that
-            justify-center was doing before, since justify-center now
-            controls the vertical axis and clips the top of an overflowing
-            column instead of scrolling to it. */}
-        <div className="flex-1 overflow-auto p-6 bg-surface2/40 flex flex-col items-center gap-6">
-          {error ? (
-            <div className="text-sm text-red-600 dark:text-red-400 py-10">{error}</div>
-          ) : !layout ? (
-            <div className="py-20">
-              <span className="inline-block w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-            </div>
-          ) : (
-            <PaginatedCV
-              layout={layout}
-              cssVars={cssVars}
-              dir={language === 'ar' ? 'rtl' : 'ltr'}
-              chrome={false}
-              scale={0.85}
-            />
-          )}
+        {/* PaginatedCV renders one sibling div per sheet; flex-col stacks
+            them instead of the default row. Centering is done with mx-auto
+            + width:fit-content on the inner wrapper rather than the outer
+            flex's items-center: align-items:center does not collapse to 0
+            when its content overflows, so on a phone — narrower than one
+            scaled A4 sheet — the centered overflow extends equally past
+            both edges and half of it becomes unreachable by scrolling. A
+            block element's auto margins do collapse to 0 on overflow, which
+            is what keeps the top-left corner reachable at scroll position
+            zero and everything else a plain swipe to the right. */}
+        <div className="flex-1 overflow-auto p-6 bg-surface2/40">
+          <div className="flex flex-col gap-6 mx-auto" style={{ width: 'fit-content' }}>
+            {error ? (
+              <div className="text-sm text-red-600 dark:text-red-400 py-10">{error}</div>
+            ) : !layout ? (
+              <div className="py-20">
+                <span className="inline-block w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+              </div>
+            ) : (
+              <PaginatedCV
+                layout={layout}
+                cssVars={cssVars}
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
+                chrome={false}
+                scale={0.85}
+              />
+            )}
+          </div>
         </div>
       </motion.div>
     </motion.div>
