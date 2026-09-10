@@ -82,6 +82,7 @@ import { mapLanguageLevel } from "../lib/languageLevel";
 import FormatToolbar from "@/components/FormatToolbar";
 import RichTextField, { RichTextFieldHandle } from "@/components/RichTextField";
 import SpellCheckModal from "@/components/SpellCheckModal";
+import CvScoreModal from "@/components/CvScoreModal";
 import AutocompleteInput, {
   type RichSuggestion,
 } from "@/components/AutocompleteInput";
@@ -329,6 +330,7 @@ function BuilderPageContent() {
     isPaid,
     canDownload,
     canOcr,
+    canRunCvScore,
     refresh: refreshSubscription,
   } = useSubscription();
   const [[currentStep, direction], setStep] = useState(() => {
@@ -346,6 +348,7 @@ function BuilderPageContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [titleError, setTitleError] = useState<string | null>(null);
   const [showSpellCheck, setShowSpellCheck] = useState(false);
+  const [showCvScore, setShowCvScore] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [expandedExpLinks, setExpandedExpLinks] = useState<number[]>([]);
   const [expandedFormLinks, setExpandedFormLinks] = useState<number[]>([]);
@@ -3648,6 +3651,26 @@ function BuilderPageContent() {
                       {t("spellcheck.button") || "Corriger l’orthographe"}
                     </button>
                     <button
+                      onClick={() => {
+                        if (!canRunCvScore) {
+                          const limit = subscription?.coverLetterLimit ?? 0;
+                          const msg =
+                            language === "fr"
+                              ? `Vous avez utilisé vos ${limit} analyses ce mois-ci. Choisissez une formule pour des analyses illimitées.`
+                              : language === "ar"
+                                ? `لقد استخدمت ${limit} تحليلات هذا الشهر. اختر صيغة لتحليلات غير محدودة.`
+                                : `You have used your ${limit} analyses this month. Choose a plan for unlimited analyses.`;
+                          if (confirm(msg)) router.push("/dashboard?view=pricing");
+                          return;
+                        }
+                        setShowCvScore(true);
+                      }}
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-border text-txt text-sm font-semibold transition-all hover:bg-surface2"
+                    >
+                      <SparklesIcon className="w-4 h-4 text-blue-500" />
+                      {t("cvScore.button") || "Score de mon CV"}
+                    </button>
+                    <button
                       onClick={saveCV}
                       disabled={isSaving}
                       className="inline-flex items-center justify-center gap-2 px-7 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-bold transition-all hover:bg-emerald-700 active:scale-[0.97] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -4393,6 +4416,25 @@ function BuilderPageContent() {
             onApply={(fixes) => {
               applySpellCheck(fixes);
               setShowSpellCheck(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCvScore && (
+          <CvScoreModal
+            language={language}
+            candidate={normalizeCandidate(formData)}
+            onClose={() => setShowCvScore(false)}
+            onScored={() => {
+              invalidateSubscriptionCache();
+              refreshSubscription();
+            }}
+            onFixStep={(stepId) => {
+              const idx = STEPS.findIndex((s) => s.id === stepId);
+              if (idx >= 0) goTo(idx);
+              setShowCvScore(false);
             }}
           />
         )}

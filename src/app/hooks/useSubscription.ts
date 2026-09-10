@@ -128,6 +128,13 @@ export function useSubscription() {
     (subscription?.dailyGenerationsRemaining ?? 1) <= 0 &&
     (subscription?.coverLettersRemaining ?? 1) > 0;
 
+  // CV-score checks draw from the same AI monthly+daily pool as cover-letter
+  // generation — the plan grants one fungible AI allowance, not a separate
+  // cap per feature.
+  const canRunCvScore =
+    (subscription?.coverLettersRemaining ?? 1) > 0 &&
+    (subscription?.dailyGenerationsRemaining ?? 1) > 0;
+
   return {
     subscription,
     loading,
@@ -139,6 +146,7 @@ export function useSubscription() {
     canGenerateApplication,
     canSendApplicationEmail,
     dailyLimitReached,
+    canRunCvScore,
   };
 }
 

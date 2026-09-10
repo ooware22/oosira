@@ -338,6 +338,8 @@ export const dictionaries = {
       proPlan: "Pro Plan",
       // Plan names, keyed by the code returned in effectivePlan.
       plan: {
+        free: "Découverte",
+        pro: "Carrière",
         decouverte: "Découverte",
         essentiel: "Essentiel",
         carriere: "Carrière",
@@ -384,6 +386,16 @@ export const dictionaries = {
       cancel: "Cancel",
       retry: "Retry",
       error: "Spell check failed. Please try again."
+    },
+    cvScore: {
+      button: "Score my CV",
+      title: "CV Score",
+      loading: "Analyzing your CV...",
+      error: "CV analysis failed. Please try again.",
+      retry: "Retry",
+      scoreLabel: "Overall score",
+      noGaps: "No major weak points detected.",
+      fix: "Fix"
     },
     analytics: {
       tableView: "Table view",
@@ -1010,6 +1022,8 @@ export const dictionaries = {
       basicPlanDesc: "5 téléchargements/mois. 1 OCR gratuit.",
       proPlan: "Plan Pro",
       plan: {
+        free: "Découverte",
+        pro: "Carrière",
         decouverte: "Découverte",
         essentiel: "Essentiel",
         carriere: "Carrière",
@@ -1054,6 +1068,16 @@ export const dictionaries = {
       cancel: "Annuler",
       retry: "Réessayer",
       error: "Échec de la vérification. Veuillez réessayer."
+    },
+    cvScore: {
+      button: "Score de mon CV",
+      title: "Score du CV",
+      loading: "Analyse en cours...",
+      error: "Échec de l’analyse. Veuillez réessayer.",
+      retry: "Réessayer",
+      scoreLabel: "Score global",
+      noGaps: "Aucun point faible majeur détecté.",
+      fix: "Corriger"
     },
     analytics: {
       tableView: "Vue tableau",
@@ -1670,6 +1694,8 @@ export const dictionaries = {
       basicPlanDesc: "5 تنزيلات/شهرياً. 1 استيراد ذكاء اصطناعي مجاني.",
       proPlan: "الخطة الاحترافية",
       plan: {
+        free: "الاكتشاف",
+        pro: "المسار المهني",
         decouverte: "الاكتشاف",
         essentiel: "الأساسي",
         carriere: "المسار المهني",
@@ -1714,6 +1740,16 @@ export const dictionaries = {
       cancel: "إلغاء",
       retry: "إعادة المحاولة",
       error: "فشل التحقق. حاول مرة أخرى."
+    },
+    cvScore: {
+      button: "قيّم سيرتي الذاتية",
+      title: "تقييم السيرة الذاتية",
+      loading: "جارٍ التحليل...",
+      error: "فشل التحليل. حاول مرة أخرى.",
+      retry: "إعادة المحاولة",
+      scoreLabel: "التقييم الإجمالي",
+      noGaps: "لم يتم رصد نقاط ضعف رئيسية.",
+      fix: "إصلاح"
     },
     analytics: {
       tableView: "عرض جدولي",

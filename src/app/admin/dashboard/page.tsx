@@ -488,8 +488,9 @@ export default function AdminDashboardPage() {
                     onChange={e => setEditingUser({ ...editingUser, plan: e.target.value })}
                     className="w-full bg-surface2 border border-border rounded-xl px-4 py-3 text-[13px] text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                   >
-                    <option value="free">Free</option>
-                    <option value="pro">Pro</option>
+                    {plans.map((p) => (
+                      <option key={p.code} value={p.code}>{p.name_en || p.code}</option>
+                    ))}
                   </select>
                 </div>
 
