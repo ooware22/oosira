@@ -46,11 +46,13 @@ import {
   HomeIcon,
   BriefcaseIcon,
   EnvelopeIcon,
+  UserPlusIcon,
 } from '@heroicons/react/24/outline';
 import { useSubscription, type SubscriptionStatus } from '@/app/hooks/useSubscription';
 import PlanIcon from '@/components/PlanIcon';
 import { useMailAccounts } from '@/app/hooks/useMailAccounts';
 import AnalyticsView from '@/components/dashboard/AnalyticsView';
+import ReferralSection from '@/components/dashboard/ReferralSection';
 import ApplicationsView from './ApplicationsView';
 
 // ════════════════════════════════════════════════════════════
@@ -288,7 +290,7 @@ function PasswordChangeForm() {
   );
 }
 
-type DashboardView = 'cvs' | 'applications' | 'account' | 'analytics' | 'pricing';
+type DashboardView = 'cvs' | 'applications' | 'account' | 'analytics' | 'pricing' | 'referral';
 
 /** Settings and Profile used to be two tabs; they are now one. Old links and
  *  bookmarks still carry ?view=settings or ?view=profile. */
@@ -968,6 +970,7 @@ function DashboardContent() {
     { id: 'applications', label: t('dashboard.tabApplications') || 'Mes candidatures', icon: BriefcaseIcon },
     { id: 'analytics', label: t('dashboard.tabAnalytics') || 'Analytics', icon: ChartBarIcon },
     { id: 'account', label: t('dashboard.tabAccount') || 'Mon compte', icon: UserCircleIcon },
+    { id: 'referral', label: t('dashboard.tabReferral') || 'Parrainage', icon: UserPlusIcon },
   ];
 
   return (
@@ -1136,6 +1139,7 @@ function DashboardContent() {
                 {activeView === 'analytics' && (t('dashboard.tabAnalytics') || 'Analytics')}
                 {activeView === 'account' && (t('dashboard.tabAccount') || 'Mon compte')}
                 {activeView === 'pricing' && (t('nav.pricing') || 'Pricing')}
+                {activeView === 'referral' && (t('dashboard.tabReferral') || 'Parrainage')}
               </h1>
               <p className="text-[12px] text-txt-muted hidden sm:block">
                 {activeView === 'cvs' && `${drafts.length} CVs · ${completedCount} ${t('dashboard.completed') || 'completed'}`}
@@ -1143,6 +1147,7 @@ function DashboardContent() {
                 {activeView === 'analytics' && (t('dashboard.analyticsDesc') || 'Track your CV performance')}
                 {activeView === 'account' && (t('dashboard.accountDesc') || 'Vos informations, votre boîte mail et vos préférences')}
                 {activeView === 'pricing' && (t('pricing.subtitle') || 'Upgrade your plan to unlock premium features')}
+                {activeView === 'referral' && (t('dashboard.referralSubtitle') || 'Invitez vos amis à essayer Oosira par e-mail')}
               </p>
             </div>
           </div>
@@ -1507,6 +1512,19 @@ function DashboardContent() {
                     <LanguageToggle />
                   </SettingsRow>
                 </SettingsSection>
+              </motion.div>
+            )}
+
+            {activeView === 'referral' && (
+              <motion.div
+                key="referral"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.3 }}
+                className="max-w-3xl space-y-6"
+              >
+                <ReferralSection />
               </motion.div>
             )}
           </AnimatePresence>

@@ -15,7 +15,7 @@ import {
 /**
  * Runs the proofreader over a set of fields and shows what it would change,
  * word by word, before anything is saved. Nothing is applied until the user
- * accepts — an AI corrector will occasionally "fix" a company name or an
+ * accepts. An AI corrector will occasionally "fix" a company name or an
  * acronym that was right, so the diff is the safety net.
  */
 
