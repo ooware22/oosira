@@ -9,6 +9,7 @@ import { Candidate } from '@/app/data';
 import {
   XMarkIcon,
   SparklesIcon,
+  ArrowPathIcon,
   ExclamationTriangleIcon,
   ExclamationCircleIcon,
   InformationCircleIcon,
@@ -20,6 +21,12 @@ import {
  * auto-applied — this is a read-only report, so there's no accept/reject
  * step. Each gap just hands its `step` id back to the caller, which owns
  * STEPS and goTo().
+ *
+ * The result is owned by the caller (cachedResult/onResult), not just local
+ * state: the AI call is non-deterministic and quota-gated, so re-opening the
+ * modal must show the same report rather than silently spending another
+ * quota unit on a re-roll. A fresh analysis only happens on first run for
+ * this CV, or when the user explicitly asks via "Réanalyser".
  */
 
 type Severity = 'critical' | 'important' | 'minor';
@@ -31,7 +38,7 @@ type CvGap = {
   problem: string;
   solution: string;
 };
-type ScoreResult = { score: number; summary: string; gaps: CvGap[] };
+export type ScoreResult = { score: number; summary: string; gaps: CvGap[] };
 
 const SEVERITY_STYLE: Record<Severity, { icon: typeof ExclamationTriangleIcon; classes: string }> = {
   critical: { icon: ExclamationTriangleIcon, classes: 'text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20' },
@@ -45,9 +52,14 @@ function scoreTone(score: number): 'good' | 'warning' | 'critical' {
   return 'critical';
 }
 
-export default function CvScoreModal({ candidate, language, onClose, onFixStep, onScored }: {
+export default function CvScoreModal({ candidate, language, cachedResult, onResult, onClose, onFixStep, onScored }: {
   candidate: Candidate;
   language: string;
+  /** Last result already computed for this CV, if any — shown as-is instead
+   *  of triggering a new AI call. */
+  cachedResult: ScoreResult | null;
+  /** Fired with every fresh analysis so the caller can cache it. */
+  onResult: (result: ScoreResult) => void;
   onClose: () => void;
   onFixStep: (step: string) => void;
   /** Fired once, right after a successful analysis — the caller uses this to
@@ -57,9 +69,9 @@ export default function CvScoreModal({ candidate, language, onClose, onFixStep, 
   onScored?: () => void;
 }) {
   const { t } = useLanguage();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cachedResult);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<ScoreResult | null>(null);
+  const [result, setResult] = useState<ScoreResult | null>(cachedResult);
   // React's dev-mode Strict Mode double-invokes mount effects, which would
   // otherwise fire two concurrent POST /cvs/score/ calls — the quota check
   // writes to the DB, so a genuine double-submit (also possible from an
@@ -69,12 +81,16 @@ export default function CvScoreModal({ candidate, language, onClose, onFixStep, 
   const run = useCallback(async () => {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
+    setIsLoading(true);
+    setError(null);
     try {
       const data = await apiFetch('/cvs/score/', {
         method: 'POST',
         body: JSON.stringify({ cv_data: candidate, language }),
       });
-      setResult({ score: data.score, summary: data.summary, gaps: data.gaps || [] });
+      const scored = { score: data.score, summary: data.summary, gaps: data.gaps || [] };
+      setResult(scored);
+      onResult(scored);
       onScored?.();
     } catch (err: any) {
       setError(err.message || t('cvScore.error') || 'CV analysis failed.');
@@ -85,7 +101,12 @@ export default function CvScoreModal({ candidate, language, onClose, onFixStep, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidate, language, t]);
 
-  useEffect(() => { run(); }, [run]);
+  useEffect(() => {
+    if (!cachedResult) run();
+    // Only ever auto-run for the first analysis of this mount; a cached
+    // result stays put until "Réanalyser" is clicked explicitly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <motion.div
@@ -107,9 +128,20 @@ export default function CvScoreModal({ candidate, language, onClose, onFixStep, 
             <SparklesIcon className="w-5 h-5 text-blue-500" />
             {t('cvScore.title') || 'Score de votre CV'}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted">
-            <XMarkIcon className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {result && !isLoading && (
+              <button
+                onClick={run}
+                title={t('cvScore.rescore') || 'Réanalyser'}
+                className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted hover:text-blue-500 transition-colors"
+              >
+                <ArrowPathIcon className="w-5 h-5" />
+              </button>
+            )}
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface2 text-txt-muted">
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">

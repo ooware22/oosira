@@ -412,7 +412,8 @@ export const dictionaries = {
       retry: "Retry",
       scoreLabel: "Overall score",
       noGaps: "No major weak points detected.",
-      fix: "Fix"
+      fix: "Fix",
+      rescore: "Re-analyze"
     },
     analytics: {
       tableView: "Table view",
@@ -1111,7 +1112,8 @@ export const dictionaries = {
       retry: "Réessayer",
       scoreLabel: "Score global",
       noGaps: "Aucun point faible majeur détecté.",
-      fix: "Corriger"
+      fix: "Corriger",
+      rescore: "Réanalyser"
     },
     analytics: {
       tableView: "Vue tableau",
@@ -1800,7 +1802,8 @@ export const dictionaries = {
       retry: "إعادة المحاولة",
       scoreLabel: "التقييم الإجمالي",
       noGaps: "لم يتم رصد نقاط ضعف رئيسية.",
-      fix: "إصلاح"
+      fix: "إصلاح",
+      rescore: "إعادة التحليل"
     },
     analytics: {
       tableView: "عرض جدولي",

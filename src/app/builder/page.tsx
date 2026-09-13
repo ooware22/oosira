@@ -82,7 +82,7 @@ import { mapLanguageLevel } from "../lib/languageLevel";
 import FormatToolbar from "@/components/FormatToolbar";
 import RichTextField, { RichTextFieldHandle } from "@/components/RichTextField";
 import SpellCheckModal from "@/components/SpellCheckModal";
-import CvScoreModal from "@/components/CvScoreModal";
+import CvScoreModal, { ScoreResult as CvScoreResult } from "@/components/CvScoreModal";
 import AutocompleteInput, {
   type RichSuggestion,
 } from "@/components/AutocompleteInput";
@@ -349,6 +349,7 @@ function BuilderPageContent() {
   const [titleError, setTitleError] = useState<string | null>(null);
   const [showSpellCheck, setShowSpellCheck] = useState(false);
   const [showCvScore, setShowCvScore] = useState(false);
+  const [cvScoreResult, setCvScoreResult] = useState<CvScoreResult | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [expandedExpLinks, setExpandedExpLinks] = useState<number[]>([]);
   const [expandedFormLinks, setExpandedFormLinks] = useState<number[]>([]);
@@ -4426,6 +4427,8 @@ function BuilderPageContent() {
           <CvScoreModal
             language={language}
             candidate={normalizeCandidate(formData)}
+            cachedResult={cvScoreResult}
+            onResult={setCvScoreResult}
             onClose={() => setShowCvScore(false)}
             onScored={() => {
               invalidateSubscriptionCache();
