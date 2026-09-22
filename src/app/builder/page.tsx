@@ -82,6 +82,7 @@ import { mapLanguageLevel } from "../lib/languageLevel";
 import FormatToolbar from "@/components/FormatToolbar";
 import RichTextField, { RichTextFieldHandle } from "@/components/RichTextField";
 import SpellCheckModal from "@/components/SpellCheckModal";
+import PhotoPromptModal from "@/components/PhotoPromptModal";
 import CvScoreModal, { ScoreResult as CvScoreResult } from "@/components/CvScoreModal";
 import AutocompleteInput, {
   type RichSuggestion,
@@ -349,6 +350,7 @@ function BuilderPageContent() {
   const [titleError, setTitleError] = useState<string | null>(null);
   const [showSpellCheck, setShowSpellCheck] = useState(false);
   const [showCvScore, setShowCvScore] = useState(false);
+  const [showPhotoPrompt, setShowPhotoPrompt] = useState(false);
   const [cvScoreResult, setCvScoreResult] = useState<CvScoreResult | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [expandedExpLinks, setExpandedExpLinks] = useState<number[]>([]);
@@ -1417,6 +1419,11 @@ function BuilderPageContent() {
       return;
     }
 
+    // Ask about the optional photo first; the download continues from there.
+    setShowPhotoPrompt(true);
+  };
+
+  const downloadPdf = async (photo: string | null) => {
     setIsDownloading(true);
     try {
       const API_BASE =
@@ -1435,11 +1442,14 @@ function BuilderPageContent() {
               }
             : {}),
         },
+        // The photo rides along for this render only. It is deliberately not
+        // part of formData, which is what gets autosaved.
         body: JSON.stringify({
           cv_data: formData,
           style_config: styleConfig,
           template_id: activeTemplate,
           language: language,
+          photo,
         }),
       });
 
@@ -4418,6 +4428,28 @@ function BuilderPageContent() {
               applySpellCheck(fixes);
               setShowSpellCheck(false);
             }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPhotoPrompt && (
+          <PhotoPromptModal
+            mode="download"
+            onClose={() => setShowPhotoPrompt(false)}
+            onContinue={(photo) => {
+              setShowPhotoPrompt(false);
+              void downloadPdf(photo);
+            }}
+            renderPreview={(photo, scale) => (
+              <PaginatedCV
+                layout={getLayoutBuilder(activeTemplate)(formData, styleConfig, t, language, photo)}
+                cssVars={cssVars}
+                dir={language === "ar" ? "rtl" : "ltr"}
+                chrome={false}
+                scale={scale}
+              />
+            )}
           />
         )}
       </AnimatePresence>

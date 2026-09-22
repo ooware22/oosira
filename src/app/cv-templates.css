@@ -185,3 +185,27 @@
 .cv-executif .exec-link { display: inline-flex; align-items: center; gap: 3px; font-size: calc(var(--cv-font-size, 12px) * 0.83); color: var(--cv-accent, #3b82f6); text-decoration: none; margin-top: 3px; font-weight: 500; }
 .cv-executif .exec-link:hover { text-decoration: underline; }
 
+
+/* ══════════════════════════════════════════
+   Optional photo (all templates)
+   Fixed box sizes so pagination measures the same height before and after
+   the image decodes. Only present when the user adds a photo at export time.
+   ══════════════════════════════════════════ */
+.cv-photo { display: block; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.cv-header--photo { display: flex; align-items: center; gap: 22px; }
+.cv-header--photo .cv-header-main { flex: 1; min-width: 0; }
+
+.cv-classique .cv-photo { border: 3px solid rgba(255,255,255,0.25); }
+
+.cv-ingenieur .cv-header-lead { display: flex; align-items: center; gap: 18px; }
+.cv-ingenieur .cv-photo { width: 76px; height: 76px; border: 2px solid rgba(255,255,255,0.3); }
+
+.cv-executif .exec-avatar--photo { width: 104px; height: 104px; overflow: hidden; }
+.cv-executif .exec-avatar--photo .cv-photo { width: 100%; height: 100%; border-radius: 50%; }
+
+/* Centered header: the photo sits above the name instead of beside it. */
+.cv-medical .cv-header--photo { flex-direction: column; gap: 10px; }
+.cv-medical .cv-header--photo .cv-header-main { width: 100%; }
+.cv-medical .cv-photo { width: 82px; height: 82px; border: 3px solid var(--cv-accent, #2563EB); }
+
+.cv-tech .cv-photo { width: 80px; height: 80px; border: 2px solid var(--cv-border, #30363d); }

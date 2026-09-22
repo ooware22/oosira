@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { apiFetch } from '@/api/apiClient';
 import PaginatedCV from '@/components/PaginatedCV';
 import LetterDocument, { type LetterPayload } from '@/components/LetterDocument';
 import RichTextField from '@/components/RichTextField';
+import PhotoPromptModal from '@/components/PhotoPromptModal';
 import { getLayoutBuilder } from '@/app/templates';
 import { CVStyleConfig, styleToCSSVars } from '@/app/templates/styleConfig';
 import { formatLastName, normalizeCandidate } from '@/app/lib/cvData';
@@ -24,6 +25,7 @@ import {
   AtSymbolIcon,
   CalendarDaysIcon,
   CheckCircleIcon,
+  InformationCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
   ChevronLeftIcon,
@@ -203,6 +205,7 @@ export default function SendApplicationWizard({
   const [followUpDate, setFollowUpDate] = useState('');
   const [followUpNote, setFollowUpNote] = useState('');
   const [sendMode, setSendMode] = useState<SendMode>('now');
+  const [showPhotoPrompt, setShowPhotoPrompt] = useState(false);
   const [scheduledAt, setScheduledAt] = useState('');
 
   const [editingLetter, setEditingLetter] = useState(false);
@@ -226,11 +229,13 @@ export default function SendApplicationWizard({
   // user unsure whether the email actually went out.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isSending) onClose();
+      // The photo prompt handles its own Esc; closing the wizard under it
+      // would lose the whole send.
+      if (e.key === 'Escape' && !isSending && !showPhotoPrompt) onClose();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [isSending, onClose]);
+  }, [isSending, onClose, showPhotoPrompt]);
 
   // Memoised: a fresh `{}` on every render would re-run every downstream memo.
   const cvData = useMemo(() => (cv?.cvData || {}) as Record<string, string>, [cv]);
@@ -286,7 +291,7 @@ export default function SendApplicationWizard({
     return toDateTimeInput(d);
   }, []);
 
-  const handleSend = useCallback(async () => {
+  const performSend = useCallback(async (photo: string | null) => {
     if (isSending || blocked) return;
     setIsSending(true);
     setSendError(null);
@@ -306,6 +311,10 @@ export default function SendApplicationWizard({
       };
       if (sendMode === 'schedule' && scheduledAt) {
         payload.scheduledAt = new Date(scheduledAt).toISOString();
+      } else if (photo) {
+        // Immediate sends only: the photo is used for this render and never
+        // stored, so it could not survive until a scheduled send time.
+        payload.photo = photo;
       }
 
       let updated: JobApplication = await apiFetch(`/applications/${app.id}/send-email/`, {
@@ -348,6 +357,17 @@ export default function SendApplicationWizard({
   }, [isSending, blocked, flushPendingEdits, recipientEmail, letterFilename,
       cvFilename, sendCopyToMe, sendMode, scheduledAt, app.id, followUpDate, followUpNote,
       subscription, onUpdated, t, mailboxes]);
+
+  // A scheduled send can't carry a photo (see performSend), so it skips the
+  // question; an immediate send asks first and continues from the prompt.
+  const handleSend = useCallback(() => {
+    if (isSending || blocked) return;
+    if (sendMode === 'schedule') {
+      void performSend(null);
+    } else {
+      setShowPhotoPrompt(true);
+    }
+  }, [isSending, blocked, sendMode, performSend]);
 
   // ── Steps ──
   const renderCvStep = () => (
@@ -785,6 +805,11 @@ export default function SendApplicationWizard({
               {t('applications.scheduleLiveHint')
                 || 'Vous pouvez continuer à modifier votre lettre : les PDF sont générés au moment de l’envoi.'}
             </p>
+            <p className="text-[11px] text-txt-muted flex items-start gap-2 leading-relaxed">
+              <InformationCircleIcon className="w-4 h-4 shrink-0 mt-0.5 text-blue-500" />
+              {t('photoPrompt.scheduledNote')
+                || "La photo n'est pas disponible pour un envoi programmé : nous ne la conservons pas jusqu'à l'heure d'envoi. Envoyez maintenant pour l'inclure."}
+            </p>
           </div>
         )}
       </div>
@@ -1023,6 +1048,28 @@ export default function SendApplicationWizard({
           </>
         )}
       </motion.div>
+
+      <AnimatePresence>
+        {showPhotoPrompt && (
+          <PhotoPromptModal
+            mode="send"
+            onClose={() => setShowPhotoPrompt(false)}
+            onContinue={(photo) => {
+              setShowPhotoPrompt(false);
+              void performSend(photo);
+            }}
+            renderPreview={cv ? (photo, scale) => (
+              <PaginatedCV
+                layout={getLayoutBuilder(cv.templateId)(normalizeCandidate(cv.cvData), cv.styleConfig, t, language, photo)}
+                cssVars={styleToCSSVars(cv.styleConfig) as React.CSSProperties}
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
+                chrome={false}
+                scale={scale}
+              />
+            ) : undefined}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

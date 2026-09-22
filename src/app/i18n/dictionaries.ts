@@ -418,6 +418,25 @@ export const dictionaries = {
       fix: "Fix",
       rescore: "Re-analyze"
     },
+    photoPrompt: {
+      title: "Add a photo to your CV?",
+      optional: "Optional",
+      privacy: "Your photo is never saved on our servers. It stays on this device and is only used to generate this PDF.",
+      choose: "Choose a photo",
+      chooseHint: "JPEG, PNG or WebP, 10 MB max",
+      change: "Change",
+      remove: "Remove",
+      remember: "Remember on this device",
+      previewTitle: "Preview",
+      withoutPhoto: "Continue without photo",
+      continueDownload: "Continue download",
+      continueSend: "Continue sending",
+      processing: "Preparing photo...",
+      errorType: "Unsupported format. Use a JPEG, PNG or WebP image.",
+      errorSize: "Image too large (10 MB max).",
+      errorRead: "Couldn't read this image. Try another one.",
+      scheduledNote: "A photo can't be added to a scheduled send: we don't keep it until the send time. Send now to include it."
+    },
     analytics: {
       tableView: "Table view",
       retry: "Try again",
@@ -1118,6 +1137,25 @@ export const dictionaries = {
       fix: "Corriger",
       rescore: "Réanalyser"
     },
+    photoPrompt: {
+      title: "Ajouter une photo à votre CV ?",
+      optional: "Facultatif",
+      privacy: "Votre photo n'est jamais enregistrée sur nos serveurs. Elle reste sur cet appareil et sert uniquement à générer ce PDF.",
+      choose: "Choisir une photo",
+      chooseHint: "JPEG, PNG ou WebP, 10 Mo max",
+      change: "Changer",
+      remove: "Retirer",
+      remember: "Mémoriser sur cet appareil",
+      previewTitle: "Aperçu",
+      withoutPhoto: "Continuer sans photo",
+      continueDownload: "Continuer le téléchargement",
+      continueSend: "Continuer l'envoi",
+      processing: "Préparation de la photo...",
+      errorType: "Format non pris en charge. Utilisez une image JPEG, PNG ou WebP.",
+      errorSize: "Image trop lourde (10 Mo maximum).",
+      errorRead: "Impossible de lire cette image. Essayez-en une autre.",
+      scheduledNote: "La photo n'est pas disponible pour un envoi programmé : nous ne la conservons pas jusqu'à l'heure d'envoi. Envoyez maintenant pour l'inclure."
+    },
     analytics: {
       tableView: "Vue tableau",
       retry: "Réessayer",
@@ -1807,6 +1845,25 @@ export const dictionaries = {
       noGaps: "لم يتم رصد نقاط ضعف رئيسية.",
       fix: "إصلاح",
       rescore: "إعادة التحليل"
+    },
+    photoPrompt: {
+      title: "إضافة صورة إلى سيرتك الذاتية؟",
+      optional: "اختياري",
+      privacy: "لا نحفظ صورتك أبدًا على خوادمنا. تبقى على هذا الجهاز وتُستخدم فقط لإنشاء ملف PDF هذا.",
+      choose: "اختر صورة",
+      chooseHint: "JPEG أو PNG أو WebP، بحد أقصى 10 ميغابايت",
+      change: "تغيير",
+      remove: "إزالة",
+      remember: "تذكرها على هذا الجهاز",
+      previewTitle: "معاينة",
+      withoutPhoto: "المتابعة بدون صورة",
+      continueDownload: "متابعة التنزيل",
+      continueSend: "متابعة الإرسال",
+      processing: "جارٍ تجهيز الصورة...",
+      errorType: "صيغة غير مدعومة. استخدم صورة JPEG أو PNG أو WebP.",
+      errorSize: "الصورة كبيرة جدًا (10 ميغابايت كحد أقصى).",
+      errorRead: "تعذرت قراءة هذه الصورة. جرّب صورة أخرى.",
+      scheduledNote: "لا يمكن إضافة صورة إلى إرسال مجدول لأننا لا نحتفظ بها حتى وقت الإرسال. أرسل الآن لتضمينها."
     },
     analytics: {
       tableView: "عرض جدولي",

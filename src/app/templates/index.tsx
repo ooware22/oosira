@@ -21,6 +21,7 @@ type LayoutBuilder = (
   config: CVStyleConfig | undefined,
   t: Translate,
   language: string,
+  photo?: string | null,
 ) => CVLayout;
 
 /** Template id → block-layout builder, consumed by <PaginatedCV>. */

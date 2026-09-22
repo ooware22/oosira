@@ -11,7 +11,7 @@ import { useLanguage } from "@/app/i18n/LanguageContext";
 
 export const dynamic = 'force-dynamic';
 
-type ExportPayload = { cv: Candidate; config?: CVStyleConfig; id: number };
+type ExportPayload = { cv: Candidate; config?: CVStyleConfig; id: number; photo?: string | null };
 
 declare global {
   interface Window {
@@ -20,6 +20,8 @@ declare global {
       cvData: unknown,
       styleConfig: CVStyleConfig,
       templateId: number,
+      /** Optional photo for this render only; never part of the saved CV. */
+      photo?: string | null,
     ) => void;
   }
 }
@@ -41,10 +43,10 @@ function ExportContent() {
 
   useEffect(() => {
     // Expose a global method so Playwright (Django) can push data into this page
-    window.injectCVData = (cvData, styleConfig, templateId) => {
+    window.injectCVData = (cvData, styleConfig, templateId, photo) => {
       // Same normalisation the builder applies on load, so a legacy record
       // prints exactly what the preview showed.
-      setData({ cv: normalizeCandidate(cvData), config: styleConfig, id: templateId });
+      setData({ cv: normalizeCandidate(cvData), config: styleConfig, id: templateId, photo: photo ?? null });
     };
 
     // Allow local debugging by pulling from localStorage
@@ -64,6 +66,8 @@ function ExportContent() {
   const handleReady = useCallback(() => {
     const ready = async () => {
       if (document.fonts?.ready) await document.fonts.ready;
+      // The optional photo must be decoded, or Chromium can print its frame empty.
+      await Promise.all(Array.from(document.images).map((img) => img.decode().catch(() => undefined)));
       // One frame so the final layout is committed before Chromium prints.
       requestAnimationFrame(() =>
         requestAnimationFrame(() => document.body.classList.add("print-ready")),
@@ -80,7 +84,7 @@ function ExportContent() {
     );
 
   const cssVars = (data.config ? styleToCSSVars(data.config) : {}) as React.CSSProperties;
-  const layout = getLayoutBuilder(data.id)(data.cv, data.config, t, language);
+  const layout = getLayoutBuilder(data.id)(data.cv, data.config, t, language, data.photo);
 
   return (
     <PaginatedCV

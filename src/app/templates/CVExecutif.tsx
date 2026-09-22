@@ -8,6 +8,7 @@ import { CVStyleConfig } from './styleConfig';
 import { CVBlock, CVLayout, block } from './blocks';
 import { renderBlocks } from './renderBlocks';
 import { Translate } from './types';
+import { CVPhoto } from './CVPhoto';
 
 function href(url: string) {
   return url.startsWith('http') ? url : `https://${url}`;
@@ -18,6 +19,7 @@ export function buildExecutifLayout(
   config: CVStyleConfig | undefined,
   t: Translate,
   language: string,
+  photo?: string | null,
 ): CVLayout {
   const sideOrder = config?.sideOrder || ['competences', 'langues', 'logiciels'];
   const mainOrder = config?.mainOrder || ['experiences', 'formations'];
@@ -109,8 +111,12 @@ export function buildExecutifLayout(
 
   const sidebarNode = (
     <>
-      <div className="exec-avatar" data-cv-field="prenom">
-        <span>{(data.prenom?.[0] || '').toUpperCase()}{(data.nom?.[0] || '').toUpperCase()}</span>
+      <div className={`exec-avatar${photo ? ' exec-avatar--photo' : ''}`} data-cv-field="prenom">
+        {photo ? (
+          <CVPhoto src={photo} />
+        ) : (
+          <span>{(data.prenom?.[0] || '').toUpperCase()}{(data.nom?.[0] || '').toUpperCase()}</span>
+        )}
       </div>
       <div className="exec-sidebar-section">
         <div className="exec-sidebar-title">{t('builder.contact')}</div>

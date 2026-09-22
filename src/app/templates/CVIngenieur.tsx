@@ -9,6 +9,7 @@ import { CVStyleConfig } from './styleConfig';
 import { CVBlock, CVLayout, block } from './blocks';
 import { renderBlocks } from './renderBlocks';
 import { Translate } from './types';
+import { CVPhoto } from './CVPhoto';
 
 function href(url: string) {
   return url.startsWith('http') ? url : `https://${url}`;
@@ -27,6 +28,7 @@ export function buildIngenieurLayout(
   config: CVStyleConfig | undefined,
   t: Translate,
   language: string,
+  photo?: string | null,
 ): CVLayout {
   const mainOrder = config?.mainOrder || ['experiences', 'formations'];
   const sideOrder = config?.sideOrder || ['competences', 'langues', 'logiciels'];
@@ -151,10 +153,20 @@ export function buildIngenieurLayout(
 
   const header = (
     <div className="cv-header">
-      <div>
-        <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
-        <div className="cv-title" data-cv-field="titre">{data.titre}</div>
-      </div>
+      {photo ? (
+        <div className="cv-header-lead">
+          <CVPhoto src={photo} />
+          <div>
+            <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
+            <div className="cv-title" data-cv-field="titre">{data.titre}</div>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
+          <div className="cv-title" data-cv-field="titre">{data.titre}</div>
+        </div>
+      )}
       <div className="cv-contact-right">
         <div data-cv-field="email"><a href={`mailto:${data.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{data.email}</a></div>
         <div data-cv-field="telephone">{data.telephone}</div>

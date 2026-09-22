@@ -9,6 +9,7 @@ import { CVStyleConfig } from './styleConfig';
 import { CVBlock, CVLayout, block } from './blocks';
 import { renderBlocks } from './renderBlocks';
 import { Translate } from './types';
+import { CVPhoto } from './CVPhoto';
 
 function href(url: string) {
   return url.startsWith('http') ? url : `https://${url}`;
@@ -31,6 +32,7 @@ export function buildClassiqueLayout(
   config: CVStyleConfig | undefined,
   t: Translate,
   language: string,
+  photo?: string | null,
 ): CVLayout {
   const mainOrder = config?.mainOrder || ['experiences', 'formations'];
   const sideOrder = config?.sideOrder || ['competences', 'langues', 'logiciels'];
@@ -153,8 +155,8 @@ export function buildClassiqueLayout(
     }
   };
 
-  const header = (
-    <div className="cv-header">
+  const headerContent = (
+    <>
       <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
       <div className="cv-title" data-cv-field="titre">{data.titre}</div>
       <div className="cv-contact-row">
@@ -167,6 +169,17 @@ export function buildClassiqueLayout(
           </a>
         )}
       </div>
+    </>
+  );
+
+  const header = (
+    <div className={`cv-header${photo ? ' cv-header--photo' : ''}`}>
+      {photo ? (
+        <>
+          <CVPhoto src={photo} />
+          <div className="cv-header-main">{headerContent}</div>
+        </>
+      ) : headerContent}
     </div>
   );
 

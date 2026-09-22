@@ -9,6 +9,7 @@ import { CVStyleConfig } from './styleConfig';
 import { CVBlock, CVLayout, block } from './blocks';
 import { renderBlocks } from './renderBlocks';
 import { Translate } from './types';
+import { CVPhoto } from './CVPhoto';
 
 function langBarWidth(niveau: string) {
   const map: Record<string, number> = { Natif: 98, Courant: 85, Intermediaire: 60, Technique: 55, Debutant: 25 };
@@ -32,6 +33,7 @@ export function buildTechLayout(
   config: CVStyleConfig | undefined,
   t: Translate,
   language: string,
+  photo?: string | null,
 ): CVLayout {
   const mainOrder = config?.mainOrder || ['experiences', 'formations'];
   const sideOrder = config?.sideOrder || ['competences', 'logiciels', 'langues'];
@@ -151,8 +153,8 @@ export function buildTechLayout(
     }
   };
 
-  const header = (
-    <div className="cv-header">
+  const headerContent = (
+    <>
       <div className="cv-name" data-cv-field="prenom">{data.prenom} {formatLastName(data.nom)}</div>
       <div className="cv-title" data-cv-field="titre">{data.titre}</div>
       <div className="cv-contact-row">
@@ -172,6 +174,17 @@ export function buildTechLayout(
           ))}
         </div>
       )}
+    </>
+  );
+
+  const header = (
+    <div className={`cv-header${photo ? ' cv-header--photo' : ''}`}>
+      {photo ? (
+        <>
+          <CVPhoto src={photo} />
+          <div className="cv-header-main">{headerContent}</div>
+        </>
+      ) : headerContent}
     </div>
   );
 

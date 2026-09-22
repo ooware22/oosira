@@ -9,6 +9,7 @@ import RichTextField, { RichTextFieldHandle } from '@/components/RichTextField';
 import SpellCheckModal from '@/components/SpellCheckModal';
 import PaginatedCV from '@/components/PaginatedCV';
 import SendApplicationWizard from '@/components/SendApplicationWizard';
+import PhotoPromptModal from '@/components/PhotoPromptModal';
 import {
   APPLICATION_STATUSES, ApplicationStatus, StatusPill, StatusSelect, STATUS_LABEL_KEY,
 } from '@/components/ApplicationStatus';
@@ -585,14 +586,19 @@ function ApplicationDetail({ app, subscription, onBack, onRequestDelete, onRegen
     }
   };
 
-  const handleSendRelance = async () => {
+  const [showRelancePhotoPrompt, setShowRelancePhotoPrompt] = useState(false);
+
+  // The follow-up re-attaches the CV, so it offers the same optional photo.
+  const handleSendRelance = () => setShowRelancePhotoPrompt(true);
+
+  const sendRelance = async (photo: string | null) => {
     setRelanceAction('send');
     try {
       // The server sends the stored follow-up, not what is on screen, so any
       // unsaved edit has to be pushed first — otherwise the recruiter would
       // receive the previous version of a letter the user just rewrote.
       if (relanceDirty) await saveRelance();
-      const updated = await lifecycleCall('send-email/', { kind: 'followUp' });
+      const updated = await lifecycleCall('send-email/', { kind: 'followUp', ...(photo ? { photo } : {}) });
       if (updated) {
         invalidateSubscriptionCache();
         subscription.refresh();
@@ -1134,6 +1140,19 @@ function ApplicationDetail({ app, subscription, onBack, onRequestDelete, onRegen
               if (fixes.emailSubject !== undefined) setEmailSubjectDraft(fixes.emailSubject);
               if (fixes.emailBody !== undefined) setEmailBodyDraft(fixes.emailBody);
               setShowSpellCheck(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showRelancePhotoPrompt && (
+          <PhotoPromptModal
+            mode="send"
+            onClose={() => setShowRelancePhotoPrompt(false)}
+            onContinue={(photo) => {
+              setShowRelancePhotoPrompt(false);
+              void sendRelance(photo);
             }}
           />
         )}
