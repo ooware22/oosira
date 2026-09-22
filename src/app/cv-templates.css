@@ -191,21 +191,17 @@
    Fixed box sizes so pagination measures the same height before and after
    the image decodes. Only present when the user adds a photo at export time.
    ══════════════════════════════════════════ */
-.cv-photo { display: block; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.cv-header--photo { display: flex; align-items: center; gap: 22px; }
+.cv-photo { display: block; width: 116px; height: 116px; object-fit: cover; flex-shrink: 0; border: 0; border-radius: 0; }
+.cv-header--photo { display: flex; align-items: center; gap: 24px; }
 .cv-header--photo .cv-header-main { flex: 1; min-width: 0; }
 
-.cv-classique .cv-photo { border: 3px solid rgba(255,255,255,0.25); }
+.cv-ingenieur .cv-header-lead { display: flex; align-items: center; gap: 20px; }
+.cv-ingenieur .cv-photo { width: 104px; height: 104px; }
 
-.cv-ingenieur .cv-header-lead { display: flex; align-items: center; gap: 18px; }
-.cv-ingenieur .cv-photo { width: 76px; height: 76px; border: 2px solid rgba(255,255,255,0.3); }
-
-.cv-executif .exec-avatar--photo { width: 104px; height: 104px; overflow: hidden; }
-.cv-executif .exec-avatar--photo .cv-photo { width: 100%; height: 100%; border-radius: 50%; }
+/* The sidebar avatar keeps its circle + border only for the initials. */
+.cv-executif .exec-avatar--photo { width: 136px; height: 136px; border: 0; border-radius: 0; background: none; overflow: hidden; }
+.cv-executif .exec-avatar--photo .cv-photo { width: 100%; height: 100%; }
 
 /* Centered header: the photo sits above the name instead of beside it. */
-.cv-medical .cv-header--photo { flex-direction: column; gap: 10px; }
+.cv-medical .cv-header--photo { flex-direction: column; gap: 12px; }
 .cv-medical .cv-header--photo .cv-header-main { width: 100%; }
-.cv-medical .cv-photo { width: 82px; height: 82px; border: 3px solid var(--cv-accent, #2563EB); }
-
-.cv-tech .cv-photo { width: 80px; height: 80px; border: 2px solid var(--cv-border, #30363d); }

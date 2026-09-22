@@ -149,7 +149,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
               {photo ? (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-                  <img src={photo} alt="" className="w-40 h-40 rounded-full object-cover border-4 border-surface2 shadow-md" />
+                  <img src={photo} alt="" className="w-40 h-40 object-cover shadow-md" />
                   <div className="flex gap-2">
                     <button
                       onClick={pick}
