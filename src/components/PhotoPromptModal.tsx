@@ -5,12 +5,19 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import {
   ACCEPTED_PHOTO_TYPES,
+  PhotoCrop,
   PhotoError,
+  PhotoSource,
   clearStoredPhoto,
+  defaultCrop,
+  loadPhotoSource,
   loadStoredPhoto,
-  processPhotoFile,
+  loadStoredSource,
+  renderCroppedPhoto,
+  sourceFromDataUrl,
   storePhoto,
 } from '@/app/lib/cvPhoto';
+import PhotoCropper from '@/components/PhotoCropper';
 import {
   XMarkIcon,
   CameraIcon,
@@ -33,7 +40,12 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
   renderPreview?: (photo: string | null, scale: number) => ReactNode;
 }) {
   const { t } = useLanguage();
-  const [photo, setPhoto] = useState<string | null>(() => loadStoredPhoto());
+  // The original to frame from, its framing, and the cropped result that
+  // feeds the CV preview (re-rendered shortly after each drag or zoom).
+  const [stored] = useState(() => loadStoredSource());
+  const [source, setSource] = useState<PhotoSource | null>(stored?.source ?? null);
+  const [crop, setCrop] = useState<PhotoCrop>(stored?.crop ?? { zoom: 1, x: 0.5, y: 0.5 });
+  const [photo, setPhoto] = useState<string | null>(() => (stored ? loadStoredPhoto() : null));
   const [remember, setRemember] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +71,33 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  // A photo remembered before framing existed has no original: frame from it.
+  useEffect(() => {
+    if (stored) return;
+    const legacy = loadStoredPhoto();
+    if (!legacy) return;
+    let cancelled = false;
+    sourceFromDataUrl(legacy)
+      .then((s) => {
+        if (cancelled) return;
+        setSource(s);
+        setCrop(defaultCrop(s));
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, [stored]);
+
+  useEffect(() => {
+    if (!source) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      renderCroppedPhoto(source, crop)
+        .then((out) => { if (!cancelled) setPhoto(out); })
+        .catch(() => undefined);
+    }, 120);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [source, crop]);
+
   const pick = () => inputRef.current?.click();
 
   const handleFile = async (file: File | undefined) => {
@@ -66,7 +105,9 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
     setError(null);
     setProcessing(true);
     try {
-      setPhoto(await processPhotoFile(file));
+      const next = await loadPhotoSource(file);
+      setSource(next);
+      setCrop(defaultCrop(next));
     } catch (err) {
       const code = err instanceof PhotoError ? err.code : 'read';
       setError(
@@ -83,15 +124,18 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
   };
 
   const removePhoto = () => {
+    setSource(null);
     setPhoto(null);
     clearStoredPhoto();
   };
 
-  const continueWithPhoto = () => {
-    if (!photo) return;
-    if (remember) storePhoto(photo);
+  const continueWithPhoto = async () => {
+    if (!source) return;
+    // Rendered from the exact current framing, not the debounced preview.
+    const final = await renderCroppedPhoto(source, crop);
+    if (remember) storePhoto(final, source, crop);
     else clearStoredPhoto();
-    onContinue(photo);
+    onContinue(final);
   };
 
   const continueLabel = mode === 'send'
@@ -137,7 +181,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
             </p>
           </div>
 
-          <div className={`grid gap-6 ${renderPreview ? 'md:grid-cols-[260px_1fr]' : ''}`}>
+          <div className={`grid gap-6 ${renderPreview ? 'md:grid-cols-[280px_1fr]' : ''}`}>
             <div className="flex flex-col items-center gap-4">
               <input
                 ref={inputRef}
@@ -146,10 +190,9 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
                 className="hidden"
                 onChange={(e) => handleFile(e.target.files?.[0])}
               />
-              {photo ? (
+              {source ? (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- local data URL */}
-                  <img src={photo} alt="" className="w-40 h-40 object-cover shadow-md" />
+                  <PhotoCropper source={source} crop={crop} onChange={setCrop} />
                   <div className="flex gap-2">
                     <button
                       onClick={pick}
@@ -226,7 +269,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
           </button>
           <button
             onClick={continueWithPhoto}
-            disabled={!photo || processing}
+            disabled={!source || processing}
             className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-[13px] font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {continueLabel}

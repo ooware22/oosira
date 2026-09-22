@@ -435,6 +435,11 @@ export const dictionaries = {
       errorType: "Unsupported format. Use a JPEG, PNG or WebP image.",
       errorSize: "Image too large (10 MB max).",
       errorRead: "Couldn't read this image. Try another one.",
+      frameHint: "Drag the photo to frame it",
+      zoom: "Zoom",
+      zoomIn: "Zoom in",
+      zoomOut: "Zoom out",
+      resetFrame: "Reset framing",
       scheduledNote: "A photo can't be added to a scheduled send: we don't keep it until the send time. Send now to include it."
     },
     analytics: {
@@ -1154,6 +1159,11 @@ export const dictionaries = {
       errorType: "Format non pris en charge. Utilisez une image JPEG, PNG ou WebP.",
       errorSize: "Image trop lourde (10 Mo maximum).",
       errorRead: "Impossible de lire cette image. Essayez-en une autre.",
+      frameHint: "Faites glisser la photo pour la cadrer",
+      zoom: "Zoom",
+      zoomIn: "Zoomer",
+      zoomOut: "Dézoomer",
+      resetFrame: "Réinitialiser le cadrage",
       scheduledNote: "La photo n'est pas disponible pour un envoi programmé : nous ne la conservons pas jusqu'à l'heure d'envoi. Envoyez maintenant pour l'inclure."
     },
     analytics: {
@@ -1863,6 +1873,11 @@ export const dictionaries = {
       errorType: "صيغة غير مدعومة. استخدم صورة JPEG أو PNG أو WebP.",
       errorSize: "الصورة كبيرة جدًا (10 ميغابايت كحد أقصى).",
       errorRead: "تعذرت قراءة هذه الصورة. جرّب صورة أخرى.",
+      frameHint: "اسحب الصورة لضبط الإطار",
+      zoom: "تكبير",
+      zoomIn: "تكبير",
+      zoomOut: "تصغير",
+      resetFrame: "إعادة ضبط الإطار",
       scheduledNote: "لا يمكن إضافة صورة إلى إرسال مجدول لأننا لا نحتفظ بها حتى وقت الإرسال. أرسل الآن لتضمينها."
     },
     analytics: {
