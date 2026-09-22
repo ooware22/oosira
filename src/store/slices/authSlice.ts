@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { clearPendingReferral, getPendingReferral } from '@/app/lib/referralCode';
 import { apiFetch, setToken, setRefreshToken, clearToken, getToken } from '../../api/apiClient';
 
 interface User {
@@ -45,10 +46,12 @@ export const loginAuth = createAsyncThunk(
 export const registerAuth = createAsyncThunk(
   'auth/register',
   async (credentials: { name: string; email: string; password: string }) => {
+    const referralCode = getPendingReferral();
     const data = await apiFetch('/auth/register/', {
       method: 'POST',
-      body: JSON.stringify(credentials),
+      body: JSON.stringify(referralCode ? { ...credentials, referralCode } : credentials),
     });
+    clearPendingReferral();
     // Store tokens
     setToken(data.token);
     if (data.refreshToken) setRefreshToken(data.refreshToken);

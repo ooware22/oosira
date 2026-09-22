@@ -6,8 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/i18n/LanguageContext';
 import { useAuth } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
+import { ArrowLeftIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { useState, useSyncExternalStore } from 'react';
+import { getPendingReferral } from '@/app/lib/referralCode';
+
+const noSubscribe = () => () => {};
 
 export default function RegisterPage() {
   const { t, dir } = useLanguage();
@@ -18,6 +21,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Read from localStorage only on the client; the server render shows no banner.
+  const invited = useSyncExternalStore(noSubscribe, () => !!getPendingReferral(), () => false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +149,16 @@ export default function RegisterPage() {
           <div className="bg-surface/80 backdrop-blur-2xl border border-border rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black/5">
             <h1 className="text-2xl font-bold text-txt text-center mb-2">{t('auth.signup_title')}</h1>
             <p className="text-txt-muted text-center text-sm mb-8">{t('auth.signup_subtitle')}</p>
+
+            {invited && (
+              <div className="flex items-start gap-2.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 px-4 py-3 mb-6">
+                <GiftIcon className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+                <p className="text-[12px] text-txt leading-relaxed">
+                  {t('auth.referralInvited')
+                    || 'Vous avez été invité par un ami : des générations IA vous sont offertes dès que vous créez votre premier CV.'}
+                </p>
+              </div>
+            )}
 
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1.5">
