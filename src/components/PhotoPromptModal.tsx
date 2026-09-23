@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/app/i18n/LanguageContext';
+import { useAuth } from '@/app/auth/AuthContext';
 import {
   ACCEPTED_PHOTO_TYPES,
   PhotoCrop,
@@ -40,12 +41,14 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
   renderPreview?: (photo: string | null, scale: number) => ReactNode;
 }) {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const owner = user?.id ?? null;
   // The original to frame from, its framing, and the cropped result that
   // feeds the CV preview (re-rendered shortly after each drag or zoom).
-  const [stored] = useState(() => loadStoredSource());
+  const [stored] = useState(() => loadStoredSource(owner));
   const [source, setSource] = useState<PhotoSource | null>(stored?.source ?? null);
   const [crop, setCrop] = useState<PhotoCrop>(stored?.crop ?? { zoom: 1, x: 0.5, y: 0.5 });
-  const [photo, setPhoto] = useState<string | null>(() => (stored ? loadStoredPhoto() : null));
+  const [photo, setPhoto] = useState<string | null>(() => (stored ? loadStoredPhoto(owner) : null));
   const [remember, setRemember] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +77,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
   // A photo remembered before framing existed has no original: frame from it.
   useEffect(() => {
     if (stored) return;
-    const legacy = loadStoredPhoto();
+    const legacy = loadStoredPhoto(owner);
     if (!legacy) return;
     let cancelled = false;
     sourceFromDataUrl(legacy)
@@ -85,7 +88,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
       })
       .catch(() => undefined);
     return () => { cancelled = true; };
-  }, [stored]);
+  }, [stored, owner]);
 
   useEffect(() => {
     if (!source) return;
@@ -133,7 +136,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
     if (!source) return;
     // Rendered from the exact current framing, not the debounced preview.
     const final = await renderCroppedPhoto(source, crop);
-    if (remember) storePhoto(final, source, crop);
+    if (remember) storePhoto(final, source, crop, owner);
     else clearStoredPhoto();
     onContinue(final);
   };

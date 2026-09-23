@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const drafts = useSelector((state: RootState) => state.cvs.drafts);
   const authStatus = useSelector((state: RootState) => state.auth.status);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
 
   // Hydrate session from localStorage on mount
   useEffect(() => {
@@ -68,12 +69,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [authStatus, dispatch]);
 
-  // Fetch drafts when authenticated
+  // Fetch drafts when authenticated, and again whenever the account changes:
+  // after an expired session (no logout, so the flag never went false) a
+  // different person can log in and must not keep seeing the previous CVs.
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchDrafts());
     }
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, userId, dispatch]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {

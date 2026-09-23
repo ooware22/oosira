@@ -12,6 +12,18 @@ const PHOTO_KEY = 'oosira_cv_photo';
 // The downscaled original plus its framing, so the photo can be re-framed
 // later rather than only zoomed further into an already-cropped result.
 const SOURCE_KEY = 'oosira_cv_photo_source';
+// Which account remembered it. Logout clears the photo, but a session can also
+// just expire, and the next person to log in must not be offered this one.
+const OWNER_KEY = 'oosira_cv_photo_owner';
+
+function ownedBy(owner: string | null | undefined): boolean {
+  try {
+    const stored = localStorage.getItem(OWNER_KEY);
+    return !!owner && stored === owner;
+  } catch {
+    return false;
+  }
+}
 
 const OUTPUT_SIZE = 400;
 const SOURCE_MAX_SIDE = 1200;
@@ -49,7 +61,8 @@ export interface PhotoCrop {
 
 // Storage can throw (private mode, blocked site data, quota), so every access
 // is guarded; failing just means the photo isn't remembered.
-export function loadStoredPhoto(): string | null {
+export function loadStoredPhoto(owner: string | null | undefined): string | null {
+  if (!ownedBy(owner)) return null;
   try {
     const value = localStorage.getItem(PHOTO_KEY);
     return value && value.startsWith('data:image/jpeg;base64,') ? value : null;
@@ -58,7 +71,8 @@ export function loadStoredPhoto(): string | null {
   }
 }
 
-export function loadStoredSource(): { source: PhotoSource; crop: PhotoCrop } | null {
+export function loadStoredSource(owner: string | null | undefined): { source: PhotoSource; crop: PhotoCrop } | null {
+  if (!ownedBy(owner)) return null;
   try {
     const raw = localStorage.getItem(SOURCE_KEY);
     if (!raw) return null;
@@ -72,8 +86,11 @@ export function loadStoredSource(): { source: PhotoSource; crop: PhotoCrop } | n
   }
 }
 
-export function storePhoto(photo: string, source: PhotoSource, crop: PhotoCrop): void {
+export function storePhoto(photo: string, source: PhotoSource, crop: PhotoCrop, owner: string | null | undefined): void {
+  // Without a known account there is no one to remember it for.
+  if (!owner) return;
   try {
+    localStorage.setItem(OWNER_KEY, owner);
     localStorage.setItem(PHOTO_KEY, photo);
     localStorage.setItem(SOURCE_KEY, JSON.stringify({ source, crop }));
   } catch {
@@ -91,6 +108,7 @@ export function clearStoredPhoto(): void {
   try {
     localStorage.removeItem(PHOTO_KEY);
     localStorage.removeItem(SOURCE_KEY);
+    localStorage.removeItem(OWNER_KEY);
   } catch {
     /* nothing stored */
   }
