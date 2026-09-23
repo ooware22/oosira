@@ -108,7 +108,12 @@ export async function apiFetch(
     data = text ? JSON.parse(text) : {};
   } catch (err) {
     if (!response.ok) {
-      throw new Error(`API Error (${response.status}): ${endpoint} returned HTML/invalid JSON.`);
+      // e.g. a proxy's HTML error page: keep the status so callers can still
+      // tell a server error from a lost connection.
+      const htmlError = new Error(`API Error (${response.status}): ${endpoint} returned HTML/invalid JSON.`) as Error & { status?: number; data?: unknown };
+      htmlError.status = response.status;
+      htmlError.data = {};
+      throw htmlError;
     } else {
       console.warn(`API ${endpoint} returned OK but invalid JSON:`, text.substring(0, 100));
     }

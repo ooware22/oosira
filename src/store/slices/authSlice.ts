@@ -30,13 +30,27 @@ const initialState: AuthState = {
 };
 
 // ── Login ──
+/**
+ * RTK serialises a thrown error down to its message, dropping the HTTP status
+ * and the response body the pages need to say what went wrong. Keep them.
+ */
+function toRejection(err: unknown) {
+  const e = err as { message?: string; status?: number; data?: unknown };
+  return { message: e?.message, status: e?.status, data: e?.data };
+}
+
 export const loginAuth = createAsyncThunk(
   'auth/login',
-  async (credentials: { email: string; password: string }) => {
-    const data = await apiFetch('/auth/login/', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+    let data;
+    try {
+      data = await apiFetch('/auth/login/', {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
+    } catch (err) {
+      return rejectWithValue(toRejection(err));
+    }
     // Store tokens
     setToken(data.token);
     if (data.refreshToken) setRefreshToken(data.refreshToken);
@@ -48,12 +62,17 @@ export const loginAuth = createAsyncThunk(
 // ── Register ──
 export const registerAuth = createAsyncThunk(
   'auth/register',
-  async (credentials: { name: string; email: string; password: string }) => {
+  async (credentials: { name: string; email: string; password: string }, { rejectWithValue }) => {
     const referralCode = getPendingReferral();
-    const data = await apiFetch('/auth/register/', {
-      method: 'POST',
-      body: JSON.stringify(referralCode ? { ...credentials, referralCode } : credentials),
-    });
+    let data;
+    try {
+      data = await apiFetch('/auth/register/', {
+        method: 'POST',
+        body: JSON.stringify(referralCode ? { ...credentials, referralCode } : credentials),
+      });
+    } catch (err) {
+      return rejectWithValue(toRejection(err));
+    }
     clearPendingReferral();
     // Store tokens
     setToken(data.token);

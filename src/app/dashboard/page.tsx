@@ -54,6 +54,8 @@ import { useMailAccounts } from '@/app/hooks/useMailAccounts';
 import AnalyticsView from '@/components/dashboard/AnalyticsView';
 import ReferralSection from '@/components/dashboard/ReferralSection';
 import ApplicationsView from './ApplicationsView';
+import PasswordRules from '@/components/auth/PasswordRules';
+import { describeAuthError, passwordRuleState, tAuth } from '@/app/lib/authErrors';
 
 // ════════════════════════════════════════════════════════════
 // NEW FORMS FOR PROFILE AND PASSWORD
@@ -237,14 +239,22 @@ function PasswordChangeForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword !== confirmPassword) {
+    if (status === 'loading') return;
+    const rules = passwordRuleState(newPassword);
+    const reasons = [!rules.length && 'too_short', !rules.notNumeric && 'entirely_numeric'].filter(Boolean) as string[];
+    if (!currentPassword) {
       setStatus('error');
-      setErrorText('New passwords do not match');
+      setErrorText(tAuth(t, 'auth.errors.current_password_required', 'Saisissez votre mot de passe actuel.'));
       return;
     }
-    if (newPassword.length < 8) {
+    if (reasons.length) {
       setStatus('error');
-      setErrorText('Password must be at least 8 characters');
+      setErrorText(describeAuthError({ status: 400, data: { code: 'password_invalid', reasons } }, t).message);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setStatus('error');
+      setErrorText(tAuth(t, 'auth.reset_mismatch', 'Les deux mots de passe ne correspondent pas.'));
       return;
     }
 
@@ -260,10 +270,9 @@ function PasswordChangeForm() {
       setNewPassword('');
       setConfirmPassword('');
       setTimeout(() => setStatus('idle'), 3000);
-    } catch (err: any) {
-      console.error(err);
+    } catch (err) {
       setStatus('error');
-      setErrorText(err.message || 'Failed to update password');
+      setErrorText(describeAuthError(err, t).message);
     }
   };
 
@@ -273,17 +282,28 @@ function PasswordChangeForm() {
         <h3 className="text-[15px] font-bold text-txt flex items-center gap-2">
           <KeyIcon className="w-5 h-5 text-blue-500" /> {t('dashboard.changePassword') || "Change Password"}
         </h3>
-        {status === 'success' && <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">Updated!</span>}
-        {status === 'error' && <span className="text-xs font-bold text-red-500 bg-red-500/10 px-2.5 py-1 rounded-full">{errorText}</span>}
+        {status === 'success' && (
+          <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+            {tAuth(t, 'auth.password_updated', 'Mot de passe mis à jour')}
+          </span>
+        )}
       </div>
       <div className="space-y-4 max-w-sm">
         <FormField label={t('dashboard.currentPassword') || "Current Password"} value={currentPassword} onChange={setCurrentPassword} type="password" placeholder="••••••••" />
-        <FormField label={t('dashboard.newPassword') || "New Password"} value={newPassword} onChange={setNewPassword} type="password" placeholder="••••••••" />
+        <div>
+          <FormField label={t('dashboard.newPassword') || "New Password"} value={newPassword} onChange={setNewPassword} type="password" placeholder="••••••••" />
+          <PasswordRules password={newPassword} />
+        </div>
         <FormField label={t('dashboard.confirmNewPassword') || "Confirm New Password"} value={confirmPassword} onChange={setConfirmPassword} type="password" placeholder="••••••••" />
+        {status === 'error' && (
+          <p role="alert" className="text-[12px] text-red-600 dark:text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">
+            {errorText}
+          </p>
+        )}
       </div>
       <div className="mt-5">
         <button disabled={status === 'loading'} type="submit" className="px-5 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors disabled:opacity-50">
-          {status === 'loading' ? 'Updating...' : (t('dashboard.updatePassword') || "Update Password")}
+          {status === 'loading' ? tAuth(t, 'auth.reset_saving', 'Enregistrement...') : (t('dashboard.updatePassword') || "Update Password")}
         </button>
       </div>
     </form>

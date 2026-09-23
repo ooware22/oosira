@@ -8,6 +8,10 @@ import { useAuth } from '@/app/auth/AuthContext';
 import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import PasswordInput from '@/components/auth/PasswordInput';
+import { describeAuthError, tAuth } from '@/app/lib/authErrors';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const { t, dir } = useLanguage();
@@ -16,26 +20,42 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [errorCode, setErrorCode] = useState<string | undefined>();
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    setErrorCode(undefined);
+
+    // Same wording as the server's own checks, in the user's language, and
+    // shown right away instead of the browser's generic tooltips.
+    const local: { email?: string; password?: string } = {};
+    const trimmed = email.trim();
+    if (!trimmed) local.email = describeAuthError({ status: 400, data: { code: 'email_required' } }, t).message;
+    else if (!EMAIL_PATTERN.test(trimmed)) local.email = describeAuthError({ status: 400, data: { code: 'email_invalid' } }, t).message;
+    if (!password) local.password = describeAuthError({ status: 400, data: { code: 'password_required' } }, t).message;
+    setFieldErrors(local);
+    if (local.email || local.password) return;
+
     setLoading(true);
-    try {
-      const success = await login(email, password);
-      if (success) {
-        // Check for pending CV from builder (created before login)
-        await savePendingCV();
-        router.push('/dashboard');
-      } else {
-        setError(t('auth.login_error') || 'Invalid email or password.');
-      }
-    } catch {
-      setError(t('auth.login_error') || 'Invalid email or password.');
-    } finally {
-      setLoading(false);
+    const result = await login(trimmed, password);
+    if (result === true) {
+      // Check for pending CV from builder (created before login)
+      await savePendingCV();
+      router.push('/dashboard');
+      return;
     }
+    const info = describeAuthError(result, t);
+    if (info.field === 'email' || info.field === 'password') {
+      setFieldErrors({ [info.field]: info.message });
+    } else {
+      setError(info.message);
+      setErrorCode(info.code);
+    }
+    setLoading(false);
   };
 
   const savePendingCV = async () => {
@@ -149,34 +169,40 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold text-txt text-center mb-2">{t('auth.login_title')}</h1>
             <p className="text-txt-muted text-center text-sm mb-8">{t('auth.login_subtitle')}</p>
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit} noValidate>
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-400 text-center">
+                <div role="alert" className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-400 text-center">
                   {error}
+                  {errorCode === 'invalid_credentials' && (
+                    <span className="block mt-1 text-[12px]">
+                      <Link href="/forgot-password" className="font-semibold underline">{t('auth.forgot')}</Link>
+                    </span>
+                  )}
                 </div>
               )}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.email')}</label>
                 <input
                   type="email"
-                  required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); setFieldErrors((f) => ({ ...f, email: undefined })); }}
                   placeholder="hello@example.com"
-                  className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  autoComplete="email"
+                  aria-invalid={!!fieldErrors.email || undefined}
+                  className={`w-full bg-surface2 border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:ring-4 placeholder:text-txt-dim ${fieldErrors.email ? 'border-red-500/60 focus:border-red-500 focus:ring-red-500/10' : 'border-border focus:border-blue-500 focus:ring-blue-500/10'}`}
                 />
+                {fieldErrors.email && <p className="text-[12px] text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.password')}</label>
-                <input
-                  type="password"
-                  required
+                <PasswordInput
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  onChange={(v) => { setPassword(v); setFieldErrors((f) => ({ ...f, password: undefined })); }}
+                  invalid={!!fieldErrors.password}
+                  autoComplete="current-password"
                 />
+                {fieldErrors.password && <p className="text-[12px] text-red-600 dark:text-red-400">{fieldErrors.password}</p>}
                 <div className="flex justify-end pt-1">
                   <Link href="/forgot-password" className="text-[11px] font-medium text-txt-muted hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors">{t('auth.forgot')}</Link>
                 </div>
@@ -185,7 +211,8 @@ export default function LoginPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="group relative w-full inline-flex items-center justify-center px-4 py-3.5 rounded-xl text-white font-medium text-[14px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 shadow-lg shadow-blue-500/25 hover:shadow-cyan-500/40 hover:shadow-xl overflow-hidden cursor-pointer"
+                  disabled={loading}
+                  className="group relative w-full inline-flex items-center justify-center px-4 py-3.5 rounded-xl text-white font-medium text-[14px] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:-translate-y-0.5 shadow-lg shadow-blue-500/25 hover:shadow-cyan-500/40 hover:shadow-xl overflow-hidden cursor-pointer disabled:opacity-70 disabled:cursor-wait"
                 >
                   {/* Shifting Gradient Background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 dark:from-blue-500 dark:via-cyan-300 dark:to-blue-500 bg-[length:200%_auto] bg-left group-hover:bg-right transition-all duration-700 ease-out z-0"></div>
@@ -193,7 +220,10 @@ export default function LoginPage() {
                   {/* Light Beam Sweep Effect */}
                   <div className="absolute top-0 -left-[150%] group-hover:left-[150%] w-[100%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 transition-all duration-700 ease-in-out z-0 pointer-events-none"></div>
 
-                  <span className="relative z-10 drop-shadow-sm pointer-events-none">{t('auth.submit_login')}</span>
+                  <span className="relative z-10 drop-shadow-sm pointer-events-none inline-flex items-center gap-2">
+                    {loading && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                    {loading ? tAuth(t, 'auth.logging_in', 'Connexion...') : t('auth.submit_login')}
+                  </span>
                 </button>
               </div>
             </form>

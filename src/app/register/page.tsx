@@ -9,6 +9,12 @@ import { ThemeToggle, LanguageToggle } from '@/components/Toggles';
 import { ArrowLeftIcon, GiftIcon } from '@heroicons/react/24/outline';
 import { useState, useSyncExternalStore } from 'react';
 import { getPendingReferral } from '@/app/lib/referralCode';
+import PasswordInput from '@/components/auth/PasswordInput';
+import PasswordRules from '@/components/auth/PasswordRules';
+import { describeAuthError, passwordRuleState, tAuth } from '@/app/lib/authErrors';
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+type Field = 'name' | 'email' | 'password';
 
 const noSubscribe = () => () => {};
 
@@ -21,6 +27,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<Field, string>>>({});
+  const [emailTaken, setEmailTaken] = useState(false);
   // Read from localStorage only on the client; the server render shows no banner.
   const invited = useSyncExternalStore(noSubscribe, () => !!getPendingReferral(), () => false);
 
@@ -31,18 +39,50 @@ export default function RegisterPage() {
     // (see accounts/views.py), so the second request could 500 and the
     // user — seeing nothing happen either time — would keep clicking.
     if (isSubmitting) return;
-    setIsSubmitting(true);
     setError(null);
-    const result = await register(name, email, password);
+    setEmailTaken(false);
+
+    // Checked here first, in the user's language, so the common mistakes are
+    // flagged instantly and next to the right field.
+    const msg = (code: string, extra: Record<string, unknown> = {}) =>
+      describeAuthError({ status: 400, data: { code, ...extra } }, t).message;
+    const local: Partial<Record<Field, string>> = {};
+    const trimmedEmail = email.trim();
+    if (!name.trim()) local.name = msg('name_required');
+    if (!trimmedEmail) local.email = msg('email_required');
+    else if (!EMAIL_PATTERN.test(trimmedEmail)) local.email = msg('email_invalid');
+    if (!password) local.password = msg('password_required');
+    else {
+      const rules = passwordRuleState(password);
+      const reasons = [!rules.length && 'too_short', !rules.notNumeric && 'entirely_numeric'].filter(Boolean) as string[];
+      if (reasons.length) local.password = msg('password_invalid', { reasons });
+    }
+    setFieldErrors(local);
+    if (Object.keys(local).length) return;
+
+    setIsSubmitting(true);
+    const result = await register(name.trim(), trimmedEmail, password);
     if (result === true) {
       // Check for pending CV from builder (created before signup)
       await savePendingCV();
       router.push('/dashboard');
       return;
     }
-    setError(result);
+    const info = describeAuthError(result, t);
+    if (info.field === 'name' || info.field === 'email' || info.field === 'password') {
+      setFieldErrors({ [info.field]: info.message });
+      setEmailTaken(info.code === 'email_taken');
+    } else {
+      setError(info.message);
+    }
     setIsSubmitting(false);
   };
+
+  const clearField = (field: Field) => setFieldErrors((f) => ({ ...f, [field]: undefined }));
+  const inputClass = (field: Field) =>
+    `w-full bg-surface2 border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:ring-4 placeholder:text-txt-dim ${
+      fieldErrors[field] ? 'border-red-500/60 focus:border-red-500 focus:ring-red-500/10' : 'border-border focus:border-blue-500 focus:ring-blue-500/10'
+    }`;
 
   const savePendingCV = async () => {
     try {
@@ -167,48 +207,61 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit} noValidate>
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.name')}</label>
                 <input
                   type="text"
-                  required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => { setName(e.target.value); clearField('name'); }}
                   placeholder="John Doe"
-                  className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  autoComplete="name"
+                  aria-invalid={!!fieldErrors.name || undefined}
+                  className={inputClass('name')}
                 />
+                {fieldErrors.name && <p className="text-[12px] text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.email')}</label>
                 <input
                   type="email"
-                  required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { setEmail(e.target.value); clearField('email'); setEmailTaken(false); }}
                   placeholder="hello@example.com"
-                  className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  autoComplete="email"
+                  aria-invalid={!!fieldErrors.email || undefined}
+                  className={inputClass('email')}
                 />
+                {fieldErrors.email && (
+                  <p className="text-[12px] text-red-600 dark:text-red-400">
+                    {fieldErrors.email}
+                    {emailTaken && (
+                      <>
+                        {' '}
+                        <Link href="/login" className="font-semibold underline">{tAuth(t, 'auth.email_taken_login', 'Se connecter')}</Link>
+                        {' · '}
+                        <Link href="/forgot-password" className="font-semibold underline">{t('auth.forgot')}</Link>
+                      </>
+                    )}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-txt-muted uppercase tracking-wider">{t('auth.password')}</label>
-                <input
-                  type="password"
-                  required
+                <PasswordInput
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-surface2 border border-border rounded-xl px-4 py-3.5 text-sm text-txt outline-none transition-all duration-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 placeholder:text-txt-dim"
+                  onChange={(v) => { setPassword(v); clearField('password'); }}
+                  invalid={!!fieldErrors.password}
+                  autoComplete="new-password"
                 />
-                <div className="flex justify-end pt-1">
-                  <Link href="/login" className="text-[11px] font-medium text-txt-muted hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors">{t('auth.forgot')}</Link>
-                </div>
+                {fieldErrors.password && <p className="text-[12px] text-red-600 dark:text-red-400">{fieldErrors.password}</p>}
+                <PasswordRules password={password} />
               </div>
 
               {error && (
-                <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+                <div role="alert" className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-600 dark:text-red-400">
                   {error}
                 </div>
               )}
@@ -229,7 +282,7 @@ export default function RegisterPage() {
                     {isSubmitting && (
                       <span className="w-3.5 h-3.5 border-2 border-white/70 border-t-transparent rounded-full animate-spin" />
                     )}
-                    {t('auth.submit_signup')}
+                    {isSubmitting ? tAuth(t, 'auth.signing_up', 'Création du compte...') : t('auth.submit_signup')}
                   </span>
                 </button>
               </div>

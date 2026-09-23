@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { loginAuth, registerAuth, logoutAuth, hydrateAuth } from '@/store/slices/authSlice';
 import { duplicateDraft, removeDraft, fetchDrafts } from '@/store/slices/cvsSlice';
+import type { ApiErrorLike } from '@/app/lib/authErrors';
 
 // Expose same typings for UI
 export interface User {
@@ -41,8 +42,8 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isHydrating: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string) => Promise<string | true>;
+  login: (email: string, password: string) => Promise<true | ApiErrorLike>;
+  register: (name: string, email: string, password: string) => Promise<true | ApiErrorLike>;
   logout: () => void;
   drafts: DraftCV[];
   deleteDraft: (id: string) => void;
@@ -78,23 +79,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, userId, dispatch]);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  /** `true` on success, otherwise the error (status + response body) so the
+   *  page can tell the user exactly what went wrong (lib/authErrors.ts). */
+  const login = async (email: string, password: string): Promise<true | ApiErrorLike> => {
     try {
       await dispatch(loginAuth({ email, password })).unwrap();
       return true;
-    } catch {
-      return false;
+    } catch (err) {
+      return err as ApiErrorLike;
     }
   };
 
-  /** Returns `true` on success, or an error message string on failure — the
-   *  caller needs the message to show the user, unlike `login`'s boolean. */
-  const register = async (name: string, email: string, password: string): Promise<string | true> => {
+  const register = async (name: string, email: string, password: string): Promise<true | ApiErrorLike> => {
     try {
       await dispatch(registerAuth({ name, email, password })).unwrap();
       return true;
-    } catch (err: any) {
-      return err?.message || 'Registration failed';
+    } catch (err) {
+      return err as ApiErrorLike;
     }
   };
 
