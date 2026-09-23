@@ -52,6 +52,13 @@ export default function RegisterPage() {
       const pending = JSON.parse(pendingRaw);
       const { formData, activeTemplate, styleConfig, cvTitle } = pending;
 
+      // Written while some existing account was signed in: never the new
+      // user's, so it must not be imported into their account.
+      if (pending.ownerEmail) {
+        localStorage.removeItem('oosira_pending_cv');
+        return;
+      }
+
       // Don't save empty CVs
       if (!formData || (!formData.prenom && !formData.nom && !formData.email)) {
         localStorage.removeItem('oosira_pending_cv');

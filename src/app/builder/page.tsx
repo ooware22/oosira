@@ -324,7 +324,7 @@ function BuilderPageContent() {
   const { t, dir, language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isHydrating } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
   const {
     subscription,
@@ -398,7 +398,12 @@ function BuilderPageContent() {
       if (pendingRaw) {
         try {
           const pending = JSON.parse(pendingRaw);
-          if (pending.formData && (pending.formData.prenom || pending.formData.nom || pending.formData.email || pending.formData.experiences?.length)) {
+          const ownedByOther = !!pending.ownerEmail && pending.ownerEmail !== user?.email?.toLowerCase();
+          if (ownedByOther) {
+            // Before the session has loaded `user` is still empty, so the
+            // owner's own draft would look foreign; only discard once known.
+            if (!isHydrating) localStorage.removeItem('oosira_pending_cv');
+          } else if (pending.formData && (pending.formData.prenom || pending.formData.nom || pending.formData.email || pending.formData.experiences?.length)) {
             setFormData(normalizeCandidate(pending.formData));
             if (pending.activeTemplate != null) setActiveTemplate(pending.activeTemplate);
             if (pending.styleConfig) setStyleConfig(pending.styleConfig);
@@ -637,12 +642,15 @@ function BuilderPageContent() {
           styleConfig,
           cvTitle: cvTitle || `CV ${formData.prenom || ''} ${formData.nom || ''}`.trim(),
           savedAt: new Date().toISOString(),
+          // Whose draft this is: only a guest draft (null) may be imported
+          // into an account at signup, never another account's.
+          ownerEmail: isAuthenticated ? user?.email?.toLowerCase() ?? null : null,
         };
         localStorage.setItem('oosira_pending_cv', JSON.stringify(pendingCV));
       }
     }, 1000);
     return () => clearTimeout(timer);
-  }, [formData, activeTemplate, styleConfig, cvTitle, isAuthenticated]);
+  }, [formData, activeTemplate, styleConfig, cvTitle, isAuthenticated, user?.email]);
 
   // ── Guest overlay prompt ──
   const [showGuestOverlay, setShowGuestOverlay] = useState(!isAuthenticated);
@@ -1184,6 +1192,7 @@ function BuilderPageContent() {
             styleConfig,
             cvTitle: cvTitle || `CV ${formData.prenom || ""} ${formData.nom || ""}`.trim(),
             savedAt: new Date().toISOString(),
+            ownerEmail: user?.email?.toLowerCase() ?? null,
           }),
         );
       } catch {

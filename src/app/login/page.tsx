@@ -46,6 +46,12 @@ export default function LoginPage() {
       const pending = JSON.parse(pendingRaw);
       const { formData, activeTemplate, styleConfig, cvTitle } = pending;
 
+      // Another account's draft left on this device: drop it, never import it.
+      if (pending.ownerEmail && pending.ownerEmail !== email.trim().toLowerCase()) {
+        localStorage.removeItem('oosira_pending_cv');
+        return;
+      }
+
       // Don't save empty CVs
       if (!formData || (!formData.prenom && !formData.nom && !formData.email)) {
         localStorage.removeItem('oosira_pending_cv');

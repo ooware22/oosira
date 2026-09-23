@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { clearPendingReferral, getPendingReferral } from '@/app/lib/referralCode';
+import { clearUserBrowserData } from '@/app/lib/sessionReset';
+import { invalidateSubscriptionCache } from '@/app/hooks/useSubscription';
 import { apiFetch, setToken, setRefreshToken, clearToken, getToken } from '../../api/apiClient';
 
 interface User {
@@ -38,6 +40,7 @@ export const loginAuth = createAsyncThunk(
     // Store tokens
     setToken(data.token);
     if (data.refreshToken) setRefreshToken(data.refreshToken);
+    invalidateSubscriptionCache();
     return data;
   }
 );
@@ -55,6 +58,7 @@ export const registerAuth = createAsyncThunk(
     // Store tokens
     setToken(data.token);
     if (data.refreshToken) setRefreshToken(data.refreshToken);
+    invalidateSubscriptionCache();
     return data;
   }
 );
@@ -62,6 +66,7 @@ export const registerAuth = createAsyncThunk(
 // ── Logout ──
 export const logoutAuth = createAsyncThunk('auth/logout', async () => {
   clearToken();
+  clearUserBrowserData();
   return null;
 });
 

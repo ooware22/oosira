@@ -79,7 +79,10 @@ const cvsSlice = createSlice({
       })
       .addCase(duplicateDraft.fulfilled, (state, action) => {
         state.drafts.unshift(action.payload);
-      });
+      })
+      // Matched by type rather than importing logoutAuth, to keep the slices
+      // independent. The next account must not see this one's CV list.
+      .addMatcher((action) => action.type === 'auth/logout/fulfilled', () => initialState);
   },
 });
 
