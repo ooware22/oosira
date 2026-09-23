@@ -61,7 +61,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
   useEffect(() => {
     const el = previewRef.current;
     if (!el) return;
-    const fit = () => setPreviewScale(Math.min(0.6, Math.max(0.2, (el.clientWidth - 24) / 794)));
+    const fit = () => setPreviewScale(Math.min(0.9, Math.max(0.2, (el.clientWidth - 24) / 794)));
     fit();
     const observer = new ResizeObserver(fit);
     observer.observe(el);
@@ -160,7 +160,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16, scale: 0.97 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-[95vw] max-w-4xl max-h-[90vh] flex flex-col bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden"
+        className="w-[95vw] max-w-6xl max-h-[95vh] flex flex-col bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden"
       >
         <div className="flex items-center justify-between px-6 py-5 border-b border-border shrink-0">
           <h2 className="text-[16px] font-bold text-txt flex items-center gap-2">
@@ -184,7 +184,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
             </p>
           </div>
 
-          <div className={`grid gap-6 ${renderPreview ? 'md:grid-cols-[280px_1fr]' : ''}`}>
+          <div className={`grid gap-6 ${renderPreview ? 'md:grid-cols-[340px_1fr]' : ''}`}>
             <div className="flex flex-col items-center gap-4">
               <input
                 ref={inputRef}
@@ -195,7 +195,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
               />
               {source ? (
                 <>
-                  <PhotoCropper source={source} crop={crop} onChange={setCrop} />
+                  <PhotoCropper source={source} crop={crop} onChange={setCrop} size={300} />
                   <div className="flex gap-2">
                     <button
                       onClick={pick}
@@ -253,7 +253,7 @@ export default function PhotoPromptModal({ mode, onContinue, onClose, renderPrev
                   {t('photoPrompt.previewTitle') || 'Aperçu'}
                 </p>
                 {/* Only the top of page 1 matters here: that is where the photo goes. */}
-                <div ref={previewRef} className="rounded-2xl bg-surface2/40 border border-border p-3 h-[340px] overflow-hidden">
+                <div ref={previewRef} className="rounded-2xl bg-surface2/40 border border-border p-3 h-[380px] md:h-[min(64vh,640px)] overflow-hidden">
                   <div className="mx-auto" style={{ width: 'fit-content' }}>
                     {renderPreview(photo, previewScale)}
                   </div>

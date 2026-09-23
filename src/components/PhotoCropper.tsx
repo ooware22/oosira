@@ -116,7 +116,7 @@ export default function PhotoCropper({ source, crop, onChange, size = 220 }: {
         {t('photoPrompt.frameHint') || 'Faites glisser la photo pour la cadrer'}
       </p>
 
-      <div className="flex items-center gap-2 w-full max-w-[240px]">
+      <div className="flex items-center gap-2 w-full max-w-[300px]">
         <button
           type="button"
           onClick={() => setZoom(crop.zoom - ZOOM_STEP)}
