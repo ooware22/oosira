@@ -1,6 +1,7 @@
 ﻿"use client";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { normalize } from "@/lib/normalize";
+import { useLanguage } from "@/app/i18n/LanguageContext";
 
 /**
  * A suggestion can be a bare string, or an object carrying extra searchable
@@ -49,6 +50,9 @@ interface AutocompleteInputProps {
   isTemplateData?: boolean;
   /** DOM id for SyncTeX focus targeting */
   id?: string;
+  /** Renders a muted "(optional)" suffix — for fields nobody is nudged to
+   *  fill in (no builder warning tracks them). Purely a label hint. */
+  optional?: boolean;
 }
 
 /**
@@ -67,7 +71,9 @@ export default function AutocompleteInput({
   showAllOnFocus = false,
   isTemplateData,
   id,
+  optional,
 }: AutocompleteInputProps) {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -160,6 +166,11 @@ export default function AutocompleteInput({
       <div className="flex items-center gap-2">
         <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
           {label}
+          {optional && (
+            <span className="ms-1.5 normal-case font-medium text-txt-dim tracking-normal">
+              {t("builder.optionalTag") || "(optional)"}
+            </span>
+          )}
         </label>
         {isTemplateData && (
           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold uppercase tracking-wide animate-pulse">

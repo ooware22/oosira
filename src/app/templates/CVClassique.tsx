@@ -143,7 +143,7 @@ export function buildClassiqueLayout(
             'logiciels',
             <div className="cv-skills-list">
               {data.logiciels.map((s, i) => (
-                <span className="cv-skill-pill" key={i} style={{ background: 'rgba(37,99,235,0.06)', color: '#1D4ED8' }} data-cv-field="logiciels">{s}</span>
+                <span className="cv-skill-pill" key={i} data-cv-field="logiciels">{s}</span>
               ))}
             </div>,
             { wrapperClass: 'cv-section-col' },

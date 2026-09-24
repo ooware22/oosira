@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo, useSyncExternalStore, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   candidates,
@@ -61,6 +61,7 @@ import {
   PencilSquareIcon,
   ShieldCheckIcon,
   ExclamationTriangleIcon,
+  LightBulbIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -166,6 +167,7 @@ function Input({
   isTemplateData,
   id,
   disabled,
+  optional,
 }: {
   label: string;
   value: string;
@@ -176,12 +178,22 @@ function Input({
   isTemplateData?: boolean;
   id?: string;
   disabled?: boolean;
+  /** Renders a muted "(optional)" suffix — for fields nobody is nudged to
+   *  fill in (no builder.jobTitle-style warning tracks them). Purely a label
+   *  hint: nothing here ever blocks navigation either way. */
+  optional?: boolean;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="space-y-1.5">
       <div className="flex items-center gap-2">
         <label className="block text-[11px] lg:text-[15px] font-bold text-txt-muted uppercase tracking-wider">
           {label}
+          {optional && (
+            <span className="ms-1.5 normal-case font-medium text-txt-dim tracking-normal">
+              {t("builder.optionalTag") || "(optional)"}
+            </span>
+          )}
         </label>
         {isTemplateData && (
           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold uppercase tracking-wide animate-pulse">
@@ -567,6 +579,53 @@ function BuilderPageContent() {
   const dismissWarning = useCallback((id: string) => {
     setDismissedWarnings(prev => new Set([...prev, id]));
   }, []);
+
+  /**
+   * A positive-framing companion to `cvWarnings`, for people who read an
+   * unbroken wall of empty-looking fields as something they must all fill in.
+   * Only the section-level checks count toward the percentage — each fires at
+   * most once regardless of how many items are missing something, so they add
+   * up to a fixed, always-reachable total. The finer per-item checks
+   * (`exp-dates`, `edu-diploma`, …) still count in "fields left", they just
+   * aren't part of the percentage's denominator.
+   */
+  const CORE_WARNING_IDS = [
+    'name', 'email', 'titre', 'phone', 'city', 'accroche',
+    'no-exp', 'no-edu', 'no-skills', 'no-lang', 'no-software',
+  ] as const;
+  const hasAnyContent = !!(formData.prenom || formData.nom || formData.email ||
+    (formData.experiences?.length ?? 0) > 0 || (formData.formations?.length ?? 0) > 0);
+  const completion = useMemo(() => {
+    const total = CORE_WARNING_IDS.length;
+    if (!hasAnyContent) return { percent: 0, remaining: 0 };
+    const missingCore = cvWarnings.filter(w => (CORE_WARNING_IDS as readonly string[]).includes(w.id)).length;
+    return {
+      percent: Math.round(((total - missingCore) / total) * 100),
+      remaining: cvWarnings.length,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cvWarnings, hasAnyContent]);
+
+  // ── First-visit reassurance: nothing here is actually mandatory ──
+  // useSyncExternalStore, not a state+effect pair, so the server-rendered
+  // markup (which has no access to localStorage) never has to be corrected
+  // by a post-mount setState — it reads the real value on the client's first
+  // render instead.
+  const tipNotYetSeen = useSyncExternalStore(
+    () => () => {},
+    () => { try { return !localStorage.getItem('oosira_builder_tip_seen'); } catch { return false; } },
+    () => false,
+  );
+  const [tipDismissedThisSession, setTipDismissedThisSession] = useState(false);
+  const showBuilderTip = tipNotYetSeen && !tipDismissedThisSession;
+  const dismissBuilderTip = () => {
+    setTipDismissedThisSession(true);
+    try {
+      localStorage.setItem('oosira_builder_tip_seen', '1');
+    } catch {
+      /* not remembered on this device — it may show again next visit */
+    }
+  };
 
   // ── Template data detection helpers ──
   const isTemplateValue = useCallback((field: keyof Candidate): boolean => {
@@ -1649,16 +1708,29 @@ function BuilderPageContent() {
 
   // ── Warning badges overlay for CV preview ──
   const renderWarnings = () => {
-    if (cvWarnings.length === 0) return null;
+    // Nothing to say about an untouched CV — this must never read as "you
+    // already have things to fix" before anyone has typed a single field.
+    if (!hasAnyContent) return null;
+    const allDone = cvWarnings.length === 0;
     return (
-      <div className="shrink-0 px-3 py-2.5 border-b border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-amber-400/5 to-amber-500/5">
+      <div className={`shrink-0 px-3 py-2.5 border-b ${allDone ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-amber-500/20 bg-gradient-to-r from-amber-500/5 via-amber-400/5 to-amber-500/5'}`}>
         <div className="flex items-center gap-1.5 mb-2">
-          <ExclamationTriangleIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-            {cvWarnings.length} {language === 'fr' ? 'champ(s) à compléter' : language === 'ar' ? 'حقول للإكمال' : 'field(s) to complete'}
+          {allDone ? (
+            <CheckIcon className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          ) : (
+            <ExclamationTriangleIcon className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          )}
+          <span className={`text-[10px] font-bold uppercase tracking-wider ${allDone ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+            {completion.percent}% {language === 'fr' ? 'complet' : language === 'ar' ? 'مكتمل' : 'complete'}
+            {!allDone && (
+              <>
+                {' · '}
+                {cvWarnings.length} {language === 'fr' ? 'suggestion(s)' : language === 'ar' ? 'اقتراح(ات)' : 'suggestion(s)'}
+              </>
+            )}
           </span>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        {!allDone && <div className="flex flex-wrap gap-1.5">
           {cvWarnings.map(w => (
             <div key={w.id} className="group/warn relative">
               {/* Badge — click directly to jump to the step */}
@@ -1693,7 +1765,7 @@ function BuilderPageContent() {
               </div>
             </div>
           ))}
-        </div>
+        </div>}
       </div>
     );
   };
@@ -2206,6 +2278,22 @@ function BuilderPageContent() {
                   "Let employers know how to reach you."}
               </p>
             </div>
+            {showBuilderTip && (
+              <div className="flex items-start gap-3 bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
+                <LightBulbIcon className="w-5 h-5 shrink-0 text-blue-500 mt-0.5" />
+                <p className="flex-1 text-xs lg:text-base text-blue-700 dark:text-blue-400">
+                  {t("builder.optionalTip") ||
+                    "Vous pouvez remplir uniquement les champs qui vous concernent et revenir plus tard pour le reste."}
+                </p>
+                <button
+                  onClick={dismissBuilderTip}
+                  aria-label={t("builder.dismiss") || "Dismiss"}
+                  className="shrink-0 p-1 text-blue-500/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
+                  <XMarkIcon className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label={t("builder.firstName") || "First Name"}
@@ -2266,6 +2354,7 @@ function BuilderPageContent() {
                 onChange={(v) => updateField("linkedin", v)}
                 isTemplateData={isTemplateValue("linkedin")}
                 id="field-linkedin"
+                optional
               />
             </div>
           </motion.div>
@@ -2396,6 +2485,7 @@ function BuilderPageContent() {
                         onChange={(v) => updateExperience(idx, "secteur", v)}
                         suggestions={SUGGESTIONS.secteurs}
                         isTemplateData={isTemplateArrayValue("experiences", idx, "secteur")}
+                        optional
                       />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2460,6 +2550,7 @@ function BuilderPageContent() {
                                 newLinks[linkIdx].url = v;
                                 updateExperience(idx, "links", newLinks);
                               }}
+                              optional
                             />
                             <Input
                               label={t("builder.linkLabel") || "Link Label"}
@@ -2469,6 +2560,7 @@ function BuilderPageContent() {
                                 newLinks[linkIdx].label = v;
                                 updateExperience(idx, "links", newLinks);
                               }}
+                              optional
                             />
                             <button
                               onClick={() => {
@@ -2625,6 +2717,7 @@ function BuilderPageContent() {
                       suggestions={SUGGESTIONS.specialites}
                       isTemplateData={isTemplateArrayValue("formations", idx, "specialite")}
                       id={`edu-${idx}-specialite`}
+                      optional
                     />
                     <Select
                       label={
@@ -2693,12 +2786,13 @@ function BuilderPageContent() {
                         id={`edu-${idx}-etablissement`}
                       />
                       <AutocompleteInput
-                        label={t("builder.location")}
+                        label={t("builder.schoolCity") || "City"}
                         value={f.ville}
                         onChange={(v) => updateFormation(idx, "ville", v)}
                         suggestions={SUGGESTIONS.villes}
                         isTemplateData={isTemplateArrayValue("formations", idx, "ville")}
                         id={`edu-${idx}-ville`}
+                        optional
                       />
                     </div>
                     <AutocompleteInput
@@ -2708,6 +2802,7 @@ function BuilderPageContent() {
                       suggestions={SUGGESTIONS.mentions}
                       isTemplateData={isTemplateArrayValue("formations", idx, "mention")}
                       id={`edu-${idx}-mention`}
+                      optional
                     />
 
                     {/* Multiple URLs Toggle */}
@@ -2726,6 +2821,7 @@ function BuilderPageContent() {
                                 newLinks[linkIdx].url = v;
                                 updateFormation(idx, "links", newLinks);
                               }}
+                              optional
                             />
                             <Input
                               label={"Label du lien"}
@@ -2735,6 +2831,7 @@ function BuilderPageContent() {
                                 newLinks[linkIdx].label = v;
                                 updateFormation(idx, "links", newLinks);
                               }}
+                              optional
                             />
                             <button
                               onClick={() => {
