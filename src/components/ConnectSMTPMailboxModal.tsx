@@ -4,16 +4,18 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/app/i18n/LanguageContext';
-import { XMarkIcon, EnvelopeIcon, KeyIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, EnvelopeIcon, KeyIcon, ArrowTopRightOnSquareIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const PROVIDER_INFO = {
   microsoft: {
     label: 'Outlook',
+    loginUrl: 'https://account.live.com',
     helpUrl: 'https://account.live.com/proofs/AppPassword',
     domainHint: '@outlook.com, @hotmail.com, @live.com',
   },
   yahoo: {
     label: 'Yahoo',
+    loginUrl: 'https://login.yahoo.com',
     helpUrl: 'https://login.yahoo.com/myaccount/security',
     domainHint: '@yahoo.com, @yahoo.fr',
   },
@@ -39,6 +41,7 @@ export default function ConnectSMTPMailboxModal({ provider, onConnect, onClose }
   const [appPassword, setAppPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stepsOpen, setStepsOpen] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -91,23 +94,57 @@ export default function ConnectSMTPMailboxModal({ provider, onConnect, onClose }
         </div>
 
         <form onSubmit={submit} className="px-5 py-4 space-y-4">
-          <div className="flex items-start gap-2.5 rounded-xl bg-blue-500/5 border border-blue-500/20 px-3.5 py-3">
-            <KeyIcon className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <p className="text-[11.5px] text-txt leading-relaxed">
-              {(t('smtpModal.explain')
-                || "{provider} ne propose pas de fenêtre de connexion directe. Générez un mot de passe d'application dans les paramètres de sécurité de votre compte {provider}, puis collez-le ici.")
-                .replace(/{provider}/g, info.label)}
-              {' '}
-              <a
-                href={info.helpUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-0.5 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                {t('smtpModal.helpLink') || 'Générer le mot de passe'}
-                <ArrowTopRightOnSquareIcon className="w-3 h-3" />
-              </a>
-            </p>
+          <div className="rounded-xl bg-blue-500/5 border border-blue-500/20 overflow-hidden">
+            <div className="flex items-start gap-2.5 px-3.5 py-3">
+              <KeyIcon className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <p className="text-[11.5px] text-txt leading-relaxed">
+                  {(t('smtpModal.explain')
+                    || "{provider} ne propose pas de fenêtre de connexion directe. Générez un mot de passe d'application dans les paramètres de sécurité de votre compte {provider}, puis collez-le ici.")
+                    .replace(/{provider}/g, info.label)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStepsOpen((v) => !v)}
+                  className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  {stepsOpen
+                    ? (t('smtpModal.stepsHide') || 'Masquer les étapes')
+                    : (t('smtpModal.stepsShow') || 'Voir les étapes')}
+                  <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${stepsOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {stepsOpen && (
+              <ol className="px-3.5 pb-3.5 pl-9 space-y-1.5 text-[11.5px] text-txt leading-relaxed list-decimal">
+                <li>
+                  {(t('smtpModal.step1') || 'Connectez-vous sur {loginUrl} avec le compte à relier.')
+                    .replace('{loginUrl}', info.loginUrl.replace('https://', ''))}
+                </li>
+                <li>
+                  {t('smtpModal.step2')
+                    || "Activez la vérification en deux étapes si ce n'est pas déjà fait, dans les paramètres de sécurité du compte."}
+                </li>
+                <li>
+                  {t('smtpModal.step3') || "Générez un mot de passe d'application sur cette page."}
+                  {' '}
+                  <a
+                    href={info.helpUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-0.5 font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    {t('smtpModal.helpLink') || 'Générer le mot de passe'}
+                    <ArrowTopRightOnSquareIcon className="w-3 h-3" />
+                  </a>
+                </li>
+                <li>
+                  {t('smtpModal.step4')
+                    || 'Copiez le mot de passe généré, puis collez-le dans le champ ci-dessous.'}
+                </li>
+              </ol>
+            )}
           </div>
 
           <div className="space-y-1.5">
