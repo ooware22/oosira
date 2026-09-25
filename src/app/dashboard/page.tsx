@@ -50,6 +50,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useSubscription, type SubscriptionStatus } from '@/app/hooks/useSubscription';
 import PlanIcon from '@/components/PlanIcon';
+import ConnectSMTPMailboxModal from '@/components/ConnectSMTPMailboxModal';
 import { useMailAccounts } from '@/app/hooks/useMailAccounts';
 import AnalyticsView from '@/components/dashboard/AnalyticsView';
 import ReferralSection from '@/components/dashboard/ReferralSection';
@@ -131,9 +132,10 @@ function ProfileSettingsForm({ user, refreshUser }: { user: any, refreshUser: ()
  */
 function MailboxSection() {
   const { t } = useLanguage();
-  const { accounts, googleConfigured, loading, error, connectGoogle, disconnect } = useMailAccounts();
+  const { accounts, googleConfigured, loading, error, connectGoogle, connectSMTP, disconnect } = useMailAccounts();
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [smtpModal, setSmtpModal] = useState<'microsoft' | 'yahoo' | null>(null);
 
   const handleConnect = async () => {
     setBusy(true);
@@ -182,48 +184,79 @@ function MailboxSection() {
 
       {loading ? (
         <p className="text-[13px] text-txt-dim">{t('dashboard.loading') || 'Chargement...'}</p>
-      ) : accounts.length > 0 ? (
-        <div className="space-y-2">
-          {accounts.map((account) => (
-            <div key={account.id} className="flex items-center gap-3 bg-surface2 border border-border rounded-xl px-4 py-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-txt truncate">{account.emailAddress}</p>
-                <p className="text-[11px] text-txt-muted">
-                  {t('dashboard.mailboxConnectedOn') || 'Connectée le'}{' '}
-                  {new Date(account.connectedAt).toLocaleDateString()}
-                </p>
-              </div>
-              <button
-                onClick={() => handleDisconnect(account.id, account.emailAddress)}
-                disabled={busy}
-                className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-txt-muted hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 shrink-0"
-              >
-                {t('dashboard.mailboxDisconnect') || 'Déconnecter'}
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : googleConfigured ? (
-        <button
-          onClick={handleConnect}
-          disabled={busy}
-          className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors disabled:opacity-50"
-        >
-          {busy
-            ? (t('dashboard.mailboxConnecting') || 'Connexion...')
-            : (t('dashboard.mailboxConnect') || 'Connecter Gmail')}
-        </button>
       ) : (
-        // No OAuth client on this server. Offering a button that can only
-        // fail is worse than saying so.
-        <p className="text-[12px] text-amber-600 dark:text-amber-400">
-          {t('dashboard.mailboxUnavailable') || "L'envoi d'e-mails n'est pas encore disponible sur ce serveur."}
-        </p>
+        <>
+          {accounts.length > 0 && (
+            <div className="space-y-2 mb-3">
+              {accounts.map((account) => (
+                <div key={account.id} className="flex items-center gap-3 bg-surface2 border border-border rounded-xl px-4 py-3">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-txt truncate">{account.emailAddress}</p>
+                    <p className="text-[11px] text-txt-muted">
+                      {t('dashboard.mailboxConnectedOn') || 'Connectée le'}{' '}
+                      {new Date(account.connectedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDisconnect(account.id, account.emailAddress)}
+                    disabled={busy}
+                    className="px-3 py-1.5 rounded-lg text-[12px] font-medium text-txt-muted hover:text-red-500 hover:bg-red-500/10 transition-colors disabled:opacity-50 shrink-0"
+                  >
+                    {t('dashboard.mailboxDisconnect') || 'Déconnecter'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(() => {
+            const connected = new Set(accounts.map((a) => a.provider));
+            return (
+              <div className="flex flex-wrap gap-2">
+                {googleConfigured && !connected.has('google') && (
+                  <button
+                    onClick={handleConnect}
+                    disabled={busy}
+                    className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors disabled:opacity-50"
+                  >
+                    {busy
+                      ? (t('dashboard.mailboxConnecting') || 'Connexion...')
+                      : (t('dashboard.mailboxConnect') || 'Connecter Gmail')}
+                  </button>
+                )}
+                {!connected.has('microsoft') && (
+                  <button
+                    onClick={() => setSmtpModal('microsoft')}
+                    className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors"
+                  >
+                    {t('dashboard.mailboxConnectOutlook') || 'Connecter Outlook'}
+                  </button>
+                )}
+                {!connected.has('yahoo') && (
+                  <button
+                    onClick={() => setSmtpModal('yahoo')}
+                    className="px-4 py-2.5 bg-surface2 border border-border rounded-xl text-[13px] font-medium text-txt hover:border-blue-500/40 transition-colors"
+                  >
+                    {t('dashboard.mailboxConnectYahoo') || 'Connecter Yahoo'}
+                  </button>
+                )}
+              </div>
+            );
+          })()}
+        </>
       )}
 
       {(actionError || error) && (
         <p className="mt-3 text-[12px] text-red-500">{actionError || error}</p>
+      )}
+
+      {smtpModal && (
+        <ConnectSMTPMailboxModal
+          provider={smtpModal}
+          onConnect={(email, pwd) => connectSMTP(smtpModal, email, pwd)}
+          onClose={() => setSmtpModal(null)}
+        />
       )}
     </div>
   );

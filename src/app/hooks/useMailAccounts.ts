@@ -68,6 +68,22 @@ export function useMailAccounts() {
     await refresh();
   }, [refresh]);
 
+  /**
+   * Outlook and Yahoo have no self-serve OAuth path for a third-party app —
+   * this connects with a per-app password the user generates themselves in
+   * their own account settings, verified against the real mailbox server
+   * side before it is stored.
+   */
+  const connectSMTP = useCallback(async (
+    provider: 'microsoft' | 'yahoo', emailAddress: string, appPassword: string,
+  ) => {
+    await apiFetch('/mail-accounts/smtp/connect/', {
+      method: 'POST',
+      body: JSON.stringify({ provider, emailAddress, appPassword }),
+    });
+    await refresh();
+  }, [refresh]);
+
   return {
     accounts,
     /** The mailbox applications will be sent from, if any. */
@@ -77,6 +93,7 @@ export function useMailAccounts() {
     error,
     refresh,
     connectGoogle,
+    connectSMTP,
     disconnect,
   };
 }

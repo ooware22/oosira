@@ -8,6 +8,7 @@ import PaginatedCV from '@/components/PaginatedCV';
 import LetterDocument, { type LetterPayload } from '@/components/LetterDocument';
 import RichTextField from '@/components/RichTextField';
 import PhotoPromptModal from '@/components/PhotoPromptModal';
+import ConnectSMTPMailboxModal from '@/components/ConnectSMTPMailboxModal';
 import { getLayoutBuilder } from '@/app/templates';
 import { CVStyleConfig, styleToCSSVars } from '@/app/templates/styleConfig';
 import { formatLastName, normalizeCandidate } from '@/app/lib/cvData';
@@ -189,6 +190,7 @@ export default function SendApplicationWizard({
   const [step, setStep] = useState(0);
   const [connectError, setConnectError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [smtpModal, setSmtpModal] = useState<'microsoft' | 'yahoo' | null>(null);
 
   const [cv, setCv] = useState<CvDetail | null>(null);
   const [cvError, setCvError] = useState<string | null>(null);
@@ -589,45 +591,66 @@ export default function SendApplicationWizard({
               </div>
             </div>
 
-            {mailboxes.googleConfigured ? (
+            <div className="flex flex-wrap gap-2">
+              {mailboxes.googleConfigured && (
+                <button
+                  type="button"
+                  disabled={isConnecting}
+                  onClick={async () => {
+                    setIsConnecting(true);
+                    setConnectError(null);
+                    try {
+                      await mailboxes.connectGoogle();
+                    } catch (err: unknown) {
+                      const msg = (err as Error).message;
+                      setConnectError(
+                        msg === 'popup-blocked'
+                          ? (t('applications.popupBlocked') || 'Autorisez les fenêtres pop-up pour connecter votre boîte mail.')
+                          : msg || 'Connection failed',
+                      );
+                    } finally {
+                      setIsConnecting(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-60"
+                >
+                  {isConnecting
+                    ? <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                    : <EnvelopeIcon className="w-4 h-4" />}
+                  {t('applications.connectGmail') || 'Envoyer depuis mon Gmail'}
+                </button>
+              )}
               <button
                 type="button"
-                disabled={isConnecting}
-                onClick={async () => {
-                  setIsConnecting(true);
-                  setConnectError(null);
-                  try {
-                    await mailboxes.connectGoogle();
-                  } catch (err: unknown) {
-                    const msg = (err as Error).message;
-                    setConnectError(
-                      msg === 'popup-blocked'
-                        ? (t('applications.popupBlocked') || 'Autorisez les fenêtres pop-up pour connecter votre boîte mail.')
-                        : msg || 'Connection failed',
-                    );
-                  } finally {
-                    setIsConnecting(false);
-                  }
-                }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[12px] font-bold hover:bg-blue-500/20 transition-colors disabled:opacity-60"
+                onClick={() => setSmtpModal('microsoft')}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface2 border border-border text-txt text-[12px] font-bold hover:border-blue-500/40 transition-colors"
               >
-                {isConnecting
-                  ? <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                  : <EnvelopeIcon className="w-4 h-4" />}
-                {t('applications.connectGmail') || 'Envoyer depuis mon Gmail'}
+                <EnvelopeIcon className="w-4 h-4" />
+                {t('applications.connectOutlook') || 'Envoyer depuis mon Outlook'}
               </button>
-            ) : (
-              <p className="text-[11px] text-txt-dim leading-relaxed">
-                {t('applications.mailboxUnavailable')
-                  || 'L’envoi par e-mail n’est pas encore disponible. Vous pouvez télécharger votre lettre et votre CV en PDF et les envoyer vous-même.'}
-              </p>
-            )}
+              <button
+                type="button"
+                onClick={() => setSmtpModal('yahoo')}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface2 border border-border text-txt text-[12px] font-bold hover:border-blue-500/40 transition-colors"
+              >
+                <EnvelopeIcon className="w-4 h-4" />
+                {t('applications.connectYahoo') || 'Envoyer depuis mon Yahoo'}
+              </button>
+            </div>
 
             {connectError && (
               <p className="text-[11px] text-red-600 dark:text-red-400 flex items-start gap-1.5">
                 <ExclamationTriangleIcon className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 {connectError}
               </p>
+            )}
+
+            {smtpModal && (
+              <ConnectSMTPMailboxModal
+                provider={smtpModal}
+                onConnect={(email, pwd) => mailboxes.connectSMTP(smtpModal, email, pwd)}
+                onClose={() => setSmtpModal(null)}
+              />
             )}
           </div>
         )}
